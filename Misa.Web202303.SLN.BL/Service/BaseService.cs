@@ -1,0 +1,115 @@
+﻿using AutoMapper;
+using Misa.Web202303.SLN.Common.Attributes;
+using Misa.Web202303.SLN.Common.Exceptions;
+using Misa.Web202303.SLN.DL.Repository;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Misa.Web202303.SLN.BL.Service
+{
+    /// <summary>
+    /// abstract class định nghĩa các phương thức dùng chung để tái sử dụng cho các service
+    /// created by: nqhuy(21/05/2023)
+    /// </summary>
+    /// <typeparam name="TEntity"></typeparam>
+    /// <typeparam name="TEntityDto"></typeparam>
+    /// <typeparam name="TEntityUpdateDto"></typeparam>
+    /// <typeparam name="TEntityCreateDto"></typeparam>
+    public abstract class BaseService<TEntity, TEntityDto, TEntityUpdateDto, TEntityCreateDto> : IBaseService<TEntityDto, TEntityUpdateDto, TEntityCreateDto>
+    {
+        /// <summary>
+        /// sử dụng dịch vị của  IBaseRepository
+        /// </summary>
+        protected readonly IBaseRepository<TEntity> _baseRepository;
+        protected readonly IMapper _mapper;
+
+        /// <summary>
+        /// hàm khởi tạo
+        /// created by: nqhuy(21/05/2023)
+        /// </summary>
+        /// <param name="baseRepository"></param>
+        /// <param name="mapper"></param>
+        public BaseService(IBaseRepository<TEntity> baseRepository, IMapper mapper)
+        {
+            _baseRepository = baseRepository;
+            _mapper = mapper;
+        }
+
+        public async Task<bool> DeleteAsync(Guid id)
+        {
+            var result = await _baseRepository.DeleteAsync(id);
+            return result;
+        }
+
+        /// <summary>
+        /// phương thức lấy 1 bản ghi theo id
+        /// created by: nqhuy(21/05/2023)
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        /// <exception cref="NotFoundException"></exception>
+        public virtual async Task<TEntityDto> GetAsync(Guid id)
+        {
+            var entity = await _baseRepository.GetAsync(id);
+            //bản ghi không tồn tại throw ra excception
+            if(entity == null)
+            {
+                throw new NotFoundException()
+                { 
+                    StatusCode = 404,
+                    DevMessage = "Resource not found",
+                    UserMessage = "Tài nguyên cần tìm không tồn tại.",
+                };
+            }
+            var entityDto = _mapper.Map<TEntityDto>(entity);
+            
+            return entityDto;
+        }
+
+        /// <summary>
+        /// lấy ra tất cả bản ghi
+        /// created by: nqhuy(21/05/2023)
+        /// </summary>
+        /// <returns></returns>
+        public virtual async Task<IEnumerable<TEntityDto>> GetAsync()
+        {
+            var listTEntity = await _baseRepository.GetAsync();
+
+            var result =  listTEntity.Select(entity => _mapper.Map<TEntityDto>(entity));
+
+            return result;
+        }
+
+        /// <summary>
+        /// thêm mới 1 bản ghi
+        /// created by: nqhuy(21/05/2023)
+        /// </summary>
+        /// <param name="entityDto"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public async Task<TEntityDto> InsertAsync(TEntityCreateDto entityCreateDto)
+        {
+            var entity = _mapper.Map<TEntity>(entityCreateDto);
+            var newEntity =  await _baseRepository.InsertAsync(entity);
+            return _mapper.Map<TEntityDto>(newEntity);
+        }
+
+        /// <summary>
+        /// update 1 bản ghi
+        /// created by: nqhuy(21/05/2023)
+        /// </summary>
+        /// <param name="entityDto"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public async Task<TEntityDto> UpdateAsync(Guid entityId, TEntityUpdateDto entityUpdateDto)
+        {
+            var entity = _mapper.Map<TEntity>(entityUpdateDto);
+            var newEntity = await _baseRepository.UpdateAsync(entityId, entity);
+            return _mapper.Map<TEntityDto>(newEntity);
+        }
+
+    }
+}
