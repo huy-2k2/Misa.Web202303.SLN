@@ -63,9 +63,24 @@ namespace Misa.Web202303.SLN.MiddleWares
                 await context.Response.WriteAsync(
                     JsonSerializer.Serialize(
                         new {
-                            StatusCode = ex.StatusCode,
-                            UserMessage = ex.UserMessage,
-                            DevMessage = ex.DevMessage,
+                            statusCode = ex.StatusCode,
+                            userMessage = ex.UserMessage,
+                            devMessage = ex.DevMessage,
+                        })
+                );
+            } 
+            // trường hợp lỗi do hệ thống throw
+            else
+            {
+                // tạo message và trả về kết quả
+                context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                await context.Response.WriteAsync(
+                 JsonSerializer.Serialize(
+                        new
+                        {
+                            statusCode = (int)HttpStatusCode.InternalServerError,
+                            userMessage = "Lỗi hệ thống, vui lòng liên hệ Misa.",
+                            devMessage = "lỗi do hệ thống bắn ra",
                         })
                 );
             }

@@ -54,6 +54,6 @@ namespace Misa.Web202303.SLN.BL.Service
         /// <param name="id"></param>
         /// <returns></returns>
         Task<bool> DeleteAsync(Guid id);
-        
+
     }
 }

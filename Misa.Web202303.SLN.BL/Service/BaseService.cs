@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
-using Misa.Web202303.SLN.Common.Attributes;
+using Misa.Web202303.SLN.BL.ValidateDto.Attributes;
+using Misa.Web202303.SLN.BL.ValidateDto.Decorators;
 using Misa.Web202303.SLN.Common.Exceptions;
 using Misa.Web202303.SLN.DL.Repository;
 using System;
@@ -38,7 +39,7 @@ namespace Misa.Web202303.SLN.BL.Service
             _mapper = mapper;
         }
 
-        public async Task<bool> DeleteAsync(Guid id)
+        public virtual async Task<bool> DeleteAsync(Guid id)
         {
             var result = await _baseRepository.DeleteAsync(id);
             return result;
@@ -55,17 +56,17 @@ namespace Misa.Web202303.SLN.BL.Service
         {
             var entity = await _baseRepository.GetAsync(id);
             //bản ghi không tồn tại throw ra excception
-            if(entity == null)
+            if (entity == null)
             {
                 throw new NotFoundException()
-                { 
+                {
                     StatusCode = 404,
                     DevMessage = "Resource not found",
                     UserMessage = "Tài nguyên cần tìm không tồn tại.",
                 };
             }
             var entityDto = _mapper.Map<TEntityDto>(entity);
-            
+
             return entityDto;
         }
 
@@ -78,7 +79,7 @@ namespace Misa.Web202303.SLN.BL.Service
         {
             var listTEntity = await _baseRepository.GetAsync();
 
-            var result =  listTEntity.Select(entity => _mapper.Map<TEntityDto>(entity));
+            var result = listTEntity.Select(entity => _mapper.Map<TEntityDto>(entity));
 
             return result;
         }
@@ -90,10 +91,10 @@ namespace Misa.Web202303.SLN.BL.Service
         /// <param name="entityDto"></param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public async Task<TEntityDto> InsertAsync(TEntityCreateDto entityCreateDto)
+        public virtual async Task<TEntityDto> InsertAsync(TEntityCreateDto entityCreateDto)
         {
             var entity = _mapper.Map<TEntity>(entityCreateDto);
-            var newEntity =  await _baseRepository.InsertAsync(entity);
+            var newEntity = await _baseRepository.InsertAsync(entity);
             return _mapper.Map<TEntityDto>(newEntity);
         }
 
@@ -104,11 +105,54 @@ namespace Misa.Web202303.SLN.BL.Service
         /// <param name="entityDto"></param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public async Task<TEntityDto> UpdateAsync(Guid entityId, TEntityUpdateDto entityUpdateDto)
+        public virtual async Task<TEntityDto> UpdateAsync(Guid entityId, TEntityUpdateDto entityUpdateDto)
         {
+            BaseValidate(entityUpdateDto);
             var entity = _mapper.Map<TEntity>(entityUpdateDto);
             var newEntity = await _baseRepository.UpdateAsync(entityId, entity);
             return _mapper.Map<TEntityDto>(newEntity);
+        }
+
+        /// <summary>
+        /// phương thức validate các attribute được đánh dấu trong entity, sử dụng decorator parttern, phương thức khởi tạo decorator parttern
+        /// created by: nqhuy(21/05/2023)
+        /// </summary>
+        /// <typeparam name="TValiadteEntity"></typeparam>
+        /// <param name="entity"></param>
+        protected void BaseValidate<TValiadteEntity>(TValiadteEntity entity)
+        {
+            var props = entity.GetType().GetProperties();
+
+            // khởi tạo decorator init, phương thức handle rỗng
+            BaseDecorator decorator = new InitDecorator();
+
+            // lấy ra các prop có chứa attribute validate
+            var markValidateProps = props.Where(p => Attribute.IsDefined(p, typeof(BaseAttribute), true));
+            foreach (var prop in markValidateProps)
+            {
+                // lấy ra các attribute validate ở mỗi prop
+                var attributes = prop.GetCustomAttributes(typeof(BaseAttribute), true);
+                // duyệt từng  attribute validate ở mỗi prop
+                foreach (var attribute in attributes)
+                {
+                    // lấy ra tên decorator tương ứng với attribte 
+                    var decoratorName = $"{attribute.GetType().Name}Decorator";
+
+                    // tạo mới decorator
+                    object obj = Activator.CreateInstance(Type.GetType($"{decorator.GetType().Namespace}.{decoratorName}"));
+
+                    var newDecorator = (BaseDecorator)obj;
+
+                    // dùng decorator mới tạo để wrap các decorator trướng đó 
+                    newDecorator.nextDecorator = decorator;
+                    newDecorator.attribute = (BaseAttribute)attribute;
+                    newDecorator.propValue = prop.GetValue(entity);
+
+                    decorator = newDecorator;
+                }
+            }
+            // thực hiện validate
+            decorator.Validate();
         }
 
     }

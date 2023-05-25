@@ -42,13 +42,14 @@ namespace Misa.Web202303.SLN.DL.Repository.FixedAsset
             var connection = await GetOpenConnectionAsync();
             // thêm các param
             var dynamicParams = new DynamicParameters();
-            dynamicParams.Add("fixed_asset_ids", fixedAssetCode);
+            dynamicParams.Add("fixed_asset_code", fixedAssetCode);
 
             // nếu không truyền fixedAssetId thì truyền param là chuỗi rỗng
             dynamicParams.Add("fixed_asset_id", fixedAssetId == null ? "" : fixedAssetId);
 
             // trả về độ dài mã tài sản tìm được, nếu không thì tra về 0
             var result = await connection.QueryFirstAsync<int>("prop_is_fixed_asset_code_existed", dynamicParams, commandType: CommandType.StoredProcedure);
+            await connection.CloseAsync();
 
             return result != 0;
         }
@@ -69,6 +70,7 @@ namespace Misa.Web202303.SLN.DL.Repository.FixedAsset
 
 
             var result = await connection.ExecuteAsync("proc_delete_assets", dynamicParams, commandType: CommandType.StoredProcedure);
+            await connection.CloseAsync();
 
             return true;
         }
@@ -101,6 +103,7 @@ namespace Misa.Web202303.SLN.DL.Repository.FixedAsset
             var listFixedAsset = await connection.QueryAsync<FixedAssetEntity>(sql, dynamicParams, commandType: CommandType.StoredProcedure);
             // lấy tổng tài sản
             var totalAsset = dynamicParams.Get<int>("total_asset");
+            await connection.CloseAsync();
 
             return new FilterListFixedAsset() { List_fixed_asset = listFixedAsset, Total_asset = totalAsset};
 
@@ -113,19 +116,21 @@ namespace Misa.Web202303.SLN.DL.Repository.FixedAsset
         /// <returns></returns>
         public async Task<List<string>> GetListAssetCodeAsync()
         {
-            var connnection = await GetOpenConnectionAsync();
+            var connection = await GetOpenConnectionAsync();
             var sql = "proc_get_newest_fixed_asset_codes";
             // thêm các param
             var dynamicParams = new DynamicParameters();
             // thêm param output để lấy ra tiền tố của mã tài sản
             dynamicParams.Add("prefix_asset_code", dbType: DbType.String, direction: ParameterDirection.Output);
-            var listFixedAsset = await connnection.QueryAsync<FixedAssetEntity>(sql, dynamicParams, commandType: CommandType.StoredProcedure);
+            var listFixedAsset = await connection.QueryAsync<FixedAssetEntity>(sql, dynamicParams, commandType: CommandType.StoredProcedure);
             // lấy ra các mã tài sản ở dạng list string
             var result =  listFixedAsset.Select((fixedAsset) =>  fixedAsset.Fixed_asset_code).ToList();
             // lấy ra tiền tố
             var preFix = dynamicParams.Get<string>("prefix_asset_code");
             // thêm tiền tố vào cuối danh sách mã tài sản
             result.Add(preFix);
+            await connection.CloseAsync();
+
             return result;
         }
 

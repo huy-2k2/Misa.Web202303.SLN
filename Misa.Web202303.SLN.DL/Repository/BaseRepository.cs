@@ -36,7 +36,7 @@ namespace Misa.Web202303.SLN.DL.Repository
         /// Created by: NQ Huy(20/05/2023)
         /// </summary>
         /// <returns></returns>
-        public async Task<DbConnection> GetOpenConnectionAsync()
+        public virtual async Task<DbConnection> GetOpenConnectionAsync()
         {
             var connection = new MySqlConnector.MySqlConnection(_connectionString);
             await connection.OpenAsync();
@@ -73,6 +73,7 @@ namespace Misa.Web202303.SLN.DL.Repository
             var sql = $"SELECT * FROM {this.GetTableName()}";
 
             var result = await connection.QueryAsync<TEntity>(sql);
+            await connection.CloseAsync();
 
             return result;
         }
@@ -83,7 +84,7 @@ namespace Misa.Web202303.SLN.DL.Repository
         /// </summary>
         /// <param name="entity"></param>
         /// <returns></returns>
-        public async Task<TEntity> UpdateAsync(Guid entityId, TEntity entity)
+        public virtual async Task<TEntity> UpdateAsync(Guid entityId, TEntity entity)
         {
             var connection = await GetOpenConnectionAsync();
             // tên của procedure
@@ -100,7 +101,7 @@ namespace Misa.Web202303.SLN.DL.Repository
             dynamicParams.Add($"{this.GetTableName()}_id", entityId);
 
             await connection.ExecuteAsync(sql, dynamicParams, commandType: CommandType.StoredProcedure);
-
+            await connection.CloseAsync();
             return entity;
         }
 
@@ -110,13 +111,14 @@ namespace Misa.Web202303.SLN.DL.Repository
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public async Task<bool> DeleteAsync(Guid id)
+        public virtual async Task<bool> DeleteAsync(Guid id)
         {
             var connection = await GetOpenConnectionAsync();
             var sql = $"DELETE FROM {this.GetTableName()} WHERE {this.GetTableName()}_id = @id";
             var dynamicParams = new DynamicParameters();
             dynamicParams.Add("id", id);
             await connection.ExecuteAsync(sql, dynamicParams);
+            await connection.CloseAsync();
             return true;
         }
 
@@ -124,9 +126,9 @@ namespace Misa.Web202303.SLN.DL.Repository
         /// thêm mới 1 bản ghi
         /// Created by: NQ Huy(20/05/2023)
         /// </summary>
-        /// <param name="entity"></param>
+        /// <param name="entity"></param>k
         /// <returns></returns>
-        public async Task<TEntity> InsertAsync(TEntity entity)
+        public virtual async Task<TEntity> InsertAsync(TEntity entity)
         {
             var connection = await GetOpenConnectionAsync();
             // tên của procedure
@@ -138,9 +140,16 @@ namespace Misa.Web202303.SLN.DL.Repository
                 dynamicParams.Add(prop.Name, prop.GetValue(entity));
             }
             await connection.ExecuteAsync(sql, dynamicParams, commandType: CommandType.StoredProcedure);
+            await connection.CloseAsync();
             return entity;
         }
 
+
+        /// <summary>
+        /// lấy ra tên cụ thể của table ứng với repository
+        /// Created by: NQ Huy(20/05/2023)
+        /// </summary>
+        /// <returns></returns>
         protected abstract string GetTableName();
     }
 }

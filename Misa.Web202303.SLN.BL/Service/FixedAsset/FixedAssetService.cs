@@ -25,13 +25,14 @@ namespace Misa.Web202303.SLN.BL.Service.FixedAsset
         /// </summary>
         private readonly IFixedAssetRepository _fixedAssetRepository;
 
+
         /// <summary>
         /// phương thức khởi tạo
         /// created by: nqhuy(21/05/2023)
         /// </summary>
         /// <param name="fixedAssetRepository"></param>
         /// <param name="mapper"></param>
-        public FixedAssetService(IFixedAssetRepository fixedAssetRepository, IMapper mapper):base(fixedAssetRepository, mapper)
+        public FixedAssetService(IFixedAssetRepository fixedAssetRepository, IMapper mapper) : base(fixedAssetRepository, mapper)
         {
             _fixedAssetRepository = fixedAssetRepository;
         }
@@ -64,7 +65,7 @@ namespace Misa.Web202303.SLN.BL.Service.FixedAsset
             //...
             /// nối các mã tài sản lại thành chuỗi
             string stringFixedAssetId = string.Join("", listFixedAssetId.ToArray());
-            
+
             var result = await _fixedAssetRepository.DeleteAsync(stringFixedAssetId);
             return result;
         }
@@ -86,7 +87,7 @@ namespace Misa.Web202303.SLN.BL.Service.FixedAsset
             var filterListFixedAsset = await _fixedAssetRepository.GetAsync(pageSize, currentPage, departmentId, fixedAssetCategoryId, textSearch);
             var listFixedAsset = filterListFixedAsset.List_fixed_asset.Select((fixedAsset) => _mapper.Map<FixedAssetDto>(fixedAsset));
 
-            return new {listFixedAsset,  totalAsset = filterListFixedAsset.Total_asset};
+            return new { listFixedAsset, totalAsset = filterListFixedAsset.Total_asset };
         }
 
         /// <summary>
@@ -109,14 +110,14 @@ namespace Misa.Web202303.SLN.BL.Service.FixedAsset
             var index = -1;
             var max = -1;
             // tìm giá trị hậu tố lớn nhất và ví trị đó
-            for(int i = 0; i < listPostfixCode.Count(); i++)
+            for (int i = 0; i < listPostfixCode.Count(); i++)
             {
-                var intValue = listPostfixCode.ElementAt(i) == "" ? -1: int.Parse(listPostfixCode.ElementAt(i));
-                if(intValue >= max)
+                var intValue = listPostfixCode.ElementAt(i) == "" ? -1 : int.Parse(listPostfixCode.ElementAt(i));
+                if (intValue >= max)
                 {
                     max = intValue;
-                    index= i;
-                } 
+                    index = i;
+                }
             }
 
             // hậu tố mới = hậu tố max + 1
@@ -130,7 +131,7 @@ namespace Misa.Web202303.SLN.BL.Service.FixedAsset
                 if (listPostfixCode.ElementAt(index).ElementAt(i) != '0')
                     break;
                 // nếu độ dài hậu tố mới < độ dài hậu tố cũ => thêm 0 vào trước hậu tố mới
-                if(postfixCodeResult.Length < postfixCodeLength)
+                if (postfixCodeResult.Length < postfixCodeLength)
                     postfixCodeResult = "0" + postfixCodeResult;
             }
 
@@ -142,4 +143,3 @@ namespace Misa.Web202303.SLN.BL.Service.FixedAsset
 
     }
 }
-    

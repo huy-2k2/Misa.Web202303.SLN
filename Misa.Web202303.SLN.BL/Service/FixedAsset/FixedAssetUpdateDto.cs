@@ -1,4 +1,4 @@
-﻿using Misa.Web202303.SLN.Common.Attributes;
+﻿using Misa.Web202303.SLN.BL.ValidateDto.Attributes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,13 +16,14 @@ namespace Misa.Web202303.SLN.BL.Service.FixedAsset
         /// <summary>
         /// mã tài sản
         /// </summary>
+        [Required("mã tài sản")]
         public string Fixed_asset_code { get; set; }
 
         /// <summary>
         /// tên tài sản
         /// </summary>
-        [RequiredAttribute]        
-        
+        /// 
+        [Required("tên tài sản")]
         public string Fixed_asset_name { get; set; }
 
         /// <summary>

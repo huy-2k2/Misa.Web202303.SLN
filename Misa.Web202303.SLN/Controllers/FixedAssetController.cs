@@ -86,7 +86,7 @@ namespace Misa.Web202303.SLN.Controllers
         /// </summary>
         /// <param name="listFixedAssetId"></param>
         /// <returns></returns>
-        [HttpDelete]
+        [HttpPost("delete")]
         public async Task<bool> DeleteAsync([FromBody] IEnumerable<Guid> listFixedAssetId)
         {
             var result = await _fixedAssetService.DeleteAsync(listFixedAssetId);

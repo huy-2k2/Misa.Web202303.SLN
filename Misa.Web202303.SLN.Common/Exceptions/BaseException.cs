@@ -16,7 +16,7 @@ namespace Misa.Web202303.SLN.Common.Exceptions
         /// <summary>
         /// mã lỗi
         /// </summary>
-        public int StatusCode { get; set; }
+        public int StatusCode { get; set; } 
 
         /// <summary>
         /// lỗi thông báo cho người dùng

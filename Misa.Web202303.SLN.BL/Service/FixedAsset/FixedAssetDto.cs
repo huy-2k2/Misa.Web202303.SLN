@@ -76,6 +76,6 @@ namespace Misa.Web202303.SLN.BL.Service.FixedAsset
         /// <summary>
         /// số năm sử dụng
         /// </summary>
-        public int Life_Time { get; set; }
+        public int Life_time { get; set; }
     }
 }
