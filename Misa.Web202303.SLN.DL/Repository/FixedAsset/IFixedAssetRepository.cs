@@ -17,16 +17,6 @@ namespace Misa.Web202303.SLN.DL.Repository.FixedAsset
     /// </summary>
     public interface IFixedAssetRepository : IBaseRepository<FixedAssetEntity>
     {
-
-        /// <summary>
-        /// kiểm tra mã tài sản đã tồn tại? khi thêm và sửa
-        /// Created by: NQ Huy(20/05/2023)
-        /// </summary>
-        /// <param name="fixedAssetCode"></param>
-        /// <param name="fixedAssetId"></param>
-        /// <returns></returns>
-        Task<bool> CheckAssetCodeExistedAsync(string fixedAssetCode, Guid? fixedAssetId);
-
         /// <summary>
         /// xóa nhiều tài sản
         /// Created by: NQ Huy(20/05/2023)
@@ -34,6 +24,13 @@ namespace Misa.Web202303.SLN.DL.Repository.FixedAsset
         /// <param name="listFixedAssetId"></param>
         /// <returns></returns>
         Task<bool> DeleteAsync(string listFixedAssetId);
+
+        /// <summary>
+        /// đếm số tài sản tồn tại trong danh sách tài sản
+        /// </summary>
+        /// <param name="listFixedAssetId"></param>
+        /// <returns></returns>
+        Task<int> CountFixedAssetInListIdAsync(string listFixedAssetId);
 
 
         /// <summary>
@@ -55,5 +52,11 @@ namespace Misa.Web202303.SLN.DL.Repository.FixedAsset
         /// <returns></returns>
         Task<FilterListFixedAsset> GetAsync(int pageSize, int currentPage, Guid? departmentId, Guid? fixedAssetCategoryId, string? textSearch);
 
+        /// <summary>
+        /// lấy dữ liệu tài sản đề xuất file excel
+        /// Created by: NQ Huy(20/05/2023)
+        /// </summary>
+        /// <returns></returns>
+        Task<IEnumerable<FixedAssetExcel>> GetFixedAssetsExcelAsync();
     }
 }

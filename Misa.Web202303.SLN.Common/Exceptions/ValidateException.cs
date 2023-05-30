@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Misa.Web202303.SLN.Common.Emum;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -19,7 +20,7 @@ namespace Misa.Web202303.SLN.Common.Exceptions
         /// </summary>
         public ValidateException()
         {
-            StatusCode = (int)HttpStatusCode.BadRequest;
+            HttpStatusCode = HttpStatusCode.BadRequest;
         }
     }
 }

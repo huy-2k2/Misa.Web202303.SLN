@@ -1,5 +1,8 @@
 ﻿using AutoMapper;
 using Misa.Web202303.SLN.BL.Service.FixedAsset;
+using Misa.Web202303.SLN.Common.Emum;
+using Misa.Web202303.SLN.Common.Exceptions;
+using Misa.Web202303.SLN.Common.Resource;
 using Misa.Web202303.SLN.DL.Repository;
 using Misa.Web202303.SLN.DL.Repository.Department;
 using System;
@@ -28,5 +31,49 @@ namespace Misa.Web202303.SLN.BL.Service.Department
         {
         }
 
+        /// <summary>
+        /// validate khi thêm mới dữ liệu
+        /// created by: nqhuy(21/05/2023)
+        /// </summary>
+        /// <param name="entityCreateDto"></param>
+        /// <returns></returns>
+        /// <exception cref="ValidateException"></exception>
+        protected override async Task CreateValidateAsync(DepartmentCreateDto entityCreateDto)
+        {
+            // kiểm tra mã bộ phận sử dụng trùng
+            var isCodeExisted = await _baseRepository.CheckCodeExistedAsync(entityCreateDto.Department_code, null);
+            if (isCodeExisted)
+            {
+                throw new ValidateException()
+                {
+                    UserMessage = string.Format(ErrorMessage.DuplicateCodeError, "mã bộ phận sử dụng"),
+                    DevMessage = string.Format(ErrorMessage.DuplicateCodeError, "mã bộ phận sử dụng"),
+                    ErrorCode = ErrorCode.DuplicateCode
+                };
+            }
+        }
+
+        /// <summary>
+        /// validate khi update dữ liệu
+        /// created by: nqhuy(21/05/2023)
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="entityUpdateDto"></param>
+        /// <returns></returns>
+        /// <exception cref="ValidateException"></exception>
+        protected async override Task UpdateValidateAsync(Guid id, DepartmentUpdateDto entityUpdateDto)
+        {
+            // kiểm tra mã bộ phận sử dụng trùng
+            var isCodeExisted = await _baseRepository.CheckCodeExistedAsync(entityUpdateDto.Department_code, id);
+            if (isCodeExisted)
+            {
+                throw new ValidateException()
+                {
+                    UserMessage = string.Format(ErrorMessage.DuplicateCodeError, "mã bộ phận sử dụng"),
+                    DevMessage = string.Format(ErrorMessage.DuplicateCodeError, "mã bộ phận sử dụng"),
+                    ErrorCode = ErrorCode.DuplicateCode
+                };
+            }
+        }
     }
 }

@@ -1,34 +1,37 @@
 ﻿using Misa.Web202303.SLN.BL.ValidateDto.Attributes;
+using Misa.Web202303.SLN.Common.Emum;
 using Misa.Web202303.SLN.Common.Exceptions;
+using Misa.Web202303.SLN.Common.Resource;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Misa.Web202303.SLN.Common.Resource;
-using Misa.Web202303.SLN.Common.Emum;
 
 namespace Misa.Web202303.SLN.BL.ValidateDto.Decorators
 {
     /// <summary>
-    /// kiểm tra bắt buộc nhập
+    /// validate năm trùng năm hiện tại
     /// created by: nqhuy(21/05/2023)
     /// </summary>
-    public class RequiredDecorator : BaseDecorator
+    public class CurrentYearDecorator : BaseDecorator
     {
-
         /// <summary>
-        /// hàm thực hiện logic validate
+        /// logic valdiate
         /// created by: nqhuy(21/05/2023)
         /// </summary>
         /// <exception cref="ValidateException"></exception>
         protected override void Handle()
         {
-            if (propValue == null || string.IsNullOrEmpty(propValue)) {
+          
+            var value = (int)propValue;
+            var currentYear = DateTime.Now.Year;
+            if(value != currentYear)
+            {
                 throw new ValidateException()
                 {
-                    UserMessage = string.Format(ErrorMessage.RequiredError, Name),
-                    DevMessage = string.Format(ErrorMessage.RequiredError, Name),
+                    UserMessage = string.Format(ErrorMessage.EqualError, Name, currentYear),
+                    DevMessage = string.Format(ErrorMessage.EqualError, Name, currentYear),
                     ErrorCode = ErrorCode.DataValidate
                 };
             }

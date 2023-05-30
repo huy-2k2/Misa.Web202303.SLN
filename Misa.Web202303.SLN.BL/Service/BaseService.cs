@@ -1,7 +1,10 @@
 ﻿using AutoMapper;
+using Misa.Web202303.SLN.BL.Service.FixedAssetCategory;
 using Misa.Web202303.SLN.BL.ValidateDto.Attributes;
 using Misa.Web202303.SLN.BL.ValidateDto.Decorators;
+using Misa.Web202303.SLN.Common.Emum;
 using Misa.Web202303.SLN.Common.Exceptions;
+using Misa.Web202303.SLN.Common.Resource;
 using Misa.Web202303.SLN.DL.Repository;
 using System;
 using System.Collections.Generic;
@@ -39,8 +42,27 @@ namespace Misa.Web202303.SLN.BL.Service
             _mapper = mapper;
         }
 
+        /// <summary>
+        /// xóa 1 bản ghi theo id
+        /// created by: nqhuy(21/05/2023)
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        /// <exception cref="NotFoundException"></exception>
         public virtual async Task<bool> DeleteAsync(Guid id)
         {
+            // kiểm tra bản ghi có tồn tại không
+            var entity = await _baseRepository.GetAsync(id);
+            if(entity == null)
+            {
+                throw new NotFoundException()
+                {
+                    DevMessage = ErrorMessage.NotFoundDeleteError,
+                    UserMessage = ErrorMessage.NotFoundDeleteError,
+                    ErrorCode = ErrorCode.NotFound
+                };
+            }
+
             var result = await _baseRepository.DeleteAsync(id);
             return result;
         }
@@ -60,9 +82,9 @@ namespace Misa.Web202303.SLN.BL.Service
             {
                 throw new NotFoundException()
                 {
-                    StatusCode = 404,
-                    DevMessage = "Resource not found",
-                    UserMessage = "Tài nguyên cần tìm không tồn tại.",
+                    DevMessage = ErrorMessage.NotFoundError,
+                    UserMessage = ErrorMessage.NotFoundError,
+                    ErrorCode = ErrorCode.NotFound
                 };
             }
             var entityDto = _mapper.Map<TEntityDto>(entity);
@@ -93,6 +115,8 @@ namespace Misa.Web202303.SLN.BL.Service
         /// <exception cref="NotImplementedException"></exception>
         public virtual async Task<TEntityDto> InsertAsync(TEntityCreateDto entityCreateDto)
         {
+            BaseValidate(entityCreateDto);
+            await CreateValidateAsync(entityCreateDto);
             var entity = _mapper.Map<TEntity>(entityCreateDto);
             var newEntity = await _baseRepository.InsertAsync(entity);
             return _mapper.Map<TEntityDto>(newEntity);
@@ -108,6 +132,18 @@ namespace Misa.Web202303.SLN.BL.Service
         public virtual async Task<TEntityDto> UpdateAsync(Guid entityId, TEntityUpdateDto entityUpdateDto)
         {
             BaseValidate(entityUpdateDto);
+            var oldEntity =  await _baseRepository.GetAsync(entityId);
+            if(oldEntity == null)
+            {
+                throw new ValidateException()
+                {
+                    DevMessage = ErrorMessage.NotFoundUpdateError,
+                    UserMessage = ErrorMessage.NotFoundUpdateError,
+                    ErrorCode = ErrorCode.NotFound
+                };
+            }
+            await UpdateValidateAsync(entityId, entityUpdateDto);
+            
             var entity = _mapper.Map<TEntity>(entityUpdateDto);
             var newEntity = await _baseRepository.UpdateAsync(entityId, entity);
             return _mapper.Map<TEntityDto>(newEntity);
@@ -132,6 +168,9 @@ namespace Misa.Web202303.SLN.BL.Service
             {
                 // lấy ra các attribute validate ở mỗi prop
                 var attributes = prop.GetCustomAttributes(typeof(BaseAttribute), true);
+                // lấy ra tên của trường dữ liệu
+                var nameAttribute = (NameAttribute)prop.GetCustomAttributes(typeof(NameAttribute), true)[0];
+                
                 // duyệt từng  attribute validate ở mỗi prop
                 foreach (var attribute in attributes)
                 {
@@ -143,11 +182,11 @@ namespace Misa.Web202303.SLN.BL.Service
 
                     var newDecorator = (BaseDecorator)obj;
 
-                    // dùng decorator mới tạo để wrap các decorator trướng đó 
+                    // dùng decorator mới tạo để wrap các decorator trưoc đó 
                     newDecorator.nextDecorator = decorator;
                     newDecorator.attribute = (BaseAttribute)attribute;
                     newDecorator.propValue = prop.GetValue(entity);
-
+                    newDecorator.Name = nameAttribute.Name;
                     decorator = newDecorator;
                 }
             }
@@ -155,5 +194,43 @@ namespace Misa.Web202303.SLN.BL.Service
             decorator.Validate();
         }
 
+
+        /// <summary>
+        /// kiểm tra mã code bị trùng khi thêm hoạc sửa
+        /// created by: nqhuy(21/05/2023)
+        /// </summary>
+        /// <param name="code"></param>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public async Task<bool> CheckCodeExisted(string code, Guid? id)
+        {
+            if (string.IsNullOrEmpty(code)) {
+                throw new ValidateException()
+                {
+                    UserMessage = string.Format(ErrorMessage.RequiredError, "mã code"),
+                    DevMessage = string.Format(ErrorMessage.RequiredError, "mã code"),
+                    ErrorCode = ErrorCode.DataValidate
+                };
+            };
+            var result = await _baseRepository.CheckCodeExistedAsync(code, id);
+            return result;
+        }
+
+        /// <summary>
+        /// validate khi update dữ liệu
+        /// created by: nqhuy(21/05/2023)
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="entityUpdateDto"></param>
+        /// <returns></returns>
+        protected abstract Task UpdateValidateAsync(Guid id, TEntityUpdateDto entityUpdateDto);
+
+        /// <summary>
+        /// validate khi thêm dữ liệu
+        /// created by: nqhuy(21/05/2023)
+        /// </summary>
+        /// <param name="entityCreateDto"></param>
+        /// <returns></returns>
+        protected abstract Task CreateValidateAsync(TEntityCreateDto entityCreateDto);
     }
 }

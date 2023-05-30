@@ -1,6 +1,8 @@
-﻿using System;
+﻿using Misa.Web202303.SLN.Common.Emum;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -14,9 +16,11 @@ namespace Misa.Web202303.SLN.Common.Exceptions
     public abstract class BaseException : Exception
     {
         /// <summary>
-        /// mã lỗi
+        /// mã lỗi http
         /// </summary>
-        public int StatusCode { get; set; } 
+        public HttpStatusCode  HttpStatusCode { get; set; }
+        
+        public ErrorCode ErrorCode { get; set; }
 
         /// <summary>
         /// lỗi thông báo cho người dùng

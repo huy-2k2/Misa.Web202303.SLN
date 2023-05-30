@@ -7,11 +7,10 @@ using System.Threading.Tasks;
 namespace Misa.Web202303.SLN.BL.ValidateDto.Attributes
 {
     /// <summary>
-    /// base attribute
+    /// đánh dấu năm bằng với năm hiện tại
     /// </summary>
-    [AttributeUsage(AttributeTargets.Property)]
-    public abstract class BaseAttribute : Attribute
+    public class CurrentYear : BaseAttribute
     {
-        
+       
     }
 }

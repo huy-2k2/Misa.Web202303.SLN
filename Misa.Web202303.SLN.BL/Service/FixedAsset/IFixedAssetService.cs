@@ -14,15 +14,6 @@ namespace Misa.Web202303.SLN.BL.Service.FixedAsset
     public interface IFixedAssetService : IBaseService<FixedAssetDto, FixedAssetUpdateDto, FixedAssetCreateDto>
     {
         /// <summary>
-        /// kiểm tra mã tài sản đã tồn tại hay chưa, khi thêm và khi sửa
-        /// created by: nqhuy(21/05/2023)
-        /// </summary>
-        /// <param name="fixedAssetCode"></param>
-        /// <param name="fixedAssetId"></param>
-        /// <returns></returns>
-        Task<bool> CheckAssetCodeExisted(string fixedAssetCode, Guid? fixedAssetId);
-
-        /// <summary>
         /// xóa nhiều tài sản
         /// created by: nqhuy(21/05/2023)
         /// </summary>
@@ -50,5 +41,11 @@ namespace Misa.Web202303.SLN.BL.Service.FixedAsset
         /// <returns></returns>
         Task<object> GetAsync(int pageSize, int currentPage, Guid? departmentId, Guid? fixedAssetCategoryId, string? textSearch);
 
+        /// <summary>
+        /// lấy dữ liệu tài sản đề xuất file excel
+        /// Created by: NQ Huy(20/05/2023)
+        /// </summary>
+        /// <returns></returns>
+        Task<MemoryStream> GetFixedAssetsExcelAsync();
     }
 }

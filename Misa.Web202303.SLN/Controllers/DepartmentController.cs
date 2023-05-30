@@ -25,17 +25,5 @@ namespace Misa.Web202303.SLN.Controllers
             _departmentService = departmentService;
         }
 
-        /// <summary>
-        /// phương thức  lấy rất cả phòng ban
-        /// created by: nqhuy(21/05/2023)
-        /// </summary>
-        /// <returns></returns>
-        [HttpGet]
-        public virtual async Task<IEnumerable<DepartmentDto>> GetAsync()
-        {
-            var result = await _departmentService.GetAsync();
-
-            return result;
-        }
     }
 }

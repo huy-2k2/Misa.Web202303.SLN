@@ -60,5 +60,14 @@ namespace Misa.Web202303.SLN.DL.Repository
         /// <param name="entity"></param>
         /// <returns></returns>
         Task<TEntity> InsertAsync(TEntity entity);
+
+        /// <summary>
+        /// kiểm tra mã code đã tồn tại khi thêm hoạc sửa
+        /// Created by: NQ Huy(20/05/2023)
+        /// </summary>
+        /// <param name="code"></param>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        Task<bool> CheckCodeExistedAsync(string code, Guid? id);
     }
 }

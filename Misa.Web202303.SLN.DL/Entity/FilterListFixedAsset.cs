@@ -21,5 +21,15 @@ namespace Misa.Web202303.SLN.DL.Entity
         /// sổ lượng tại sản
         /// </summary>
         public int Total_asset { get; set; }
+
+        /// <summary>
+        /// tổng số lượng tài sản
+        /// </summary>
+        public int Total_quantity { get; set; }
+
+        /// <summary>
+        /// tổng nguyên giá
+        /// </summary>
+        public double Total_cost { get; set; }
     }
 }

@@ -1,7 +1,12 @@
 ﻿using AutoMapper;
+using ClosedXML.Excel;
+using Misa.Web202303.SLN.Common.Emum;
 using Misa.Web202303.SLN.Common.Exceptions;
+using Misa.Web202303.SLN.Common.Resource;
 using Misa.Web202303.SLN.DL.Entity;
+using Misa.Web202303.SLN.DL.Repository.Department;
 using Misa.Web202303.SLN.DL.Repository.FixedAsset;
+using Misa.Web202303.SLN.DL.Repository.FixedAssetCategory;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -24,6 +29,8 @@ namespace Misa.Web202303.SLN.BL.Service.FixedAsset
         /// sử dụng để gọi phương thức của IFixedAssetRepository
         /// </summary>
         private readonly IFixedAssetRepository _fixedAssetRepository;
+        private readonly IDepartmentRepository _departmentRepository;
+        private readonly IFixedAssetCategoryRepository _fixedAssetCategoryRepository;
 
 
         /// <summary>
@@ -32,26 +39,13 @@ namespace Misa.Web202303.SLN.BL.Service.FixedAsset
         /// </summary>
         /// <param name="fixedAssetRepository"></param>
         /// <param name="mapper"></param>
-        public FixedAssetService(IFixedAssetRepository fixedAssetRepository, IMapper mapper) : base(fixedAssetRepository, mapper)
+        public FixedAssetService(IFixedAssetRepository fixedAssetRepository, IMapper mapper, IDepartmentRepository departmentRepository, IFixedAssetCategoryRepository fixedAssetCategoryRepository) : base(fixedAssetRepository, mapper)
         {
             _fixedAssetRepository = fixedAssetRepository;
+            _departmentRepository = departmentRepository;
+            _fixedAssetCategoryRepository= fixedAssetCategoryRepository;
         }
 
-        /// <summary>
-        /// kiểm tra mã tài sản đã tồn tại? khi thêm và sửa
-        /// created by: nqhuy(21/05/2023)
-        /// </summary>
-        /// <param name="fixedAssetCode"></param>
-        /// <param name="fixedAssetId"></param>
-        /// <returns></returns>
-        public async Task<bool> CheckAssetCodeExisted(string fixedAssetCode, Guid? fixedAssetId)
-        {
-            //validate dữ liệu
-            //...
-
-            var result = await _fixedAssetRepository.CheckAssetCodeExistedAsync(fixedAssetCode, fixedAssetId);
-            return result;
-        }
 
         /// <summary>
         /// xóa nhiều tài sản
@@ -61,10 +55,20 @@ namespace Misa.Web202303.SLN.BL.Service.FixedAsset
         /// <returns></returns>
         public async Task<bool> DeleteAsync(IEnumerable<Guid> listFixedAssetId)
         {
-            //validate dữ liệu
-            //...
+           
             /// nối các mã tài sản lại thành chuỗi
             string stringFixedAssetId = string.Join("", listFixedAssetId.ToArray());
+
+            int numberOfFixedAsset = await _fixedAssetRepository.CountFixedAssetInListIdAsync(stringFixedAssetId);
+            if(numberOfFixedAsset != listFixedAssetId.Count()) { 
+                throw new NotFoundException() 
+                {
+                    UserMessage = ErrorMessage.NotFoundDeleteError,
+                    DevMessage = ErrorMessage.NotFoundDeleteError,
+                    ErrorCode = ErrorCode.NotFound,
+                };
+            }
+
 
             var result = await _fixedAssetRepository.DeleteAsync(stringFixedAssetId);
             return result;
@@ -83,11 +87,96 @@ namespace Misa.Web202303.SLN.BL.Service.FixedAsset
         public async Task<object> GetAsync(int pageSize, int currentPage, Guid? departmentId, Guid? fixedAssetCategoryId, string? textSearch)
         {
             // validate dữ liệu
-            // ...
+            if(pageSize <= 0) {
+                throw new ValidateException()
+                {
+                    UserMessage = string.Format(ErrorMessage.PositiveNumberError, "kích thước page"),
+                    DevMessage = string.Format(ErrorMessage.PositiveNumberError, "kích thước page"),
+                    ErrorCode= ErrorCode.DataValidate,
+                };
+            }
+            if(currentPage <= 0)
+            {
+                throw new ValidateException()
+                {
+                    UserMessage = string.Format(ErrorMessage.PositiveNumberError, "page hiện tại"),
+                    DevMessage = string.Format(ErrorMessage.PositiveNumberError, "page hiện tại"),
+                    ErrorCode = ErrorCode.DataValidate,
+                };
+            }
             var filterListFixedAsset = await _fixedAssetRepository.GetAsync(pageSize, currentPage, departmentId, fixedAssetCategoryId, textSearch);
             var listFixedAsset = filterListFixedAsset.List_fixed_asset.Select((fixedAsset) => _mapper.Map<FixedAssetDto>(fixedAsset));
 
-            return new { listFixedAsset, totalAsset = filterListFixedAsset.Total_asset };
+            return new { listFixedAsset, totalAsset = filterListFixedAsset.Total_asset, totalQuantity=filterListFixedAsset.Total_quantity, totalCost=filterListFixedAsset.Total_cost };
+        }
+
+        /// <summary>
+        /// lấy dữ liệu tài sản đề xuất file excel
+        /// Created by: NQ Huy(20/05/2023)
+        /// </summary>
+        /// <returns></returns>
+        public async Task<MemoryStream> GetFixedAssetsExcelAsync()
+        {
+            var fixedAssetsExcel = await _fixedAssetRepository.GetFixedAssetsExcelAsync();
+            using(var workbook = new XLWorkbook())
+            {
+                // tạo thead cho bảng
+                var worksheet = workbook.Worksheets.Add("fixed_assets");
+                var currentRow = 1;
+                double totalQuantity = 0;
+                double totalCost = 0;
+                worksheet.Cell(currentRow, 1).Value = "mã tài sản";
+                worksheet.Cell(currentRow, 2).Value = "tên tài sản";
+                worksheet.Cell(currentRow, 3).Value = "bộ phận sử dụng";
+                worksheet.Cell(currentRow, 4).Value = "loại tài sản";
+                worksheet.Cell(currentRow, 5).Value = "nguyên giá";
+                worksheet.Cell(currentRow, 6).Value = "số lượng";
+                worksheet.Cell(currentRow, 7).Value = "HM/KH lũy kế";
+                worksheet.Cell(currentRow, 8).Value = "giá trị còn lại";
+                worksheet.Cell(currentRow, 9).Value = "tỷ lệ hao mòn";
+                worksheet.Cell(currentRow, 10).Value = "hao mòn năm";
+                worksheet.Cell(currentRow, 11).Value = "số năm sử dụng";
+                worksheet.Cell(currentRow, 12).Value = "ngày mua";
+                worksheet.Cell(currentRow, 13).Value = "ngày sử dụng";
+                worksheet.Cell(currentRow, 14).Value = "năm theo dõi";
+
+                // add từng ô cho bảng dữ liệu
+                foreach (var fixedAsset in fixedAssetsExcel)
+                {
+                    currentRow++;
+                    totalCost += fixedAsset.Cost;
+                    totalQuantity += fixedAsset.Quantity;
+                    worksheet.Cell(currentRow, 1).Value = fixedAsset.Fixed_asset_code;
+                    worksheet.Cell(currentRow, 2).Value = fixedAsset.Fixed_asset_name;
+                    worksheet.Cell(currentRow, 3).Value = fixedAsset.Department_name;
+                    worksheet.Cell(currentRow, 4).Value = fixedAsset.Fixed_asset_category_name;
+                    worksheet.Cell(currentRow, 5).Value = fixedAsset.Cost;
+                    worksheet.Cell(currentRow, 6).Value = fixedAsset.Quantity;
+                    worksheet.Cell(currentRow, 7).Value = 0;
+                    worksheet.Cell(currentRow, 8).Value = fixedAsset.Cost;
+                    worksheet.Cell(currentRow, 9).Value = fixedAsset.Depreciation_rate;
+                    worksheet.Cell(currentRow, 10).Value = fixedAsset.Depreciation_annual;
+                    worksheet.Cell(currentRow, 11).Value = fixedAsset.Life_Time;
+                    worksheet.Cell(currentRow, 12).Value = fixedAsset.Purchase_date;
+                    worksheet.Cell(currentRow, 13).Value = fixedAsset.Use_date;
+                    worksheet.Cell(currentRow, 14).Value = fixedAsset.Tracked_year;
+                }
+
+                currentRow++;
+
+                worksheet.Cell(currentRow, 5).Value = totalCost;
+                worksheet.Cell(currentRow, 6).Value = totalQuantity;
+                worksheet.Cell(currentRow, 7).Value = 0;
+                worksheet.Cell(currentRow, 8).Value = totalCost;
+
+                worksheet.Row(1).Style.Font.SetBold(true);
+                worksheet.Row(currentRow).Style.Font.SetBold(true);
+                using (var stream = new MemoryStream())
+                {
+                    workbook.SaveAs(stream);
+                    return stream;
+                }
+            }
         }
 
         /// <summary>
@@ -141,5 +230,108 @@ namespace Misa.Web202303.SLN.BL.Service.FixedAsset
             return result;
         }
 
+        /// <summary>
+        /// validate khi thêm mới dữ liệu
+        /// created by: nqhuy(21/05/2023)
+        /// </summary>
+        /// <param name="fixedAssetCreateDto"></param>
+        /// <returns></returns>
+        /// <exception cref="ValidateException"></exception>
+        protected async override Task CreateValidateAsync(FixedAssetCreateDto fixedAssetCreateDto)
+        {
+            // gọi hàm validate chung
+            var fixedAsset = _mapper.Map<FixedAssetEntity>(fixedAssetCreateDto);
+            await CommonValidateAsync(_mapper.Map<FixedAssetEntity>(fixedAsset));
+            // kiểm tra mã tài sản bị trùng
+            var isCodeExisted = await _baseRepository.CheckCodeExistedAsync(fixedAssetCreateDto.Fixed_asset_code, null);
+            if(isCodeExisted) {
+                throw new ValidateException()
+                {
+                    UserMessage = string.Format(ErrorMessage.DuplicateCodeError, "mã tài sản"),
+                    DevMessage = string.Format(ErrorMessage.DuplicateCodeError, "mã tài sản"),
+                    ErrorCode = ErrorCode.DuplicateCode
+                };
+            }
+        }
+
+        /// <summary>
+        /// validate khi update dữ liệu
+        /// created by: nqhuy(21/05/2023)
+        /// </summary>
+        /// <param name="fixedAssetId"></param>
+        /// <param name="fixedAssetUpdateDto"></param>
+        /// <returns></returns>
+        /// <exception cref="ValidateException"></exception>
+        protected async override Task UpdateValidateAsync(Guid fixedAssetId, FixedAssetUpdateDto fixedAssetUpdateDto)
+        {
+            // gọi hàm validate chung
+            var fixedAsset = _mapper.Map<FixedAssetEntity>(fixedAssetUpdateDto);
+            await CommonValidateAsync(_mapper.Map<FixedAssetEntity>(fixedAsset));
+            // kiểm tra mã tài sản bị trùng
+            var isCodeExisted = await _baseRepository.CheckCodeExistedAsync(fixedAssetUpdateDto.Fixed_asset_code, fixedAssetId);
+            if (isCodeExisted)
+            {
+                throw new ValidateException()
+                {
+                    UserMessage = string.Format(ErrorMessage.DuplicateCodeError, "mã tài sản"),
+                    DevMessage = string.Format(ErrorMessage.DuplicateCodeError, "mã tài sản"),
+                    ErrorCode = ErrorCode.DuplicateCode
+                };
+            }
+        }
+
+        /// <summary>
+        /// hàm validate chung cho cả insert và update, thực hiện các logic nghiệp vụ
+        /// created by: nqhuy(21/05/2023)
+        /// </summary>
+        /// <param name="fixedAsset"></param>
+        /// <returns></returns>
+        /// <exception cref="ValidateException"></exception>
+        private async Task CommonValidateAsync(FixedAssetEntity fixedAsset) {
+            // làm tròn số
+            var depreciationAnnual = Math.Round((double)fixedAsset.Depreciation_rate * fixedAsset.Cost / 100, 2);
+            var depreciationRate = Math.Round((double)1 / fixedAsset.Life_Time * 100, 2);
+            // hao mòn năm  = tỷ lệ hao mòn * nguyên giá
+            if (fixedAsset.Depreciation_annual != depreciationAnnual) { 
+                throw new ValidateException()
+                {
+                    UserMessage = ErrorMessage.DepAnnualCostDepRateError,
+                    DevMessage = ErrorMessage.DepAnnualCostDepRateError,
+                    ErrorCode = ErrorCode.BusinessValidate
+                };
+            }
+            // tỷ lệ hao mòn = 1 / số năm sử dụng
+            if(fixedAsset.Depreciation_rate != depreciationRate)
+            {
+                throw new ValidateException()
+                {
+                    UserMessage = ErrorMessage.DepRateLifeTimeError,
+                    DevMessage = ErrorMessage.DepRateLifeTimeError,
+                    ErrorCode = ErrorCode.BusinessValidate
+                };
+            }
+            // kiểm tra department_id tồn tại
+            var department = await _departmentRepository.GetAsync(fixedAsset.Department_id);
+            if(department == null) {
+                throw new ValidateException()
+                {
+                    UserMessage = string.Format(ErrorMessage.InvalidError, "mã loại tài sản"),
+                    DevMessage = string.Format(ErrorMessage.InvalidError, "mã bộ phận sử dụng"),
+                    ErrorCode = ErrorCode.BusinessValidate
+                };
+            }
+            // kiểm tra fixed_asset_category_id tồn tại
+            var fixedAssetCategory = await _fixedAssetCategoryRepository.GetAsync(fixedAsset.Fixed_asset_category_id);
+            if(fixedAssetCategory == null)
+            {
+                throw new ValidateException()
+                {
+                    UserMessage = string.Format(ErrorMessage.InvalidError, "mã loại tài sản"),
+                    DevMessage = string.Format(ErrorMessage.InvalidError, "mã loại tài sản"),
+                    ErrorCode = ErrorCode.BusinessValidate
+                };
+            }
+            
+        }
     }
 }

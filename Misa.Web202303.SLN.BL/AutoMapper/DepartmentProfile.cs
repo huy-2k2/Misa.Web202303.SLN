@@ -24,7 +24,7 @@ namespace Misa.Web202303.SLN.BL.AutoMapper
         {
             CreateMap<Department, DepartmentDto>();
             CreateMap<DepartmentCreateDto, Department>();
-            CreateMap<FixedAssetUpdateDto, Department>();
+            CreateMap<DepartmentUpdateDto, Department>();
         }
     }
 }

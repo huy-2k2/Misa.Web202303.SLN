@@ -25,19 +25,5 @@ namespace Misa.Web202303.SLN.Controllers
         {
             _fixedAssetCategoryService = fixedAssetCategoryService;
         }
-
-        /// <summary>
-        /// phương thức lấy tất cả loại tài sản
-        /// created by: nqhuy(21/05/2023)
-        /// created by: nqhuy(21/05/2023)
-        /// </summary>
-        /// <returns></returns>
-        [HttpGet]
-        public virtual async Task<IEnumerable<FixedAssetCategoryDto>> GetAsync()
-        {
-            var result = await _fixedAssetCategoryService.GetAsync();
-
-            return result;
-        }
     }
 }

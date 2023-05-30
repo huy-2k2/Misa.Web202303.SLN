@@ -55,5 +55,13 @@ namespace Misa.Web202303.SLN.BL.Service
         /// <returns></returns>
         Task<bool> DeleteAsync(Guid id);
 
+        /// <summary>
+        /// kiểm tra mã code bị trùng khi thêm hoạc sửa
+        /// created by: nqhuy(21/05/2023)
+        /// </summary>
+        /// <param name="code"></param>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        Task<bool> CheckCodeExisted(string code, Guid? id);
     }
 }

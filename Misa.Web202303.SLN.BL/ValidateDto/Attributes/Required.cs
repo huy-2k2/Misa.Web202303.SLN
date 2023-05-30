@@ -6,10 +6,12 @@ using System.Threading.Tasks;
 
 namespace Misa.Web202303.SLN.BL.ValidateDto.Attributes
 {
+    /// <summary>
+    /// đánh dấu là bắt buộc nhập
+    /// created by: nqhuy(21/05/2023)
+    /// </summary>
     public class Required : BaseAttribute
     {
-        public Required(string name) : base(name)
-        {
-        }
+       
     }
 }
