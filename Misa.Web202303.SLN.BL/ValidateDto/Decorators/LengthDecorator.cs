@@ -1,5 +1,6 @@
 ﻿using Misa.Web202303.SLN.BL.ValidateDto.Attributes;
 using Misa.Web202303.SLN.Common.Emum;
+using Misa.Web202303.SLN.Common.Error;
 using Misa.Web202303.SLN.Common.Exceptions;
 using Misa.Web202303.SLN.Common.Resource;
 using System;
@@ -21,19 +22,20 @@ namespace Misa.Web202303.SLN.BL.ValidateDto.Decorators
         /// created by: nqhuy(21/05/2023)
         /// </summary>
         /// <exception cref="ValidateException"></exception>
-        protected override void Handle()
+        protected override ValidateError? Handle()
         {
             string value = Convert.ToString(propValue);
             var lengthAttribute = (Length)attribute;
-            if(value.Length > lengthAttribute.Max || value.Length < lengthAttribute.Min)
+            if (value.Length > lengthAttribute.Max || value.Length < lengthAttribute.Min)
             {
-                throw new ValidateException()
+                return new ValidateError()
                 {
-                    UserMessage = string.Format(ErrorMessage.LengthError, Name, lengthAttribute.Min, lengthAttribute.Max),
-                    DevMessage = string.Format(ErrorMessage.LengthError, Name, lengthAttribute.Min, lengthAttribute.Max),
-                    ErrorCode = ErrorCode.DataValidate
+                   FieldNameError = this.FieldNameError,
+                   Message = string.Format(ErrorMessage.LengthError, Name, lengthAttribute.Min, lengthAttribute.Max)
                 };
             }
+            else
+                return null;
         }
     }
 }

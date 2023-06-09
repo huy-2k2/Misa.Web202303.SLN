@@ -32,5 +32,16 @@ namespace Misa.Web202303.SLN.Common.Emum
         /// lỗi không tìm thấy dữ liệu
         /// </summary>
         NotFound = 4,
+
+        /// <summary>
+        /// dữ liệu không hợp lệ
+        /// </summary>
+        InvalidData = 5,
+
+        /// <summary>
+        /// lỗi file
+        /// </summary>
+        FileInvalid = 6
+
     }
 }

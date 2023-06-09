@@ -1,9 +1,11 @@
-﻿using System;
+﻿using Misa.Web202303.SLN.BL.ImportService;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using FixedAssetEnitty = Misa.Web202303.SLN.DL.Entity.FixedAsset;
 
 namespace Misa.Web202303.SLN.BL.Service.FixedAsset
 {
@@ -13,15 +15,6 @@ namespace Misa.Web202303.SLN.BL.Service.FixedAsset
     /// </summary>
     public interface IFixedAssetService : IBaseService<FixedAssetDto, FixedAssetUpdateDto, FixedAssetCreateDto>
     {
-        /// <summary>
-        /// xóa nhiều tài sản
-        /// created by: nqhuy(21/05/2023)
-        /// </summary>
-        /// <param name="listFixedAssetId"></param>
-        /// <returns></returns>
-        Task<bool> DeleteAsync(IEnumerable<Guid> listFixedAssetId);
-
-
         /// <summary>
         /// tự động sinh mã tài sản
         /// created by: nqhuy(21/05/2023)
@@ -42,10 +35,12 @@ namespace Misa.Web202303.SLN.BL.Service.FixedAsset
         Task<object> GetAsync(int pageSize, int currentPage, Guid? departmentId, Guid? fixedAssetCategoryId, string? textSearch);
 
         /// <summary>
-        /// lấy dữ liệu tài sản đề xuất file excel
-        /// Created by: NQ Huy(20/05/2023)
+        /// import dữ liệu tài sản từ file excel và db
+        /// created by: nqhuy(21/05/2023)
         /// </summary>
+        /// <param name="stream"></param>
+        /// <param name="isSubmit"></param>
         /// <returns></returns>
-        Task<MemoryStream> GetFixedAssetsExcelAsync();
+        public Task<ImportErrorEntity<FixedAssetEnitty>> ImportFileAsync(MemoryStream stream, bool isSubmit);
     }
 }

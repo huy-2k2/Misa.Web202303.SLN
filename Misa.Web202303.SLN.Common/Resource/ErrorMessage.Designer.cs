@@ -61,6 +61,15 @@ namespace Misa.Web202303.SLN.Common.Resource {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Kiểu dữ liệu không hợp lệ.
+        /// </summary>
+        public static string DataTypeError {
+            get {
+                return ResourceManager.GetString("DataTypeError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Giá trị hao mòn năm phải bằng tỷ lệ hao mòn * nguyên giá.
         /// </summary>
         public static string DepAnnualCostDepRateError {
@@ -79,6 +88,15 @@ namespace Misa.Web202303.SLN.Common.Resource {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Mã đã tồn tại ở bản ghi số {0}.
+        /// </summary>
+        public static string DuplicateCodeAboveError {
+            get {
+                return ResourceManager.GetString("DuplicateCodeAboveError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Trùng lặp {0}.
         /// </summary>
         public static string DuplicateCodeError {
@@ -93,6 +111,51 @@ namespace Misa.Web202303.SLN.Common.Resource {
         public static string EqualError {
             get {
                 return ResourceManager.GetString("EqualError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Số cột phải bằng {0}.
+        /// </summary>
+        public static string FileColumnError {
+            get {
+                return ResourceManager.GetString("FileColumnError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Dữ liệu trong tệp không hợp lệ.
+        /// </summary>
+        public static string FileDataError {
+            get {
+                return ResourceManager.GetString("FileDataError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to File bị lỗi.
+        /// </summary>
+        public static string FileError {
+            get {
+                return ResourceManager.GetString("FileError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to File không đúng định dạng.
+        /// </summary>
+        public static string FileFormatError {
+            get {
+                return ResourceManager.GetString("FileFormatError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Số dòng không hợp lệ.
+        /// </summary>
+        public static string FileRowError {
+            get {
+                return ResourceManager.GetString("FileRowError", resourceCulture);
             }
         }
         
@@ -124,7 +187,16 @@ namespace Misa.Web202303.SLN.Common.Resource {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Không thể xóa vì tài nguyên không tồn tại.
+        ///   Looks up a localized string similar to Không tồn tại {0}.
+        /// </summary>
+        public static string NotExistedError {
+            get {
+                return ResourceManager.GetString("NotExistedError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Không thể xóa {0} vì {0} không tồn tại.
         /// </summary>
         public static string NotFoundDeleteError {
             get {
@@ -133,7 +205,16 @@ namespace Misa.Web202303.SLN.Common.Resource {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Tài nguyên cần tìm không tồn tại.
+        ///   Looks up a localized string similar to Không thể xóa vì có bản ghi trong danh sách không tồn tại.
+        /// </summary>
+        public static string NotFoundDeleteListError {
+            get {
+                return ResourceManager.GetString("NotFoundDeleteListError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Không tìm thấy {0} vì {0} không tồn tại.
         /// </summary>
         public static string NotFoundError {
             get {
@@ -142,7 +223,7 @@ namespace Misa.Web202303.SLN.Common.Resource {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Tài nguyên cần cập nhật không tồn tại.
+        ///   Looks up a localized string similar to Không thể cập nhật {0} vì {0} không tồn tại.
         /// </summary>
         public static string NotFoundUpdateError {
             get {
@@ -174,6 +255,42 @@ namespace Misa.Web202303.SLN.Common.Resource {
         public static string RequiredError {
             get {
                 return ResourceManager.GetString("RequiredError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ngày mua không được nhỏ hơn ngày sử dụng.
+        /// </summary>
+        public static string UseDateLessThanPurchaseDateError {
+            get {
+                return ResourceManager.GetString("UseDateLessThanPurchaseDateError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Dữ liệu thêm mới không hợp lệ.
+        /// </summary>
+        public static string ValidateCreateError {
+            get {
+                return ResourceManager.GetString("ValidateCreateError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Dữ liệu lọc không hợp lệ.
+        /// </summary>
+        public static string ValidateFilterError {
+            get {
+                return ResourceManager.GetString("ValidateFilterError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Dữ liệu cập nhật không hợp lệ.
+        /// </summary>
+        public static string ValidateUpdateError {
+            get {
+                return ResourceManager.GetString("ValidateUpdateError", resourceCulture);
             }
         }
     }

@@ -1,32 +1,42 @@
-﻿using System;
+﻿using Misa.Web202303.SLN.BL.ValidateDto.Attributes;
+using Misa.Web202303.SLN.Common.Const;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Misa.Web202303.SLN.DL.Entity
+using FixedAssetEntity = Misa.Web202303.SLN.DL.Entity.FixedAsset;
+using Range = Misa.Web202303.SLN.BL.ValidateDto.Attributes.Range;
+
+namespace Misa.Web202303.SLN.BL.Service.Dto
 {
-    public class FixedAssetExcel
+    public class FixedAssetImportDto
     {
         /// <summary>
         /// mã tài sản
         /// </summary>
+        [Required, Length(0, 100), NameAttribute(FieldName.FixedAssetCode)]
         public string Fixed_asset_code { get; set; }
 
         /// <summary>
         /// tên tài sản
         /// </summary>
+        /// 
+        [Required, Length(0, 255), NameAttribute(FieldName.FixedAssetName)]
         public string Fixed_asset_name { get; set; }
 
         /// <summary>
-        /// tên phòng ban
+        /// id phòng ban
         /// </summary>
-        public string Department_name { get; set; }
+        [Required, Length(0, 50), NameAttribute(FieldName.DepartmentCode)]
+        public string Department_code { get; set; }
 
         /// <summary>
-        /// tên loại tài sản
+        /// id loại tài sản
         /// </summary>
-        public string Fixed_asset_category_name { get; set; }
+        [Required, Length(0, 50), NameAttribute(FieldName.FixedAssetCategoryCode)]
+        public string Fixed_asset_category_code { get; set; }
 
         /// <summary>
         /// ngày mua
@@ -41,31 +51,37 @@ namespace Misa.Web202303.SLN.DL.Entity
         /// <summary>
         /// nguyên giá
         /// </summary>
+        [Range(0, double.MaxValue), NameAttribute(FieldName.Cost)]
         public double Cost { get; set; }
 
         /// <summary>
         /// số lượng
         /// </summary>
+        [Range(1, int.MaxValue), NameAttribute(FieldName.Quantity)]
         public int Quantity { get; set; }
 
         /// <summary>
         /// tỉ lệ hao  mòn (%)
         /// </summary>
+        [Range(0.0001, 100), NameAttribute(FieldName.DepreciationRate)]
         public double Depreciation_rate { get; set; }
 
         /// <summary>
         /// giá trị hao mòn năm
         /// </summary>
+        [Range(0, double.MaxValue), NameAttribute(FieldName.DepreciationAnnual)]
         public double Depreciation_annual { get; set; }
 
         /// <summary>
         /// năm bắt đầu theo dõi
         /// </summary>
+        [CurrentYear, NameAttribute(FieldName.TrackedYear)]
         public int Tracked_year { get; set; }
 
         /// <summary>
         /// số năm sử dụng
         /// </summary>
+        [Range(1, int.MaxValue), NameAttribute(FieldName.LifeTime)]
         public int Life_Time { get; set; }
     }
 }

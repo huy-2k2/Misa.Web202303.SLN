@@ -8,6 +8,9 @@ using Misa.Web202303.SLN.BL.Service.Department;
 using Misa.Web202303.SLN.BL.Service.FixedAssetCategory;
 using Misa.Web202303.SLN.DL.Repository.Department;
 using Misa.Web202303.SLN.DL.Repository.FixedAssetCategory;
+using Misa.Web202303.SLN.BL.ImportService.FixedAsset;
+using Misa.Web202303.SLN.BL.ImportService.Department;
+using Misa.Web202303.SLN.BL.ImportService.FixedAssetCategory;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -32,6 +35,12 @@ builder.Services.AddScoped<IDepartmentRepository, DepartmentRepository>();
 
 builder.Services.AddScoped<IFixedAssetCategoryService, FixedAssetCategoryService>();
 builder.Services.AddScoped<IFixedAssetCategoryRepository, FixedAssetCategoryRepository>();
+
+builder.Services.AddScoped<IFixedAssetImportService, FixedAssetImportService>();
+
+builder.Services.AddScoped<IDepartmentImportService, DepartmentImportService>();
+
+builder.Services.AddScoped<IFixedAssetCategoryImportService, FixedAssetCategoryImportService>();  
 
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 

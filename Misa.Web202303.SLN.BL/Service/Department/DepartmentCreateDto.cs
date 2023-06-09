@@ -1,4 +1,6 @@
 ﻿using Misa.Web202303.SLN.BL.ValidateDto.Attributes;
+using Misa.Web202303.SLN.Common.Const;
+using Misa.Web202303.SLN.Common.Resource;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,13 +18,13 @@ namespace Misa.Web202303.SLN.BL.Service.Department
         /// <summary>
         /// mã phòng ban
         /// </summary>
-        [Length(0, 50), Required, NameAttribute("mã bộ phận sử dụng")]
+        [Required, Length(0, 50),  NameAttribute(FieldName.DepartmentCode)]
         public string Department_code { get; set; }
 
         /// <summary>
         /// tên phòng ban
         /// </summary>
-        [Length(0, 255), Required, NameAttribute("tên bộ phận sử dụng")]
+        [Required, Length(0, 255),  NameAttribute(FieldName.DepartmentName)]
         public string Department_name { get; set; }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Misa.Web202303.SLN.BL.ValidateDto.Attributes;
 using Misa.Web202303.SLN.Common.Emum;
+using Misa.Web202303.SLN.Common.Error;
 using Misa.Web202303.SLN.Common.Exceptions;
 using Misa.Web202303.SLN.Common.Resource;
 using System;
@@ -21,20 +22,21 @@ namespace Misa.Web202303.SLN.BL.ValidateDto.Decorators
         /// created by: nqhuy(21/05/2023)
         /// </summary>
         /// <exception cref="ValidateException"></exception>
-        protected override void Handle()
+        protected override ValidateError? Handle()
         {
           
             var value = (int)propValue;
             var currentYear = DateTime.Now.Year;
             if(value != currentYear)
             {
-                throw new ValidateException()
+                return new ValidateError()
                 {
-                    UserMessage = string.Format(ErrorMessage.EqualError, Name, currentYear),
-                    DevMessage = string.Format(ErrorMessage.EqualError, Name, currentYear),
-                    ErrorCode = ErrorCode.DataValidate
+                    FieldNameError = this.FieldNameError,
+                    Message = string.Format(ErrorMessage.EqualError, Name, DateTime.Now.Year)
+
                 };
-            }
+            } else
+                return null;
         }
     }
 }

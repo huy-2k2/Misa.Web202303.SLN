@@ -117,17 +117,38 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="DataTypeError" xml:space="preserve">
+    <value>Kiểu dữ liệu không hợp lệ</value>
+  </data>
   <data name="DepAnnualCostDepRateError" xml:space="preserve">
     <value>Giá trị hao mòn năm phải bằng tỷ lệ hao mòn * nguyên giá</value>
   </data>
   <data name="DepRateLifeTimeError" xml:space="preserve">
     <value>Tỷ lệ hao mòn phải bằng 1 / số năm sử dụng</value>
   </data>
+  <data name="DuplicateCodeAboveError" xml:space="preserve">
+    <value>Mã đã tồn tại ở bản ghi số {0}</value>
+  </data>
   <data name="DuplicateCodeError" xml:space="preserve">
     <value>Trùng lặp {0}</value>
   </data>
   <data name="EqualError" xml:space="preserve">
     <value>Giá trị {0} phải bằng {1}</value>
+  </data>
+  <data name="FileColumnError" xml:space="preserve">
+    <value>Số cột phải bằng {0}</value>
+  </data>
+  <data name="FileDataError" xml:space="preserve">
+    <value>Dữ liệu trong tệp không hợp lệ</value>
+  </data>
+  <data name="FileError" xml:space="preserve">
+    <value>File bị lỗi</value>
+  </data>
+  <data name="FileFormatError" xml:space="preserve">
+    <value>File không đúng định dạng</value>
+  </data>
+  <data name="FileRowError" xml:space="preserve">
+    <value>Số dòng không hợp lệ</value>
   </data>
   <data name="InternalError" xml:space="preserve">
     <value>Lỗi hệ thống, vui lòng liên hệ Misa</value>
@@ -138,14 +159,20 @@
   <data name="LengthError" xml:space="preserve">
     <value>Độ dài {0} phải từ {1} đến {2}</value>
   </data>
+  <data name="NotExistedError" xml:space="preserve">
+    <value>Không tồn tại {0}</value>
+  </data>
   <data name="NotFoundDeleteError" xml:space="preserve">
-    <value>Không thể xóa vì tài nguyên không tồn tại</value>
+    <value>Không thể xóa {0} vì {0} không tồn tại</value>
+  </data>
+  <data name="NotFoundDeleteListError" xml:space="preserve">
+    <value>Không thể xóa vì có bản ghi trong danh sách không tồn tại</value>
   </data>
   <data name="NotFoundError" xml:space="preserve">
-    <value>Tài nguyên cần tìm không tồn tại</value>
+    <value>Không tìm thấy {0} vì {0} không tồn tại</value>
   </data>
   <data name="NotFoundUpdateError" xml:space="preserve">
-    <value>Tài nguyên cần cập nhật không tồn tại</value>
+    <value>Không thể cập nhật {0} vì {0} không tồn tại</value>
   </data>
   <data name="PositiveNumberError" xml:space="preserve">
     <value>Giá trị {0} phải lớn hơn 0</value>
@@ -155,5 +182,17 @@
   </data>
   <data name="RequiredError" xml:space="preserve">
     <value>Không được phép để trống {0}</value>
+  </data>
+  <data name="UseDateLessThanPurchaseDateError" xml:space="preserve">
+    <value>Ngày mua không được nhỏ hơn ngày sử dụng</value>
+  </data>
+  <data name="ValidateCreateError" xml:space="preserve">
+    <value>Dữ liệu thêm mới không hợp lệ</value>
+  </data>
+  <data name="ValidateFilterError" xml:space="preserve">
+    <value>Dữ liệu lọc không hợp lệ</value>
+  </data>
+  <data name="ValidateUpdateError" xml:space="preserve">
+    <value>Dữ liệu cập nhật không hợp lệ</value>
   </data>
 </root>

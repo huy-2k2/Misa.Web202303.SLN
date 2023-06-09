@@ -1,5 +1,10 @@
 ﻿using AutoMapper;
+using Misa.Web202303.SLN.BL.ImportService;
+using Misa.Web202303.SLN.BL.ImportService.FixedAssetCategory;
+using Misa.Web202303.SLN.BL.ValidateDto;
+using Misa.Web202303.SLN.Common.Const;
 using Misa.Web202303.SLN.Common.Emum;
+using Misa.Web202303.SLN.Common.Error;
 using Misa.Web202303.SLN.Common.Exceptions;
 using Misa.Web202303.SLN.Common.Resource;
 using Misa.Web202303.SLN.DL.Entity;
@@ -28,8 +33,11 @@ namespace Misa.Web202303.SLN.BL.Service.FixedAssetCategory
         /// </summary>
         /// <param name="fixedAssetCategoryRepository"></param>
         /// <param name="mapper"></param>
-        public FixedAssetCategoryService(IFixedAssetCategoryRepository fixedAssetCategoryRepository, IMapper mapper) : base(fixedAssetCategoryRepository, mapper)
+
+        private readonly IFixedAssetCategoryImportService _fixedAssetCategoryImportService;
+        public FixedAssetCategoryService(IFixedAssetCategoryRepository fixedAssetCategoryRepository, IMapper mapper, IFixedAssetCategoryImportService fixedAssetCategoryImportService) : base(fixedAssetCategoryRepository, mapper)
         {
+            _fixedAssetCategoryImportService = fixedAssetCategoryImportService;
         }
 
         /// <summary>
@@ -39,22 +47,23 @@ namespace Misa.Web202303.SLN.BL.Service.FixedAssetCategory
         /// <param name="entityCreateDto"></param>
         /// <returns></returns>
         /// <exception cref="ValidateException"></exception>
-        protected override async Task CreateValidateAsync(FixedAssetCategoryCreateDto entityCreateDto)
+        protected override async Task<List<ValidateError>> CreateValidateAsync(FixedAssetCategoryCreateDto entityCreateDto)
         {
+            var listError = new List<ValidateError>();
             // validate nghiệp vụ
-            CommonValidate(_mapper.Map<FixedAssetCategoryEntity>(entityCreateDto));
-
+            var commonErrors = BusinessValidate(_mapper.Map<FixedAssetCategoryEntity>(entityCreateDto));
+            listError = Enumerable.Concat(listError, commonErrors).ToList();
             // kiểm tra mã code trùng
             var isCodeExisted = await _baseRepository.CheckCodeExistedAsync(entityCreateDto.Fixed_asset_category_code, null);
             if (isCodeExisted)
             {
-                throw new ValidateException()
+                listError.Add(new ValidateError()
                 {
-                    UserMessage = string.Format(ErrorMessage.DuplicateCodeError, "mã loại tài sản"),
-                    DevMessage = string.Format(ErrorMessage.DuplicateCodeError, "mã loại tài sản"),
-                    ErrorCode = ErrorCode.DuplicateCode
-                };
+                    FieldNameError = "fixed_asset_category_code",
+                    Message = string.Format(ErrorMessage.DuplicateCodeError, FieldName.FixedAssetCategoryCode),
+                });
             }
+            return listError;
         }
 
         /// <summary>
@@ -65,23 +74,25 @@ namespace Misa.Web202303.SLN.BL.Service.FixedAssetCategory
         /// <param name="entityUpdateDto"></param>
         /// <returns></returns>
         /// <exception cref="ValidateException"></exception>
-        protected async override Task UpdateValidateAsync(Guid id, FixedAssetCategoryUpdateDto entityUpdateDto)
-        { 
+        protected async override Task<List<ValidateError>> UpdateValidateAsync(Guid id, FixedAssetCategoryUpdateDto entityUpdateDto)
+        {
+            var listError = new List<ValidateError>();
             // validate nghiệp vụ
-            CommonValidate(_mapper.Map<FixedAssetCategoryEntity>(entityUpdateDto));
+            var commonErrors = BusinessValidate(_mapper.Map<FixedAssetCategoryEntity>(entityUpdateDto));
+
+            listError = Enumerable.Concat(listError, commonErrors).ToList();
 
             // kiểm tra mã code trùng
             var isCodeExisted = await _baseRepository.CheckCodeExistedAsync(entityUpdateDto.Fixed_asset_category_code, id);
             if (isCodeExisted)
             {
-                throw new ValidateException()
+                listError.Add(new ValidateError()
                 {
-                    UserMessage = string.Format(ErrorMessage.DuplicateCodeError, "mã loại tài sản"),
-                    DevMessage = string.Format(ErrorMessage.DuplicateCodeError, "mã loại tài sản"),
-                    ErrorCode = ErrorCode.DuplicateCode
-
-                };
+                    FieldNameError = "fixed_asset_category_code",
+                    Message = string.Format(ErrorMessage.DuplicateCodeError, FieldName.FixedAssetCategoryCode),
+                });
             }
+            return listError;
         }
 
         /// <summary>
@@ -90,20 +101,64 @@ namespace Misa.Web202303.SLN.BL.Service.FixedAssetCategory
         /// </summary>
         /// <param name="fixedAssetCategory"></param>
         /// <exception cref="ValidateException"></exception>
-        private void CommonValidate(FixedAssetCategoryEntity fixedAssetCategory)
+        public static List<ValidateError> BusinessValidate(FixedAssetCategoryEntity fixedAssetCategory)
         {
+            var listError = new List<ValidateError>();
             var depreciationRate = Math.Round((double)1 / fixedAssetCategory.Life_time * 100, 2);
 
             // tỷ lệ hao mòn = 1 / số năm sử dụng
             if (fixedAssetCategory.Depreciation_rate != depreciationRate)
             {
+                listError.Add(new ValidateError()
+                {
+                    Message = ErrorMessage.DepRateLifeTimeError,
+                    FieldNameError = "Depreciation_rate"
+                });
+            }
+            return listError;
+        }
+
+
+        /// <summary>
+        /// import dữ liệu loại tài sản từ file excel và db
+        /// created by: nqhuy(21/05/2023)
+        /// </summary>
+        /// <param name="stream"></param>
+        /// <param name="isSubmit"></param>
+        /// <returns></returns>
+        public async Task<ImportErrorEntity<FixedAssetCategoryEntity>> ImportFileAsync(MemoryStream stream, bool isSubmit)
+        {
+
+            // validate dữ liệu
+            var validateEntity = await _fixedAssetCategoryImportService.ValidateAsync(stream);
+            if (isSubmit && validateEntity.IsPassed || !isSubmit)
+            {
+                var listEntity = validateEntity.ListEntity;
+                // nếu không có lỗi thì import
+                if (isSubmit)
+                    await _baseRepository.InsertListAsync(listEntity);
+                return validateEntity;
+            }
+            else
+            {
+                // có lỗi thì throw exception
                 throw new ValidateException()
                 {
-                    UserMessage = ErrorMessage.DepRateLifeTimeError,
-                    DevMessage = ErrorMessage.DepRateLifeTimeError,
-                    ErrorCode = ErrorCode.BusinessValidate
+                    Data = validateEntity,
+                    ErrorCode = ErrorCode.InvalidData,
+                    UserMessage = ErrorMessage.FileDataError
                 };
             }
+        }
+
+        /// <summary>
+        /// lấy ra tên tài nguyên
+        /// created by: nqhuy(21/05/2023)
+        /// </summary>
+        /// <returns></returns>
+        protected override string GetAssetName()
+        {
+            return AssetName.FixedAssetCategory;
         }
     }
 }

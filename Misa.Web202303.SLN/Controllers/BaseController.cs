@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using DocumentFormat.OpenXml.Spreadsheet;
+using Microsoft.AspNetCore.Mvc;
 using Misa.Web202303.SLN.BL.Service;
 using Misa.Web202303.SLN.BL.Service.FixedAsset;
+using System.Net;
 
 namespace Misa.Web202303.SLN.Controllers
 {
@@ -35,10 +37,10 @@ namespace Misa.Web202303.SLN.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpGet("{id}")]
-        public virtual async Task<TEntityDto> GetAsync(Guid id)
+        public virtual async Task<IActionResult> GetAsync(Guid id)
         {
             var entityDto = await _baseService.GetAsync(id);
-            return entityDto;
+            return Ok(entityDto);
         }
 
         /// <summary>
@@ -47,9 +49,10 @@ namespace Misa.Web202303.SLN.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        public virtual async Task<IEnumerable<TEntityDto>> GetAsync()
+        public virtual async Task<IActionResult> GetAsync()
         {
-            return await _baseService.GetAsync();
+            var result =  await _baseService.GetAsync();
+            return Ok(result);
         }
 
         /// <summary>
@@ -60,9 +63,10 @@ namespace Misa.Web202303.SLN.Controllers
         /// <param name="entityUpdateDto"></param>
         /// <returns></returns>
         [HttpPut("{id}")]
-        public virtual async Task<TEntityDto> PutAsync([FromRoute] Guid id, [FromBody] TEntityUpdateDto entityUpdateDto) 
+        public virtual async Task<IActionResult> PutAsync([FromRoute] Guid id, [FromBody] TEntityUpdateDto entityUpdateDto) 
         {
-            return await _baseService.UpdateAsync(id, entityUpdateDto);
+           await _baseService.UpdateAsync(id, entityUpdateDto);
+            return Ok();
         }
 
         /// <summary>
@@ -72,29 +76,38 @@ namespace Misa.Web202303.SLN.Controllers
         /// <param name="entityCreateDto"></param>
         /// <returns></returns>
         [HttpPost]
-        public virtual async Task<TEntityDto> Post([FromBody] TEntityCreateDto entityCreateDto)
+        public virtual async Task<IActionResult> Post([FromBody] TEntityCreateDto entityCreateDto)
         {
-            return await _baseService.InsertAsync(entityCreateDto);
+            await _baseService.InsertAsync(entityCreateDto);
+            return StatusCode((int)HttpStatusCode.Created);
+        }
+
+
+        /// <summary>
+        /// check mã code có tồn tại hay không khi update hoạc insert
+        /// created by: nqhuy(21/05/2023)
+        /// </summary>
+        /// <param name="fixedAssetCode"></param>
+        /// <param name="fixedAssetId"></param>
+        /// <returns></returns>
+        [HttpGet("isCodeExisted")]
+        public async Task<IActionResult> CheckAssetCodeExisted([FromQuery] string fixedAssetCode, [FromQuery] Guid? fixedAssetId)
+        {
+            var result = await _baseService.CheckCodeExisted(fixedAssetCode, fixedAssetId);
+            return Ok(result);
         }
 
         /// <summary>
-        /// phương thức xóa 1 bản ghi
+        /// xóa nhiều bản ghi
+        /// created by: nqhuy(21/05/2023)
         /// </summary>
-        /// <param name="id"></param>
+        /// <param name="listId"></param>
         /// <returns></returns>
         [HttpDelete]
-        public virtual async Task<bool> DeleteAsync(Guid id)
-        {
-            return await _baseService.DeleteAsync(id);
-        }
-
+        public async Task<IActionResult> DeleteListAsync(IEnumerable<Guid> listId) {
+             await _baseService.DeleteListAsync(listId);
+            return Ok();
             
-        [HttpGet("isCodeExisted")]
-        public async Task<bool> CheckAssetCodeExisted([FromQuery] string fixedAssetCode, [FromQuery] Guid? fixedAssetId)
-        {
-            var result = await _baseService.CheckCodeExisted(fixedAssetCode, fixedAssetId);
-            return result;
         }
-
     }
 }

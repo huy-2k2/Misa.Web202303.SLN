@@ -19,6 +19,7 @@ namespace Misa.Web202303.SLN.DL.Repository.FixedAsset
     /// Created by: NQ Huy(20/05/2023)
     /// </summary>
     public class FixedAssetRepository : BaseRepository<FixedAssetEntity>, IFixedAssetRepository
+
     {
 
         /// <summary>
@@ -31,45 +32,6 @@ namespace Misa.Web202303.SLN.DL.Repository.FixedAsset
 
         }
 
-        /// <summary>
-        /// Để đếm số bản ghi thực sự tồn tại trong danh sách các id, dùng để kiểm tra khi xóa nhiều bản ghi cùng lúc
-        /// Created by: NQ Huy(20/05/2023)
-        /// </summary>
-        /// <param name="listFixedAssetId"></param>
-        /// <returns></returns>
-        public async Task<int> CountFixedAssetInListIdAsync(string listFixedAssetId)
-        {
-            var connection = await GetOpenConnectionAsync();
-
-            var dynamicParams = new DynamicParameters();
-            dynamicParams.Add("fixed_asset_ids", listFixedAssetId);
-            var sql = ProcedureName.COUNT_FIXED_ASSET_BY_ID;
-            var result = await connection.QueryFirstAsync<int>(sql, dynamicParams, commandType: CommandType.StoredProcedure);
-            await connection.CloseAsync();
-            return result;
-        }
-
-
-        /// <summary>
-        /// xóa nhiều tài sản
-        /// Created by: NQ Huy(20/05/2023)
-        /// </summary>
-        /// <param name="listFixedAssetId"></param>
-        /// <returns></returns>
-        public async Task<bool> DeleteAsync(string listFixedAssetId)
-        {
-            var connection = await GetOpenConnectionAsync();
-            var sql = ProcedureName.DELETE_FIXED_ASSETS;
-            //thêm params
-            var dynamicParams = new DynamicParameters();
-            dynamicParams.Add("fixed_asset_ids", listFixedAssetId);
-
-
-            var result = await connection.ExecuteAsync(sql, dynamicParams, commandType: CommandType.StoredProcedure);
-            await connection.CloseAsync();
-
-            return true;
-        }
 
         /// <summary>
         /// lọc, search, phân trang tài sản
@@ -111,54 +73,43 @@ namespace Misa.Web202303.SLN.DL.Repository.FixedAsset
         }
 
         /// <summary>
-        /// lấy dữ liệu tài sản đề xuất file excel
+        /// lấy mã tài sản có cùng tiền tố với mã tài sản được thêm hoạc sửa gần nhất và có hậu tố lớn nhất
         /// Created by: NQ Huy(20/05/2023)
         /// </summary>
         /// <returns></returns>
-        public async Task<IEnumerable<FixedAssetExcel>> GetFixedAssetsExcelAsync()
+        public async Task<List<string>> GetMaxAssetCodeAsync()
         {
             var connection = await GetOpenConnectionAsync();
-            var sql = ProcedureName.GET_MODEL_FIXED_ASSETS;
-            var dynamicParams = new DynamicParameters();
-            var excelFixedAssets = await connection.QueryAsync<FixedAssetExcel>(sql, dynamicParams, commandType: CommandType.StoredProcedure);
-            await connection.CloseAsync();
-            return excelFixedAssets; 
-        }
-
-        /// <summary>
-        /// lấy ra các mã tài sản có cùng tiền tố với mã tài sản được thêm hoạc sủa gần nhất
-        /// Created by: NQ Huy(20/05/2023)
-        /// </summary>
-        /// <returns></returns>
-        public async Task<List<string>> GetListAssetCodeAsync()
-        {
-            var connection = await GetOpenConnectionAsync();
-            var sql = ProcedureName.GET_NEWEST_FIXED_ASSET_CODES;
+            var sql = ProcedureName.GET_MAX_FIXED_ASSET_CODE;
             // thêm các param
             var dynamicParams = new DynamicParameters();
-            // thêm param output để lấy ra tiền tố của mã tài sản
+            // thêm param output để lấy ra tiền tố của mã tài sản, và tài sản có hậu tố lớn nhất
             dynamicParams.Add("prefix_asset_code", dbType: DbType.String, direction: ParameterDirection.Output);
-            var listFixedAsset = await connection.QueryAsync<FixedAssetEntity>(sql, dynamicParams, commandType: CommandType.StoredProcedure);
-            // lấy ra các mã tài sản ở dạng list string
-            var result =  listFixedAsset.Select((fixedAsset) =>  fixedAsset.Fixed_asset_code).ToList();
+            dynamicParams.Add("max_asset_code", dbType: DbType.String, direction: ParameterDirection.Output);
+            await connection.ExecuteAsync(sql, dynamicParams, commandType: CommandType.StoredProcedure);
+            
+            var result =  new List<string>();
             // lấy ra tiền tố
             var preFix = dynamicParams.Get<string>("prefix_asset_code");
-            // thêm tiền tố vào cuối danh sách mã tài sản
+            // lấy ra mã tài sản lớn nhất
+            var maxAssetCode = dynamicParams.Get<string>("max_asset_code");
+
             result.Add(preFix);
+            result.Add(maxAssetCode);
+
             await connection.CloseAsync();
 
             return result;
         }
-
 
         /// <summary>
         /// lấy ra tên của table trong csdl ứng với repository
         /// Created by: NQ Huy(20/05/2023)
         /// </summary>
         /// <returns></returns>
-        protected override string GetTableName()
+        public override string GetTableName()
         {
-            return "fixed_asset";
+            return "Fixed_asset";
         }
     }
 }

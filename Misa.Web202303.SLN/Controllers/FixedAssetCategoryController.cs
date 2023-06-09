@@ -25,5 +25,24 @@ namespace Misa.Web202303.SLN.Controllers
         {
             _fixedAssetCategoryService = fixedAssetCategoryService;
         }
+
+        /// <summary>
+        /// import file excel vào db
+        /// created by: nqhuy(21/05/2023)
+        /// </summary>
+        /// <param name="file"></param>
+        /// <param name="isSubmit"></param>
+        /// <returns></returns>
+        [HttpPost("file")]
+        public async Task<IActionResult> ImportFileAsync([FromForm] IFormFile file, [FromQuery] bool isSubmit)
+        {
+
+            using (var stream = new MemoryStream())
+            {
+                await file.CopyToAsync(stream);
+                var result = await _fixedAssetCategoryService.ImportFileAsync(stream, isSubmit);
+                return Ok(result);
+            }
+        }
     }
 }

@@ -20,16 +20,19 @@ namespace Misa.Web202303.SLN.Common.Exceptions
         /// </summary>
         public HttpStatusCode  HttpStatusCode { get; set; }
         
+        /// <summary>
+        /// mã lỗi quy định riêng
+        /// </summary>
         public ErrorCode ErrorCode { get; set; }
 
         /// <summary>
-        /// lỗi thông báo cho người dùng
+        /// dữ liệu về lỗi
         /// </summary>
-        public string? UserMessage { get; set; }
+        public object? Data { get; set; }
 
         /// <summary>
-        /// lỗi thông báo cho lập trình viên
+        /// thông báo lỗi
         /// </summary>
-        public string? DevMessage { get; set; }
+        public string UserMessage { get; set; }
     }
 }

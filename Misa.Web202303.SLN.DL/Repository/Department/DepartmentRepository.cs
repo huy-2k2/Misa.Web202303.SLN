@@ -31,9 +31,9 @@ namespace Misa.Web202303.SLN.DL.Repository.Department
         /// Created by: NQ Huy(20/05/2023)
         /// </summary>
         /// <returns></returns>
-        protected override string GetTableName()
+        public override string GetTableName()
         {
-            return "department";
+            return "Department";
         }
     }
 }

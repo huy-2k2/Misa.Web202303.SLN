@@ -76,5 +76,6 @@ namespace Misa.Web202303.SLN.DL.Entity
         /// số năm sử dụng
         /// </summary>
         public int Life_Time { get; set; }
+        
     }
 }

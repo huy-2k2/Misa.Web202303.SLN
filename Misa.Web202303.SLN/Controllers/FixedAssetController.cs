@@ -23,7 +23,7 @@ namespace Misa.Web202303.SLN.Controllers
         /// created by: nqhuy(21/05/2023)
         /// </summary>
         /// <param name="fixedAssetService"></param>
-        public FixedAssetController(IFixedAssetService fixedAssetService):base(fixedAssetService)
+        public FixedAssetController(IFixedAssetService fixedAssetService) : base(fixedAssetService)
         {
             _fixedAssetService = fixedAssetService;
         }
@@ -35,25 +35,10 @@ namespace Misa.Web202303.SLN.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet("recommendFixedAssetCode")]
-        public async Task<string> GetRecommendFixedAssetCode()
+        public async Task<IActionResult> GetRecommendFixedAssetCode()
         {
             var result = await _fixedAssetService.GetRecommendFixedAssetCodeAsync();
-            return result;
-        }
-
-        
-
-        /// <summary>
-        /// phương thức xóa nhiều tài sản
-        /// created by: nqhuy(21/05/2023)
-        /// </summary>
-        /// <param name="listFixedAssetId"></param>
-        /// <returns></returns>
-        [HttpDelete("multiple")]
-        public async Task<bool> DeleteAsync([FromBody] IEnumerable<Guid> listFixedAssetId)
-        {
-            var result = await _fixedAssetService.DeleteAsync(listFixedAssetId);
-            return result;
+            return Ok(result);
         }
 
         /// <summary>
@@ -67,24 +52,29 @@ namespace Misa.Web202303.SLN.Controllers
         /// <param name="textSearch"></param>
         /// <returns></returns>
         [HttpGet("filter")]
-        public async Task<object> GetAsync(int pageSize, int currentPage, Guid? departmentId, Guid? fixedAssetCategoryId, string? textSearch)
+        public async Task<IActionResult> GetAsync(int pageSize, int currentPage, Guid? departmentId, Guid? fixedAssetCategoryId, string? textSearch)
         {
-            return await _fixedAssetService.GetAsync(pageSize, currentPage, departmentId, fixedAssetCategoryId, textSearch);
+            var result =  await _fixedAssetService.GetAsync(pageSize, currentPage, departmentId, fixedAssetCategoryId, textSearch);
+            return Ok(result);
         }
 
         /// <summary>
-        /// xuất tài sản ra file excel
+        /// import file excel vào db
         /// created by: nqhuy(21/05/2023)
         /// </summary>
-        /// <typeparam name="IActionResult"></typeparam>
+        /// <param name="file"></param>
+        /// <param name="isSubmit"></param>
         /// <returns></returns>
-        [HttpGet("excel")]
-        public async Task<IActionResult> GetExcelFileAsync()
+        [HttpPost("file")]
+        public async Task<IActionResult> ImportFileAsync([FromForm] IFormFile file, [FromQuery] bool isSubmit)
         {
-            var stream = await _fixedAssetService.GetFixedAssetsExcelAsync();
-            var content = stream.ToArray();
-            return File(content, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "fixedAssetInfo.xlsx");
-        } 
 
+            using (var stream = new MemoryStream())
+            {
+                await file.CopyToAsync(stream);
+                var result = await _fixedAssetService.ImportFileAsync(stream, isSubmit);
+                return Ok(result);
+            }
+        }
     }
 }

@@ -25,6 +25,7 @@ namespace Misa.Web202303.SLN.BL.AutoMapper
             CreateMap<FixedAssetCategory, FixedAssetCategoryDto>();
             CreateMap<FixedAssetCategoryUpdateDto, FixedAssetCategory>();
             CreateMap<FixedAssetCategoryCreateDto, FixedAssetCategory>();
+            CreateMap<FixedAssetCategoryImportDto, FixedAssetCategory>();
         }
     }
 }

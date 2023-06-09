@@ -1,4 +1,5 @@
 ﻿using Misa.Web202303.SLN.BL.ValidateDto.Attributes;
+using Misa.Web202303.SLN.Common.Const;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,26 +20,26 @@ namespace Misa.Web202303.SLN.BL.Service.FixedAssetCategory
         /// <summary>
         /// mã loại tài sản
         /// </summary>
-        [Length(0, 50), Required, NameAttribute("mã loại tài sản")]
+        [Required, Length(0, 50), NameAttribute(FieldName.FixedAssetCategoryCode)]
 
         public string Fixed_asset_category_code { get; set; }
 
         /// <summary>
         /// tên loại tài sản
         /// </summary>
-        [Length(0, 255), Required, NameAttribute("tên loại tài sản")]
+        [Required, Length(0, 255), NameAttribute(FieldName.FixedAssetCategoryName)]
         public string Fixed_asset_category_name { get; set; }
 
         /// <summary>
         /// tỷ lệ hao mòn (%)
         /// </summary>
-        [Range(0.0001, 100), NameAttribute("tệ lệ hao mòn")]
+        [Range(0.0001, 100), NameAttribute(FieldName.DepreciationRate)]
         public double Depreciation_rate { get; set; }
 
         /// <summary>
         /// số năm sử dụng 
         /// </summary>
-        [Range(1, int.MaxValue), NameAttribute("thời gian sử dụng")]
+        [Range(1, int.MaxValue), NameAttribute(FieldName.LifeTime)]
         public int Life_time { get; set; }
     }
 }

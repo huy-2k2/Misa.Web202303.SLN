@@ -30,9 +30,9 @@ namespace Misa.Web202303.SLN.DL.Repository.FixedAssetCategory
         /// Created by: NQ Huy(20/05/2023)
         /// </summary>
         /// <returns></returns>
-        protected override string GetTableName()
+        public override string GetTableName()
         {
-            return "fixed_asset_category";
+            return "Fixed_asset_category";
         }
     }
 }

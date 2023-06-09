@@ -37,7 +37,7 @@ namespace Misa.Web202303.SLN.BL.Service
         /// </summary>
         /// <param name="entityDto"></param>
         /// <returns></returns>
-        Task<TEntityDto> InsertAsync(TEntityCreateDto entityDto);
+        Task InsertAsync(TEntityCreateDto entityDto);
 
         /// <summary>
         /// phương thức update 1 bản ghi
@@ -45,15 +45,8 @@ namespace Misa.Web202303.SLN.BL.Service
         /// </summary>
         /// <param name="entityDto"></param>
         /// <returns></returns>
-        Task<TEntityDto> UpdateAsync(Guid entityId, TEntityUpdateDto entityDto);
+        Task UpdateAsync(Guid entityId, TEntityUpdateDto entityDto);
 
-        /// <summary>
-        /// xóa 1 bản ghi theo id
-        /// created by: nqhuy(21/05/2023)
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
-        Task<bool> DeleteAsync(Guid id);
 
         /// <summary>
         /// kiểm tra mã code bị trùng khi thêm hoạc sửa
@@ -63,5 +56,13 @@ namespace Misa.Web202303.SLN.BL.Service
         /// <param name="id"></param>
         /// <returns></returns>
         Task<bool> CheckCodeExisted(string code, Guid? id);
+
+        /// <summary>
+        /// xóa nhiều bản ghi cùng lúc dựa vào danh sách id
+        /// created by: nqhuy(21/05/2023)
+        /// </summary>
+        /// <param name="listId"></param>
+        /// <returns></returns>
+        Task DeleteListAsync(IEnumerable<Guid> listId);
     }
 }

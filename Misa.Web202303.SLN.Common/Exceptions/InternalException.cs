@@ -20,7 +20,7 @@ namespace Misa.Web202303.SLN.Common.Exceptions
         /// created by: nqhuy(21/05/2023)
         /// </summary>
         public InternalException() {
-            HttpStatusCode = HttpStatusCode.InternalServerError; 
+            HttpStatusCode = HttpStatusCode.InternalServerError;
        }
     }
 }

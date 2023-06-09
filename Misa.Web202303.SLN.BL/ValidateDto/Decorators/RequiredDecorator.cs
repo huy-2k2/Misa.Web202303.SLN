@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Misa.Web202303.SLN.Common.Resource;
 using Misa.Web202303.SLN.Common.Emum;
+using Misa.Web202303.SLN.Common.Error;
 
 namespace Misa.Web202303.SLN.BL.ValidateDto.Decorators
 {
@@ -22,16 +23,17 @@ namespace Misa.Web202303.SLN.BL.ValidateDto.Decorators
         /// created by: nqhuy(21/05/2023)
         /// </summary>
         /// <exception cref="ValidateException"></exception>
-        protected override void Handle()
+        protected override ValidateError? Handle()
         {
-            if (propValue == null || string.IsNullOrEmpty(propValue)) {
-                throw new ValidateException()
+            if (propValue == null || string.IsNullOrEmpty(propValue))
+            {
+                return new ValidateError()
                 {
-                    UserMessage = string.Format(ErrorMessage.RequiredError, Name),
-                    DevMessage = string.Format(ErrorMessage.RequiredError, Name),
-                    ErrorCode = ErrorCode.DataValidate
+                   FieldNameError = this.FieldNameError,
+                   Message = string.Format(ErrorMessage.RequiredError, Name),
                 };
             }
+            else return null;
         }
     }
 }

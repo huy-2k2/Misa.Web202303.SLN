@@ -1,4 +1,5 @@
 ﻿using Misa.Web202303.SLN.BL.ValidateDto.Attributes;
+using Misa.Web202303.SLN.Common.Error;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -34,19 +35,39 @@ namespace Misa.Web202303.SLN.BL.ValidateDto.Decorators
         public dynamic? propValue;
 
         /// <summary>
+        /// tên trường bị lỗi
+        /// </summary>
+        public string FieldNameError;
+
+        /// <summary>
+        /// chi tiết lỗi
+        /// </summary>
+        public ValidateError Error;
+
+        /// <summary>
         /// thực hiện hàm handle và gọi hàm validate của decorator tiếp theo
         /// created by: nqhuy(21/05/2023)
         /// </summary>
         public void Validate()
         {
-            Handle();
-            nextDecorator?.Validate();
+            if (nextDecorator != null)
+            {
+                nextDecorator.Validate();
+                if (nextDecorator.Error != null)
+                {
+                    this.Error = nextDecorator.Error;
+                }
+                else
+                    Error = Handle();
+
+
+            }
         }
 
         /// <summary>
         /// logic validate implement bởi các decorator kế thừa
         /// </summary>
-        protected abstract void Handle();
+        protected abstract ValidateError? Handle();
     }
 
 }

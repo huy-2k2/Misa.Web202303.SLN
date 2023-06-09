@@ -2,9 +2,14 @@
 using System.Net;
 using System.Runtime.InteropServices;
 using System.Text.Json;
+using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Misa.Web202303.SLN.Common.Emum;
+using Misa.Web202303.SLN.Common.Error;
 using Misa.Web202303.SLN.Common.Exceptions;
-
+using Misa.Web202303.SLN.Common.Resource;
+using OfficeOpenXml.Style.XmlAccess;
 
 namespace Misa.Web202303.SLN.MiddleWares
 {
@@ -60,6 +65,7 @@ namespace Misa.Web202303.SLN.MiddleWares
             // kiểm tra excception có phải do lập trình viên throw hay không
             if (exception is BaseException)
             {
+
                 // tạo message và trả về kết quả
                 var ex = (BaseException)exception;
                 context.Response.StatusCode = (int)ex.HttpStatusCode;
@@ -69,10 +75,12 @@ namespace Misa.Web202303.SLN.MiddleWares
                         {
                             statusCode = (int)ex.HttpStatusCode,
                             errorCode = (int)ex.ErrorCode,
+                            message = ex.Message,
+                            data = ex.Data,
                             userMessage = ex.UserMessage,
-                            devMessage = ex.DevMessage,
                         })
                 );
+
             }
             // trường hợp lỗi do hệ thống throw
             else
@@ -85,12 +93,11 @@ namespace Misa.Web202303.SLN.MiddleWares
                         {
                             statusCode = (int)HttpStatusCode.InternalServerError,
                             errorCode = ErrorCode.Exception,
-                            userMessage = "Lỗi hệ thống, vui lòng liên hệ Misa.",
-                            devMessage = "lỗi do hệ thống bắn ra",
+                            message = exception.Message,
+                            userMessage = ErrorMessage.InternalError
                         })
                 );
             }
         }
-
     }
 }
