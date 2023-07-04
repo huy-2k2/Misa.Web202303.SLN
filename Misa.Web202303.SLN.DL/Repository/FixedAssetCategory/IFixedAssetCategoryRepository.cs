@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using FixedAssetCategoryEnitty = Misa.Web202303.SLN.DL.Entity.FixedAssetCategory;
+using FixedAssetCategoryEnitty = Misa.Web202303.QLTS.DL.Entity.FixedAssetCategory;
 
 
-namespace Misa.Web202303.SLN.DL.Repository.FixedAssetCategory
+namespace Misa.Web202303.QLTS.DL.Repository.FixedAssetCategory
 {
     /// <summary>
     /// interface định nghĩa thêm các phương thức của FixedAssetCategoryRepository, ngoài các phương thức của IBaseRepository

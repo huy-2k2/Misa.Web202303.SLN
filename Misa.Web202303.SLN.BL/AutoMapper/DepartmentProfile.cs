@@ -1,14 +1,14 @@
 ﻿using AutoMapper;
-using Misa.Web202303.SLN.BL.Service.Department;
-using Misa.Web202303.SLN.BL.Service.FixedAsset;
-using Misa.Web202303.SLN.DL.Entity;
+using Misa.Web202303.QLTS.BL.Service.Department;
+using Misa.Web202303.QLTS.BL.Service.FixedAsset;
+using Misa.Web202303.QLTS.DL.Entity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Misa.Web202303.SLN.BL.AutoMapper
+namespace Misa.Web202303.QLTS.BL.AutoMapper
 {
     /// <summary>
     /// lớp định nghĩa các entity department chuyển đổi qua nhau, xử dụng cho automapper

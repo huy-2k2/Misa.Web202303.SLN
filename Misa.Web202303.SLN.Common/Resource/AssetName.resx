@@ -117,13 +117,24 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="Budget" xml:space="preserve">
+    <value>ngân sách</value>
+    <comment>ngân sách</comment>
+  </data>
   <data name="Department" xml:space="preserve">
-    <value>Phòng ban</value>
+    <value>pòng ban</value>
+    <comment>phòng ban</comment>
   </data>
   <data name="FixedAsset" xml:space="preserve">
     <value>tài sản</value>
+    <comment>tài sản</comment>
   </data>
   <data name="FixedAssetCategory" xml:space="preserve">
     <value>loại tài sản</value>
+    <comment>loại tài sản</comment>
+  </data>
+  <data name="License" xml:space="preserve">
+    <value>chứng từ</value>
+    <comment>chứng từ</comment>
   </data>
 </root>

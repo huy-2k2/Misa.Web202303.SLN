@@ -1,13 +1,18 @@
-﻿using Misa.Web202303.SLN.Common.Error;
-using Misa.Web202303.SLN.DL.Entity;
+﻿using Misa.Web202303.QLTS.Common.Error;
+using Misa.Web202303.QLTS.DL.Entity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Misa.Web202303.SLN.BL.ImportService
+namespace Misa.Web202303.QLTS.BL.ImportService
 {
+    /// <summary>
+    /// lớp để khởi tạo dữ liệu trả về khi validate dữ liệu trong file lúc import
+    /// created by: nqhuy(10/06/2023)
+    /// </summary>
+    /// <typeparam name="TEntity"></typeparam>
     public class ImportErrorEntity<TEntity>
     {
         /// <summary>

@@ -1,13 +1,13 @@
-﻿using Misa.Web202303.SLN.DL.Entity;
+﻿using Misa.Web202303.QLTS.DL.Entity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using DepartmentEntity = Misa.Web202303.SLN.DL.Entity.Department;
+using DepartmentEntity = Misa.Web202303.QLTS.DL.Entity.Department;
 
-namespace Misa.Web202303.SLN.DL.Repository.Department
+namespace Misa.Web202303.QLTS.DL.Repository.Department
 {
     /// <summary>
     /// interface định nghĩa thêm các phương thức của DepartmentRepository, ngoài các phương thức của IBaseRepository

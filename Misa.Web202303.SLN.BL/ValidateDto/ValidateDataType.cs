@@ -7,9 +7,13 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using DataType = Misa.Web202303.SLN.Common.Emum.DataType;
-namespace Misa.Web202303.SLN.BL.ValidateDto
+using DataType = Misa.Web202303.QLTS.Common.Emum.DataType;
+namespace Misa.Web202303.QLTS.BL.ValidateDto
 {
+    /// <summary>
+    /// lớp chứa phương thức static, validate dữ liệu đúng có kiểu theo quy định
+    /// Created by: NQ Huy(10/05/2023)
+    /// </summary>
     public static class ValidateDataType
     {
      

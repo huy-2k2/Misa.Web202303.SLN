@@ -1,15 +1,15 @@
-﻿using Misa.Web202303.SLN.BL.ValidateDto.Attributes;
-using Misa.Web202303.SLN.Common.Exceptions;
+﻿using Misa.Web202303.QLTS.BL.ValidateDto.Attributes;
+using Misa.Web202303.QLTS.Common.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Misa.Web202303.SLN.Common.Resource;
-using Misa.Web202303.SLN.Common.Emum;
-using Misa.Web202303.SLN.Common.Error;
+using Misa.Web202303.QLTS.Common.Resource;
+using Misa.Web202303.QLTS.Common.Emum;
+using Misa.Web202303.QLTS.Common.Error;
 
-namespace Misa.Web202303.SLN.BL.ValidateDto.Decorators
+namespace Misa.Web202303.QLTS.BL.ValidateDto.Decorators
 {
     /// <summary>
     /// kiểm tra bắt buộc nhập
@@ -25,7 +25,7 @@ namespace Misa.Web202303.SLN.BL.ValidateDto.Decorators
         /// <exception cref="ValidateException"></exception>
         protected override ValidateError? Handle()
         {
-            if (propValue == null || string.IsNullOrEmpty(propValue))
+            if (PropValue == null || string.IsNullOrEmpty(PropValue))
             {
                 return new ValidateError()
                 {

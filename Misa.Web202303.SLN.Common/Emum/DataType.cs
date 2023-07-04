@@ -4,8 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Misa.Web202303.SLN.Common.Emum
+namespace Misa.Web202303.QLTS.Common.Emum
 {
+    /// <summary>
+    /// kiểu dữ liệu quy định trong database
+    /// Created by: NQ Huy(10/05/2023)
+    /// </summary>
     public enum DataType
     {
         /// <summary>

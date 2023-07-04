@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Misa.Web202303.SLN.Common.Resource {
+namespace Misa.Web202303.QLTS.Common.Resource {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace Misa.Web202303.SLN.Common.Resource {
         public static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Misa.Web202303.SLN.Common.Resource.ErrorMessage", typeof(ErrorMessage).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Misa.Web202303.QLTS.Common.Resource.ErrorMessage", typeof(ErrorMessage).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -57,6 +57,15 @@ namespace Misa.Web202303.SLN.Common.Resource {
             }
             set {
                 resourceCulture = value;
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tài khoản hoạc mật khẩu không đúng.
+        /// </summary>
+        public static string CredentialnvalidError {
+            get {
+                return ResourceManager.GetString("CredentialnvalidError", resourceCulture);
             }
         }
         
@@ -160,6 +169,15 @@ namespace Misa.Web202303.SLN.Common.Resource {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Giá trị {0} phải lớn hơn {1}.
+        /// </summary>
+        public static string HigherError {
+            get {
+                return ResourceManager.GetString("HigherError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Lỗi hệ thống, vui lòng liên hệ Misa.
         /// </summary>
         public static string InternalError {
@@ -183,6 +201,15 @@ namespace Misa.Web202303.SLN.Common.Resource {
         public static string LengthError {
             get {
                 return ResourceManager.GetString("LengthError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Giá trị {0} phải nhỏ hơn {1}.
+        /// </summary>
+        public static string LowerError {
+            get {
+                return ResourceManager.GetString("LowerError", resourceCulture);
             }
         }
         
@@ -255,6 +282,15 @@ namespace Misa.Web202303.SLN.Common.Resource {
         public static string RequiredError {
             get {
                 return ResourceManager.GetString("RequiredError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Phiên đăng nhập của bạn đã hết, vui lòng đăng nhập lại.
+        /// </summary>
+        public static string TokenInvalidError {
+            get {
+                return ResourceManager.GetString("TokenInvalidError", resourceCulture);
             }
         }
         

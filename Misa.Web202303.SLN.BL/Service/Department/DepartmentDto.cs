@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Misa.Web202303.SLN.BL.Service.Department
+namespace Misa.Web202303.QLTS.BL.Service.Department
 {
     /// <summary>
     /// class dùng để trả dữ liệu cho controller
@@ -15,16 +15,16 @@ namespace Misa.Web202303.SLN.BL.Service.Department
         /// <summary>
         /// id phòng ban
         /// </summary>
-        public Guid Department_id { get; set; }
+        public Guid department_id { get; set; }
 
         /// <summary>
         /// mã phòng ban
         /// </summary>
-        public string Department_code { get; set; }
+        public string department_code { get; set; }
 
         /// <summary>
         /// tên phòng ban
         /// </summary>
-        public string Department_name { get; set; }
+        public string department_name { get; set; }
     }
 }

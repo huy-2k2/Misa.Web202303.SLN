@@ -1,18 +1,22 @@
-﻿using Misa.Web202303.SLN.BL.ValidateDto.Attributes;
-using Misa.Web202303.SLN.BL.ValidateDto.Decorators;
-using Misa.Web202303.SLN.Common.Error;
+﻿using Misa.Web202303.QLTS.BL.ValidateDto.Attributes;
+using Misa.Web202303.QLTS.BL.ValidateDto.Decorators;
+using Misa.Web202303.QLTS.Common.Error;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Misa.Web202303.SLN.BL.ValidateDto
+namespace Misa.Web202303.QLTS.BL.ValidateDto
 {
+    /// <summary>
+    /// lớp static để gọi phướng thức validate cho Attr
+    /// created by: nqhuy(21/05/2023)
+    /// </summary>
     public static class ValidateAttribute
     {
         /// <summary>
-        /// phương thức validate các attribute được đánh dấu trong entity, sử dụng decorator parttern, phương thức khởi tạo decorator parttern
+        /// phương thức validate các Attr được đánh dấu trong entity, sử dụng decorator parttern, phương thức khởi tạo decorator parttern
         /// created by: nqhuy(21/05/2023)
         /// </summary>
         /// <typeparam name="TValiadteEntity"></typeparam>
@@ -23,18 +27,18 @@ namespace Misa.Web202303.SLN.BL.ValidateDto
 
             // danh sách lỗi
             List<ValidateError> errors = new();
-            // lấy ra các prop có chứa attribute validate
+            // lấy ra các prop có chứa Attr validate
             var markValidateProps = props.Where(p => Attribute.IsDefined(p, typeof(BaseAttribute), true));
             foreach (var prop in markValidateProps)
             {
                 // khởi tạo decorator init, phương thức handle rỗng
                 BaseDecorator decorator = new InitDecorator();
-                // lấy ra các attribute validate ở mỗi prop
+                // lấy ra các Attr validate ở mỗi prop
                 var attributes = prop.GetCustomAttributes(typeof(BaseAttribute), true);
                 // lấy ra tên của trường dữ liệu
                 var nameAttribute = (NameAttribute)prop.GetCustomAttributes(typeof(NameAttribute), true)[0];
 
-                // duyệt từng  attribute validate ở mỗi prop
+                // duyệt từng  Attr validate ở mỗi prop
                 foreach (var attribute in attributes)
                 {
                     // lấy ra tên decorator tương ứng với attribte 
@@ -47,8 +51,8 @@ namespace Misa.Web202303.SLN.BL.ValidateDto
 
                     // dùng decorator mới tạo để wrap các decorator trưoc đó 
                     newDecorator.nextDecorator = decorator;
-                    newDecorator.attribute = (BaseAttribute)attribute;
-                    newDecorator.propValue = prop.GetValue(entity);
+                    newDecorator.Attr = (BaseAttribute)attribute;
+                    newDecorator.PropValue = prop.GetValue(entity);
                     newDecorator.Name = nameAttribute.Name;
                     newDecorator.FieldNameError = prop.Name;
                     decorator = newDecorator;

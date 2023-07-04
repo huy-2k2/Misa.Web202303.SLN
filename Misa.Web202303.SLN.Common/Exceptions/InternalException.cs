@@ -1,4 +1,4 @@
-﻿using Misa.Web202303.SLN.Common.Emum;
+﻿using Misa.Web202303.QLTS.Common.Emum;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-namespace Misa.Web202303.SLN.Common.Exceptions
+namespace Misa.Web202303.QLTS.Common.Exceptions
 {
     /// <summary>
     /// exception do lỗi hệ thống

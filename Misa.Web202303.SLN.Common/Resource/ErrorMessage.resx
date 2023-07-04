@@ -117,82 +117,124 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="CredentialnvalidError" xml:space="preserve">
+    <value>Tài khoản hoạc mật khẩu không đúng</value>
+    <comment>người dùng nhập sai tên đăng nhập hoạc mật khẩu</comment>
+  </data>
   <data name="DataTypeError" xml:space="preserve">
     <value>Kiểu dữ liệu không hợp lệ</value>
+    <comment>dữ liệu không hợp lệ</comment>
   </data>
   <data name="DepAnnualCostDepRateError" xml:space="preserve">
     <value>Giá trị hao mòn năm phải bằng tỷ lệ hao mòn * nguyên giá</value>
+    <comment>hao mòn năm = tỷ lệ hao mòn * nguyên gá</comment>
   </data>
   <data name="DepRateLifeTimeError" xml:space="preserve">
     <value>Tỷ lệ hao mòn phải bằng 1 / số năm sử dụng</value>
+    <comment>tỷ lệ hao mòn = 1 / số năm sử dụng</comment>
   </data>
   <data name="DuplicateCodeAboveError" xml:space="preserve">
     <value>Mã đã tồn tại ở bản ghi số {0}</value>
+    <comment>trùng mã ở bản ghi trước</comment>
   </data>
   <data name="DuplicateCodeError" xml:space="preserve">
     <value>Trùng lặp {0}</value>
+    <comment>trùng lặp trường đánh dấu là unique</comment>
   </data>
   <data name="EqualError" xml:space="preserve">
     <value>Giá trị {0} phải bằng {1}</value>
+    <comment>giá trị của a phải bằng b</comment>
   </data>
   <data name="FileColumnError" xml:space="preserve">
     <value>Số cột phải bằng {0}</value>
+    <comment>số cột của file không hợp lệ</comment>
   </data>
   <data name="FileDataError" xml:space="preserve">
     <value>Dữ liệu trong tệp không hợp lệ</value>
+    <comment>dữ liệu trong tệp không hợp lệ</comment>
   </data>
   <data name="FileError" xml:space="preserve">
     <value>File bị lỗi</value>
+    <comment>lỗi file</comment>
   </data>
   <data name="FileFormatError" xml:space="preserve">
     <value>File không đúng định dạng</value>
+    <comment>lỗi định dạng file</comment>
   </data>
   <data name="FileRowError" xml:space="preserve">
     <value>Số dòng không hợp lệ</value>
+    <comment>số dòng trong file không hợp lệ</comment>
+  </data>
+  <data name="HigherError" xml:space="preserve">
+    <value>Giá trị {0} phải lớn hơn {1}</value>
+    <comment>nhỏ hơn giá trị cho phép</comment>
   </data>
   <data name="InternalError" xml:space="preserve">
     <value>Lỗi hệ thống, vui lòng liên hệ Misa</value>
+    <comment>lỗi hệ thống</comment>
   </data>
   <data name="InvalidError" xml:space="preserve">
     <value>Giá trị {0} không hợp lệ</value>
+    <comment>giá trị a không hợp lệ</comment>
   </data>
   <data name="LengthError" xml:space="preserve">
     <value>Độ dài {0} phải từ {1} đến {2}</value>
+    <comment>độ dài a phải có length từ b đến c</comment>
+  </data>
+  <data name="LowerError" xml:space="preserve">
+    <value>Giá trị {0} phải nhỏ hơn {1}</value>
+    <comment>lớn hơn giá trị cho phép</comment>
   </data>
   <data name="NotExistedError" xml:space="preserve">
     <value>Không tồn tại {0}</value>
+    <comment>không tồn tại a</comment>
   </data>
   <data name="NotFoundDeleteError" xml:space="preserve">
     <value>Không thể xóa {0} vì {0} không tồn tại</value>
+    <comment>không thể xóa vì không tồn tại</comment>
   </data>
   <data name="NotFoundDeleteListError" xml:space="preserve">
     <value>Không thể xóa vì có bản ghi trong danh sách không tồn tại</value>
+    <comment>không thể xóa vì có bản ghi trong danh sách không tồn tại</comment>
   </data>
   <data name="NotFoundError" xml:space="preserve">
     <value>Không tìm thấy {0} vì {0} không tồn tại</value>
+    <comment>không tìm thấy vì không tồn tại</comment>
   </data>
   <data name="NotFoundUpdateError" xml:space="preserve">
     <value>Không thể cập nhật {0} vì {0} không tồn tại</value>
+    <comment>không thể cập nhật vì không tồn tại</comment>
   </data>
   <data name="PositiveNumberError" xml:space="preserve">
     <value>Giá trị {0} phải lớn hơn 0</value>
+    <comment>giá trị a phải dương</comment>
   </data>
   <data name="RangeError" xml:space="preserve">
     <value>Giá trị {0} phải từ {1} đến {2}</value>
+    <comment>a phải có giá trị từ b đến c</comment>
   </data>
   <data name="RequiredError" xml:space="preserve">
     <value>Không được phép để trống {0}</value>
+    <comment>không được để trống</comment>
+  </data>
+  <data name="TokenInvalidError" xml:space="preserve">
+    <value>Phiên đăng nhập của bạn đã hết, vui lòng đăng nhập lại</value>
+    <comment>token không hợp lệ</comment>
   </data>
   <data name="UseDateLessThanPurchaseDateError" xml:space="preserve">
     <value>Ngày mua không được nhỏ hơn ngày sử dụng</value>
+    <comment>ngày mua không được nhỏ hơn ngày sử dụng</comment>
   </data>
   <data name="ValidateCreateError" xml:space="preserve">
     <value>Dữ liệu thêm mới không hợp lệ</value>
+    <comment>dữ liệu thêm mới không hợp lệ</comment>
   </data>
   <data name="ValidateFilterError" xml:space="preserve">
     <value>Dữ liệu lọc không hợp lệ</value>
+    <comment>dữ liệu lọc không hợp lệ</comment>
   </data>
   <data name="ValidateUpdateError" xml:space="preserve">
     <value>Dữ liệu cập nhật không hợp lệ</value>
+    <comment>dữ liệu cập nhật không hợp lệ</comment>
   </data>
 </root>

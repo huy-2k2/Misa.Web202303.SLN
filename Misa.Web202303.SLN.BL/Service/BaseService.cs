@@ -1,15 +1,17 @@
 ﻿using AutoMapper;
+using DocumentFormat.OpenXml.Office2010.Excel;
 using DocumentFormat.OpenXml.Office2016.Drawing.Command;
-using Misa.Web202303.SLN.BL.Service.FixedAssetCategory;
-using Misa.Web202303.SLN.BL.ValidateDto;
-using Misa.Web202303.SLN.BL.ValidateDto.Attributes;
-using Misa.Web202303.SLN.BL.ValidateDto.Decorators;
-using Misa.Web202303.SLN.Common.Emum;
-using Misa.Web202303.SLN.Common.Error;
-using Misa.Web202303.SLN.Common.Exceptions;
-using Misa.Web202303.SLN.Common.Resource;
-using Misa.Web202303.SLN.DL.Entity;
-using Misa.Web202303.SLN.DL.Repository;
+using Misa.Web202303.QLTS.BL.Service.FixedAssetCategory;
+using Misa.Web202303.QLTS.BL.ValidateDto;
+using Misa.Web202303.QLTS.BL.ValidateDto.Attributes;
+using Misa.Web202303.QLTS.BL.ValidateDto.Decorators;
+using Misa.Web202303.QLTS.Common.Const;
+using Misa.Web202303.QLTS.Common.Emum;
+using Misa.Web202303.QLTS.Common.Error;
+using Misa.Web202303.QLTS.Common.Exceptions;
+using Misa.Web202303.QLTS.Common.Resource;
+using Misa.Web202303.QLTS.DL.Entity;
+using Misa.Web202303.QLTS.DL.Repository;
 using OfficeOpenXml;
 using System;
 using System.Collections.Generic;
@@ -17,43 +19,47 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Misa.Web202303.SLN.BL.Service
+namespace Misa.Web202303.QLTS.BL.Service
 {
     /// <summary>
     /// abstract class định nghĩa các phương thức dùng chung để tái sử dụng cho các service
     /// created by: nqhuy(21/05/2023)
     /// </summary>
-    /// <typeparam name="TEntity"></typeparam>
-    /// <typeparam name="TEntityDto"></typeparam>
-    /// <typeparam name="TEntityUpdateDto"></typeparam>
-    /// <typeparam name="TEntityCreateDto"></typeparam>
+    /// <typeparam name="TEntity">enityty để giao tiếp với tầng DL</typeparam>
+    /// <typeparam name="TEntityDto">dto để lấy dữ liệu</typeparam>
+    /// <typeparam name="TEntityUpdateDto">dto để update dữ liệu</typeparam>
+    /// <typeparam name="TEntityCreateDto">dto để thêm dữ liệu</typeparam>
     public abstract class BaseService<TEntity, TEntityDto, TEntityUpdateDto, TEntityCreateDto> : IBaseService<TEntityDto, TEntityUpdateDto, TEntityCreateDto>
     {
+        #region
         /// <summary>
         /// sử dụng dịch vị của  IBaseRepository
         /// </summary>
         protected readonly IBaseRepository<TEntity> _baseRepository;
         protected readonly IMapper _mapper;
+        #endregion
 
+        #region
         /// <summary>
         /// hàm khởi tạo
         /// created by: nqhuy(21/05/2023)
         /// </summary>
-        /// <param name="baseRepository"></param>
-        /// <param name="mapper"></param>
+        /// <param name="baseRepository">baseRepository</param>
+        /// <param name="mapper">mapper</param>
         public BaseService(IBaseRepository<TEntity> baseRepository, IMapper mapper)
         {
             _baseRepository = baseRepository;
             _mapper = mapper;
         }
+        #endregion
 
+        #region
         /// <summary>
-        /// phương thức lấy 1 bản ghi theo id
+        /// lấy ra 1 bản thi theo id
         /// created by: nqhuy(21/05/2023)
         /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
-        /// <exception cref="NotFoundException"></exception>
+        /// <param name="id">id tài nguyên cần lấy</param>
+        /// <exception cref="NotFoundException">exception trong trường hợp không tìm thấy tài nguyên</exception>
         public virtual async Task<TEntityDto> GetAsync(Guid id)
         {
             var entity = await _baseRepository.GetAsync(id);
@@ -75,7 +81,7 @@ namespace Misa.Web202303.SLN.BL.Service
         /// lấy ra tất cả bản ghi
         /// created by: nqhuy(21/05/2023)
         /// </summary>
-        /// <returns></returns>
+        /// <returns>tất cả tài nguyên trong 1 bảng</returns>
         public virtual async Task<IEnumerable<TEntityDto>> GetAsync()
         {
             var listTEntity = await _baseRepository.GetAsync();
@@ -86,18 +92,21 @@ namespace Misa.Web202303.SLN.BL.Service
         }
 
         /// <summary>
-        /// thêm mới 1 bản ghi
+        /// thêm 1 bản ghi
         /// created by: nqhuy(21/05/2023)
         /// </summary>
-        /// <param name="entityDto"></param>
+        /// <param name="entityCreateDto">dữ liệu tài nguyên thêm mới</param>
+        /// <exception cref="ValidateException">throw exception khi validate lỗi</exception>
         /// <returns></returns>
-        /// <exception cref="NotImplementedException"></exception>
         public virtual async Task InsertAsync(TEntityCreateDto entityCreateDto)
         {
-            // validate attribute
-            var listError =  ValidateAttribute.Validate(entityCreateDto);
+            // validate Attr
+            var attributeErrors =  ValidateAttribute.Validate(entityCreateDto);
             // validate riêng
-            listError = Enumerable.Concat(listError, await CreateValidateAsync(entityCreateDto)).ToList();
+            var createValidateErrors = await CreateValidateAsync(entityCreateDto);
+            
+            var listError = Enumerable.Concat(attributeErrors, createValidateErrors).ToList();
+
             // nếu validate có lỗi thì throw exception
             if(listError.Count > 0)
             {
@@ -105,7 +114,7 @@ namespace Misa.Web202303.SLN.BL.Service
                 {
                     ErrorCode = ErrorCode.DataValidate,
                     Data = listError,
-                    UserMessage = ErrorMessage.ValidateCreateError
+                    UserMessage = string.Join ("", listError.Select(error => $"<span>{error.Message}</span>"))
                     
                 };
             }
@@ -114,12 +123,13 @@ namespace Misa.Web202303.SLN.BL.Service
         }
 
         /// <summary>
-        /// update 1 bản ghi
+        /// phương thức update 1 bản ghi
         /// created by: nqhuy(21/05/2023)
         /// </summary>
-        /// <param name="entityDto"></param>
+        /// <param name="entityId">id tài sản cần sửa</param>
+        /// <param name="entityUpdateDto">dữ liệu tài sản cần sửa</param>
+        /// <exception cref="ValidateException">throw exception khi validate lỗi</exception>
         /// <returns></returns>
-        /// <exception cref="NotImplementedException"></exception>
         public virtual async Task UpdateAsync(Guid entityId, TEntityUpdateDto entityUpdateDto)
         {
             // kiểm tra bản ghi không tồn tại
@@ -132,10 +142,11 @@ namespace Misa.Web202303.SLN.BL.Service
                     UserMessage = string.Format(ErrorMessage.NotFoundUpdateError, GetAssetName())
                 };
             }
-            // validate attribute
-            var listError =  ValidateAttribute.Validate(entityUpdateDto);
+            var attributeErrors = ValidateAttribute.Validate(entityUpdateDto);
             // validate riêng
-            listError = Enumerable.Concat(listError, await UpdateValidateAsync(entityId, entityUpdateDto)).ToList();
+            var updateValidateErrors = await UpdateValidateAsync(entityId, entityUpdateDto);
+
+            var listError = Enumerable.Concat(attributeErrors, updateValidateErrors).ToList();
 
             if (listError.Count > 0)
             {
@@ -143,7 +154,7 @@ namespace Misa.Web202303.SLN.BL.Service
                 {
                     ErrorCode = ErrorCode.DataValidate,
                     Data = listError,
-                    UserMessage = ErrorMessage.ValidateUpdateError
+                    UserMessage = string.Join("", listError.Select(error => $"<span>{error.Message}</span>"))
                 };
             }
 
@@ -156,9 +167,9 @@ namespace Misa.Web202303.SLN.BL.Service
         /// kiểm tra mã code bị trùng khi thêm hoạc sửa
         /// created by: nqhuy(21/05/2023)
         /// </summary>
-        /// <param name="code"></param>
-        /// <param name="id"></param>
-        /// <returns></returns>
+        /// <param name="code">mã code</param>
+        /// <param name="id">id (là rỗng trong trường hợp thêm mới)</param>
+        /// <returns>false nếu không tồn tại, true nếu tồn tại</returns>
         public virtual async Task<bool> CheckCodeExisted(string code, Guid? id)
         {
             var result = await _baseRepository.CheckCodeExistedAsync(code, id);
@@ -166,31 +177,62 @@ namespace Misa.Web202303.SLN.BL.Service
         }
 
         /// <summary>
-        /// validate khi update dữ liệu
+        /// validate khi update dữ liệu, kiểm tra mã trùng
         /// created by: nqhuy(21/05/2023)
         /// </summary>
-        /// <param name="id"></param>
-        /// <param name="entityUpdateDto"></param>
-        /// <returns></returns>
+        /// <param name="id">id tài nguyên</param>
+        /// <param name="entityUpdateDto">dữ liệu entity cần valdiate</param>
+        /// <returns>danh sách lỗi</returns>
         protected virtual async Task<List<ValidateError>> UpdateValidateAsync(Guid id, TEntityUpdateDto entityUpdateDto) {
-            return new List<ValidateError>();
+            var listError = new List<ValidateError>();
+            var tableName = _baseRepository.GetTableName();
+            var prop = entityUpdateDto.GetType().GetProperty($"{tableName}_code");
+            if (prop == null)
+                return listError;
+            var code = (string)prop.GetValue(entityUpdateDto);
+            var isCodeExisted = await _baseRepository.CheckCodeExistedAsync(code, id);
+            if(isCodeExisted)
+            {
+                listError.Add(new ValidateError()
+                {
+                    FieldNameError = $"{tableName}_code",
+                    Message = string.Format(ErrorMessage.DuplicateCodeError, FieldName.CommonCode),
+                });
+            }
+            return listError;
         }
 
         /// <summary>
-        /// validate khi thêm dữ liệu
+        /// validate khi update dữ liệu, kiểm tra mã trùng
         /// created by: nqhuy(21/05/2023)
         /// </summary>
-        /// <param name="entityCreateDto"></param>
-        /// <returns></returns>
+        /// <param name="entityCreateDto">dữ liệu entity cần validate</param>
+        /// <returns>danh sách lỗi</returns>
         protected virtual async Task<List<ValidateError>> CreateValidateAsync(TEntityCreateDto entityCreateDto) {
-            return new List<ValidateError>();
+            var listError = new List<ValidateError>();
+            var tableName = _baseRepository.GetTableName();
+            var prop = entityCreateDto.GetType().GetProperty($"{tableName}_code");
+            if (prop == null)
+                return listError;
+            var code = (string)prop.GetValue(entityCreateDto);
+            var isCodeExisted = await _baseRepository.CheckCodeExistedAsync(code, null);
+            if (isCodeExisted)
+            {
+                listError.Add(new ValidateError()
+                {
+                    FieldNameError = $"{tableName}_code",
+                    Message = string.Format(ErrorMessage.DuplicateCodeError, FieldName.CommonCode),
+                });
+            }
+            return listError;
         }
 
         /// <summary>
         /// xóa nhiều bản ghi cùng lúc dựa vào danh sách id
         /// created by: nqhuy(21/05/2023)
         /// </summary>
-        /// <param name="listId"></param>
+        /// <param name="listId">danh sách id tài nguyên cần xóa</param>
+        /// <exception cref="ValidateException">throw exception khi không tồn tại tài nguyên</exception>
         /// <returns></returns>
         public virtual async Task DeleteListAsync(IEnumerable<Guid> listId)
         {
@@ -210,13 +252,18 @@ namespace Misa.Web202303.SLN.BL.Service
            await _baseRepository.DeleteListAsync(listIdString);
         }
 
+        #endregion
+
+        #region
         /// <summary>
         /// lấy ra tên tài nguyên
         /// created by: nqhuy(21/05/2023)
         /// </summary>
-        /// <returns></returns>
+        /// <returns>tên tài nguyên</returns>
         protected abstract string GetAssetName();
-    
+
+        #endregion
+
     }
 
 }

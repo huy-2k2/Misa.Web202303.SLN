@@ -5,13 +5,13 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Misa.Web202303.SLN.Common.Emum;
-using Misa.Web202303.SLN.Common.Error;
-using Misa.Web202303.SLN.Common.Exceptions;
-using Misa.Web202303.SLN.Common.Resource;
+using Misa.Web202303.QLTS.Common.Emum;
+using Misa.Web202303.QLTS.Common.Error;
+using Misa.Web202303.QLTS.Common.Exceptions;
+using Misa.Web202303.QLTS.Common.Resource;
 using OfficeOpenXml.Style.XmlAccess;
 
-namespace Misa.Web202303.SLN.MiddleWares
+namespace Misa.Web202303.QLTS.API.MiddleWares
 {
     /// <summary>
     /// Middleware xử lý khi exception được bắn ra 
@@ -19,8 +19,12 @@ namespace Misa.Web202303.SLN.MiddleWares
     /// </summary>
     public class ExceptionMiddleware
     {
-        private readonly RequestDelegate _next;
 
+        #region
+        private readonly RequestDelegate _next;
+        #endregion
+
+        #region
         /// <summary>
         /// phương thức khởi tạo
         /// created by: nqhuy(21/05/2023)
@@ -30,7 +34,9 @@ namespace Misa.Web202303.SLN.MiddleWares
         {
             _next = next;
         }
+        #endregion
 
+        #region
         /// <summary>
         /// phương thức bắt exception và gọi hàm xử lý exception
         /// created by: nqhuy(21/05/2023)
@@ -66,7 +72,7 @@ namespace Misa.Web202303.SLN.MiddleWares
             if (exception is BaseException)
             {
 
-                // tạo message và trả về kết quả
+                // tạo message và trả về kết quảư2
                 var ex = (BaseException)exception;
                 context.Response.StatusCode = (int)ex.HttpStatusCode;
                 await context.Response.WriteAsync(
@@ -99,5 +105,6 @@ namespace Misa.Web202303.SLN.MiddleWares
                 );
             }
         }
+        #endregion
     }
 }

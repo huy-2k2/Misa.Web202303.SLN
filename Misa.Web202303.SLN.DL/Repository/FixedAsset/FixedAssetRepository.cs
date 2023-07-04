@@ -1,7 +1,7 @@
 ﻿using Dapper;
 using Microsoft.Extensions.Configuration;
-using Misa.Web202303.SLN.Common.Const;
-using Misa.Web202303.SLN.DL.Entity;
+using Misa.Web202303.QLTS.Common.Const;
+using Misa.Web202303.QLTS.DL.filter;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -10,39 +10,40 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using FixedAssetEntity = Misa.Web202303.SLN.DL.Entity.FixedAsset;
+using FixedAssetEntity = Misa.Web202303.QLTS.DL.Entity.FixedAsset;
 
-namespace Misa.Web202303.SLN.DL.Repository.FixedAsset
+namespace Misa.Web202303.QLTS.DL.Repository.FixedAsset
 {
     /// <summary>
     /// thực thi các phương thức của IFixedAssetRepository, kế thừa các phương thức có sẵn của BaseRepository
     /// Created by: NQ Huy(20/05/2023)
     /// </summary>
     public class FixedAssetRepository : BaseRepository<FixedAssetEntity>, IFixedAssetRepository
-
     {
 
+        #region
         /// <summary>
         /// hàm khởi tạo
         /// Created by: NQ Huy(20/05/2023)
         /// </summary>
-        /// <param name="configuration"></param>
+        /// <param name="configuration">IConfiguration</param>
         public FixedAssetRepository(IConfiguration configuration) : base(configuration)
         {
 
         }
+        #endregion
 
-
+        #region
         /// <summary>
-        /// lọc, search, phân trang tài sản
+        /// filter, search, phân trang tài sản
         /// Created by: NQ Huy(20/05/2023)
         /// </summary>
-        /// <param name="pageSize"></param>
-        /// <param name="currentPage"></param>
-        /// <param name="departmentId"></param>
-        /// <param name="fixedAssetCategoryId"></param>
-        /// <param name="textSearch"></param>
-        /// <returns></returns>
+        /// <param name="pageSize">số bản ghi trong 1 trang</param>
+        /// <param name="currentPage">trang hiện tại</param>
+        /// <param name="departmentId">mã phòng ban</param>
+        /// <param name="fixedAssetCategoryId">mã loại tài sản</param>
+        /// <param name="textSearch">từ khóa tìm kiếm</param>
+        /// <returns>danh sách tài sản thỏa mãn yêu cầu filter, phân trang</returns>
         public async Task<FilterListFixedAsset> GetAsync(int pageSize, int currentPage, Guid? departmentId, Guid? fixedAssetCategoryId, string? textSearch)
         {
             var connection = await GetOpenConnectionAsync();
@@ -52,14 +53,14 @@ namespace Misa.Web202303.SLN.DL.Repository.FixedAsset
             dynamicParams.Add("page_size", pageSize);
             dynamicParams.Add("current_page", currentPage);
             // tham số nào là null thì truyền vào procedure là chuỗi rỗng
-            dynamicParams.Add("department_id", departmentId == null? "" : departmentId);
-            dynamicParams.Add("fixed_asset_category_id", fixedAssetCategoryId == null? "" : fixedAssetCategoryId);
+            dynamicParams.Add("department_id", departmentId == null ? "" : departmentId);
+            dynamicParams.Add("fixed_asset_category_id", fixedAssetCategoryId == null ? "" : fixedAssetCategoryId);
             dynamicParams.Add("text_search", textSearch ?? "");
             // thêm param output để lấy tổng tài sản, tổng số lượng, tổng nguyên giá
             dynamicParams.Add("total_asset", dbType: DbType.Int32, direction: ParameterDirection.Output);
             dynamicParams.Add("total_quantity", dbType: DbType.Int32, direction: ParameterDirection.Output);
             dynamicParams.Add("total_cost", dbType: DbType.Double, direction: ParameterDirection.Output);
-            
+
             var listFixedAsset = await connection.QueryAsync<FixedAssetEntity>(sql, dynamicParams, commandType: CommandType.StoredProcedure);
             // lấy tổng tài sản, tổng số lượng, tổng  nguyên giá
             var totalAsset = dynamicParams.Get<int>("total_asset");
@@ -68,48 +69,68 @@ namespace Misa.Web202303.SLN.DL.Repository.FixedAsset
 
             await connection.CloseAsync();
 
-            return new FilterListFixedAsset() { List_fixed_asset = listFixedAsset, Total_asset = totalAsset, Total_cost=totalCost ?? 0, Total_quantity=totalQuantity ?? 0};
+            return new FilterListFixedAsset() { list_fixed_asset = listFixedAsset, total_asset = totalAsset, total_cost = totalCost ?? 0, total_quantity = totalQuantity ?? 0 };
 
         }
 
         /// <summary>
-        /// lấy mã tài sản có cùng tiền tố với mã tài sản được thêm hoạc sửa gần nhất và có hậu tố lớn nhất
-        /// Created by: NQ Huy(20/05/2023)
+        /// lấy ra các tài sản chưa có chứng từ và chưa được chọn
         /// </summary>
-        /// <returns></returns>
-        public async Task<List<string>> GetMaxAssetCodeAsync()
+        /// <param name="listIdSelected">danh sách id đã được chọn</param>
+        /// <param name="textSearch">từ khóa tìm kiếm</param>
+        /// <param name="pageSize">kích thước của 1 page</param>
+        /// <param name="currentPage">page hiện tại</param>
+        /// <returns>danh sách tài sản</returns>
+        public async Task<FilterListFixedAsset> GetFilterNotHasLicenseAsync(int pageSize, int currentPage, string listIdSelected, string? textSearch)
         {
             var connection = await GetOpenConnectionAsync();
-            var sql = ProcedureName.GET_MAX_FIXED_ASSET_CODE;
-            // thêm các param
+            var sql = ProcedureName.GET_FILTER_FIXED_ASSET_NO_LICENSE;
             var dynamicParams = new DynamicParameters();
-            // thêm param output để lấy ra tiền tố của mã tài sản, và tài sản có hậu tố lớn nhất
-            dynamicParams.Add("prefix_asset_code", dbType: DbType.String, direction: ParameterDirection.Output);
-            dynamicParams.Add("max_asset_code", dbType: DbType.String, direction: ParameterDirection.Output);
-            await connection.ExecuteAsync(sql, dynamicParams, commandType: CommandType.StoredProcedure);
-            
-            var result =  new List<string>();
-            // lấy ra tiền tố
-            var preFix = dynamicParams.Get<string>("prefix_asset_code");
-            // lấy ra mã tài sản lớn nhất
-            var maxAssetCode = dynamicParams.Get<string>("max_asset_code");
-
-            result.Add(preFix);
-            result.Add(maxAssetCode);
-
+            // add param
+            dynamicParams.Add("page_size", pageSize);
+            dynamicParams.Add("current_page", currentPage);
+            dynamicParams.Add("list_id_selected", listIdSelected);
+            dynamicParams.Add("text_search", textSearch);
+            dynamicParams.Add("total_asset", dbType: DbType.Int32, direction: ParameterDirection.Output);
+            var listFixedAsset = await connection.QueryAsync<FixedAssetEntity>(sql, dynamicParams, commandType: CommandType.StoredProcedure);
+            // lấy ra param kiểu out
+            var totalAsset = dynamicParams.Get<int>("total_asset");
             await connection.CloseAsync();
-
-            return result;
+            // trả về kết quả
+            return new FilterListFixedAsset()
+            {
+                list_fixed_asset = listFixedAsset,
+                total_asset = totalAsset,
+            };
         }
 
         /// <summary>
-        /// lấy ra tên của table trong csdl ứng với repository
+        /// lấy danh sách tài sản theo id chứng từ
+        /// </summary>
+        /// <param name="licenseId">id chứng từ</param>
+        /// <returns>danh sách tài sản</returns>
+        public async Task<IEnumerable<FixedAssetEntity>> GetListByLicenseId(Guid licenseId)
+        {
+            var connection = await GetOpenConnectionAsync();
+            var sql = "SELECT fa.* FROM fixed_asset fa JOIN license_detail ld ON ld.fixed_asset_id = fa.fixed_asset_id WHERE ld.license_id = @license_id";
+            var dynamicParams = new DynamicParameters();
+
+            dynamicParams.Add("license_id", licenseId);
+
+            var listFixedAsset = await connection.QueryAsync<FixedAssetEntity>(sql, dynamicParams);
+            return listFixedAsset;
+        }
+
+
+        /// <summary>
+        /// lấy ra tên cụ thể của table ứng với repository
         /// Created by: NQ Huy(20/05/2023)
         /// </summary>
-        /// <returns></returns>
+        /// <returns>tên của table fixed asset</returns>
         public override string GetTableName()
         {
-            return "Fixed_asset";
+            return "fixed_asset";
         }
+        #endregion
     }
 }

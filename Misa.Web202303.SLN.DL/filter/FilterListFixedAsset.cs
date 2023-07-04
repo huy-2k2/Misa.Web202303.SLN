@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Misa.Web202303.QLTS.DL.Entity;
 
-namespace Misa.Web202303.SLN.DL.Entity
+namespace Misa.Web202303.QLTS.DL.filter
 {
     /// <summary>
     /// lớp  dùng để lấy dữ liệu khi phân trang
@@ -15,21 +16,21 @@ namespace Misa.Web202303.SLN.DL.Entity
         /// <summary>
         /// danh sách tài sản
         /// </summary>
-        public IEnumerable<FixedAsset> List_fixed_asset { get; set; }
-        
+        public IEnumerable<FixedAsset> list_fixed_asset { get; set; }
+
         /// <summary>
         /// sổ lượng tại sản
         /// </summary>
-        public int Total_asset { get; set; }
+        public int total_asset { get; set; }
 
         /// <summary>
         /// tổng số lượng tài sản
         /// </summary>
-        public int Total_quantity { get; set; }
+        public int total_quantity { get; set; }
 
         /// <summary>
         /// tổng nguyên giá
         /// </summary>
-        public double Total_cost { get; set; }
+        public double total_cost { get; set; }
     }
 }

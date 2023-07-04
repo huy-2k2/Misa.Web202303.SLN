@@ -1,6 +1,7 @@
 ﻿using Dapper;
 using Microsoft.Extensions.Configuration;
-using Misa.Web202303.SLN.DL.Entity;
+using Misa.Web202303.QLTS.Common.Const;
+using Misa.Web202303.QLTS.DL.Entity;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -10,32 +11,37 @@ using System.Net.WebSockets;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Misa.Web202303.SLN.DL.Repository
+namespace Misa.Web202303.QLTS.DL.Repository
 {
     /// <summary>
     /// thực thi các phương thức của IBaseRepository
     /// Created by: NQ Huy(20/05/2023)
     /// </summary>
-    /// <typeparam name="TEntity"></typeparam>
+    /// <typeparam name="TEntity">entity để lấy dữ liệu từ database</typeparam>
     public abstract class BaseRepository<TEntity> : IBaseRepository<TEntity>
     {
+        #region
         private readonly string _connectionString;
+        #endregion
 
+        #region
         /// <summary>
         /// hàm khởi tạo, lấy IConfiguration từ dependency injection
         /// Created by: NQ Huy(20/05/2023)
         /// </summary>
-        /// <param name="configuration"></param>
+        /// <param name="configuration">IConfiguration</param>
         public BaseRepository(IConfiguration configuration)
         {
             _connectionString = configuration["ConnectionString"] ?? "";
         }
+        #endregion
 
+        #region
         /// <summary>
         /// mở kết nối
         /// Created by: NQ Huy(20/05/2023)
         /// </summary>
-        /// <returns></returns>
+        /// <returns>DbConnection</returns>
         protected async Task<DbConnection> GetOpenConnectionAsync()
         {
             var connection = new MySqlConnector.MySqlConnection(_connectionString);
@@ -47,13 +53,17 @@ namespace Misa.Web202303.SLN.DL.Repository
         /// lấy 1 bản ghi theo id
         /// Created by: NQ Huy(20/05/2023)
         /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
+        /// <param name="id">id tài nguyên cần lấy</param>
+        /// <returns>tài nguyên cần lấy</returns>
         public virtual async Task<TEntity?> GetAsync(Guid id)
         {
             var connection = await GetOpenConnectionAsync();
             var tableName = this.GetTableName();
-            var sql = $"SELECT * FROM {tableName} WHERE {tableName}_id = @id";
+            // tạo entity để lấy ra các trường cần thiết, tránh việc dùng select * 
+            var entity = (TEntity)Activator.CreateInstance(typeof(TEntity));
+            var props = entity.GetType().GetProperties();
+            // tạo lệnh sql
+            var sql = $"SELECT " + string.Join(", ", props.Select(prop => prop.Name)) + $" FROM {tableName} WHERE {tableName}_id = @id";
             var dynamicParams = new DynamicParameters();
             dynamicParams.Add("id", id);
 
@@ -67,11 +77,15 @@ namespace Misa.Web202303.SLN.DL.Repository
         /// lấy tất cả bản ghi
         /// Created by: NQ Huy(20/05/2023)
         /// </summary>
-        /// <returns></returns>
+        /// <returns>danh sách bản ghi</returns>
         public virtual async Task<IEnumerable<TEntity>> GetAsync()
         {
             var connection = await GetOpenConnectionAsync();
-            var sql = $"SELECT * FROM {this.GetTableName()}";
+            // tạo entity để lấy ra các trường cần thiết, tránh việc dùng select * 
+            var entity = (TEntity)Activator.CreateInstance(typeof(TEntity));
+            var props = entity.GetType().GetProperties();
+            // tạo lệnh sql
+            var sql = $"SELECT " + string.Join(", ", props.Select(prop => prop.Name)) + $" FROM {this.GetTableName()}";
 
             var result = await connection.QueryAsync<TEntity>(sql);
             await connection.CloseAsync();
@@ -80,10 +94,10 @@ namespace Misa.Web202303.SLN.DL.Repository
         }
 
         /// <summary>
-        /// cập nhật 1 bản ghi
+        /// cập nhật bản ghi
         /// Created by: NQ Huy(20/05/2023)
         /// </summary>
-        /// <param name="entity"></param>
+        /// <param name="entity">dữ liệu bản ghi cập nhật</param>
         /// <returns></returns>
         public virtual async Task UpdateAsync(Guid entityId, TEntity entity)
         {
@@ -113,10 +127,10 @@ namespace Misa.Web202303.SLN.DL.Repository
 
 
         /// <summary>
-        /// thêm mới 1 bản ghi
+        /// thêm bản ghi
         /// Created by: NQ Huy(20/05/2023)
         /// </summary>
-        /// <param name="entity"></param>k
+        /// <param name="entity">dữ liệu bản ghi thêm mới</param>
         /// <returns></returns>
         public virtual async Task InsertAsync(TEntity entity)
         {
@@ -144,11 +158,12 @@ namespace Misa.Web202303.SLN.DL.Repository
         }
 
         /// <summary>
-        /// kiểm tra  mã code đã tồn tại khi thêm hoạc sửa
+        /// kiểm tra mã code đã tồn tại khi thêm hoạc sửa
+        /// Created by: NQ Huy(20/05/2023)
         /// </summary>
-        /// <param name="code"></param>
-        /// <param name="id"></param>
-        /// <returns></returns>
+        /// <param name="code">mã code</param>
+        /// <param name="id">id (là rỗng trong trường hợp thêm mới)</param>
+        /// <returns>false nếu tài nguyên không tồn tại, true nếu tồn tại</returns>
         public virtual async Task<bool> CheckCodeExistedAsync(string code, Guid? id)
         {
             var tableName = this.GetTableName();
@@ -169,7 +184,7 @@ namespace Misa.Web202303.SLN.DL.Repository
         /// xóa nhiều bản ghi dựa vào chuỗi danh sách id, tách nhau bởi dấu ","
         /// Created by: NQ Huy(20/05/2023)
         /// </summary>
-        /// <param name="listId"></param>
+        /// <param name="listId">danh sách id</param>
         /// <returns></returns>
         public virtual async Task DeleteListAsync(string listId)
         {
@@ -190,8 +205,8 @@ namespace Misa.Web202303.SLN.DL.Repository
         /// lấy ra tổng số bản ghi tồn tại trong danh sách chuỗi id
         /// Created by: NQ Huy(20/05/2023)
         /// </summary>
-        /// <param name="listId"></param>
-        /// <returns></returns>
+        /// <param name="listId">danh sách id</param>
+        /// <returns>số bản ghi tồn tại trong danh sách chuỗi id</returns>
         public virtual async Task<int> GetSumExistedOfListAsync(string listId)
         {
             var tableName = GetTableName();
@@ -208,7 +223,7 @@ namespace Misa.Web202303.SLN.DL.Repository
         /// thêm nhiều bản ghi cùng lúc, dùng cho khi import file
         /// Created by: NQ Huy(20/05/2023)
         /// </summary>
-        /// <param name="listEntity"></param>
+        /// <param name="listEntity">danh sách tài nguyên cần thêm</param>
         /// <returns></returns>
         public virtual async Task InsertListAsync(IEnumerable<TEntity> listEntity)
         {
@@ -219,6 +234,7 @@ namespace Misa.Web202303.SLN.DL.Repository
             var sql = "";
 
             var index = 0;
+            // tạo lệnh sql và add dynamic param
             foreach (var entity in listEntity)
             {
                 var notNullProps = entity.GetType().GetProperties().Where(prop => prop.GetValue(entity) != null);
@@ -236,18 +252,30 @@ namespace Misa.Web202303.SLN.DL.Repository
                 index++;
             }
 
-            await connection.ExecuteAsync(sql, dynamicParams);
+            // sử dụng transaction
+            using (var transaction = connection.BeginTransaction())
+            {
+                try
+                {
+                    await connection.ExecuteAsync(sql, dynamicParams, transaction: transaction);
+                    transaction.Commit();
+                }
+                catch (Exception ex)
+                {
+                    transaction.Rollback();
+                    throw ex;
+                }
+            }
+
             await connection.CloseAsync();
 
         }
-
-       
 
         /// <summary>
         /// lấy dữ liệu import của table, column
         /// Created by: NQ Huy(20/05/2023)
         /// </summary>
-        /// <returns></returns>
+        /// <returns>dữ liệu nhập khẩu về cột và bảng</returns>
         public virtual async Task<IEnumerable<ImportEntity>> GetImportDataAsync()
         {
             var tableName = GetTableName();
@@ -266,8 +294,8 @@ namespace Misa.Web202303.SLN.DL.Repository
         /// kiểm tra các mã code tồn tại trong listCode khi thêm nhiều tài sản
         /// Created by: NQ Huy(20/05/2023)
         /// </summary>
-        /// <param name="listCode"></param>
-        /// <returns></returns>
+        /// <param name="listCode">danh sách mã tài sản</param>
+        /// <returns>danh sánh mã tài sản tồn tại</returns>
         public virtual async Task<IEnumerable<string>> GetListExistedCodeAsync(string listCode)
         {
             var connection = await GetOpenConnectionAsync();
@@ -275,18 +303,56 @@ namespace Misa.Web202303.SLN.DL.Repository
             var dynamicParams = new DynamicParameters();
             var sql = $"SELECT {tableName}_code FROM {tableName} WHERE FIND_IN_SET({tableName}_code, @list_code)";
             dynamicParams.Add("@list_code", listCode);
-            
+
             var result = await connection.QueryAsync<string>(sql, dynamicParams);
             await connection.CloseAsync();
             return result;
         }
 
         /// <summary>
-        /// lấy ra tên của table
+        /// lấy mã tài nguyên có cùng tiền tố với mã tài nguyên được thêm hoạc sửa gần nhất và có hậu tố lớn nhất
         /// Created by: NQ Huy(20/05/2023)
         /// </summary>
-        /// <returns></returns>
+        /// <returns>danh sách chứa mã tài nguyên và tiền tố</returns>
+        public virtual async Task<List<string>> GetRecommendCodeAsync()
+        {
+            var connection = await GetOpenConnectionAsync();
+            var sql = ProcedureName.GET_MAX_FIXED_ASSET_CODE;
+            var tableName = GetTableName();
+            // thêm các param
+            var dynamicParams = new DynamicParameters();
+            // thêm param output để lấy ra tiền tố của mã tài sản, và tài sản có hậu tố lớn nhất
+            dynamicParams.Add("prefix_code", dbType: DbType.String, direction: ParameterDirection.Output);
+            dynamicParams.Add("max_code", dbType: DbType.String, direction: ParameterDirection.Output);
+            dynamicParams.Add("tbn", tableName);
+            await connection.ExecuteAsync(sql, dynamicParams, commandType: CommandType.StoredProcedure);
+
+            var result = new List<string>();
+            // lấy ra tiền tố
+            var preFix = dynamicParams.Get<string>("prefix_code");
+            // lấy ra mã tài sản lớn nhất
+            var maxAssetCode = dynamicParams.Get<string>("max_code");
+
+            result.Add(preFix);
+            result.Add(maxAssetCode);
+
+            await connection.CloseAsync();
+
+            return result;
+        }
+
+
+
+        #endregion
+
+        #region
+        /// <summary>
+        /// lấy ra tên cụ thể của table ứng với repository
+        /// Created by: NQ Huy(20/05/2023)
+        /// </summary>
+        /// <returns>tên của table ứng với repository</returns>
         public abstract string GetTableName();
+        #endregion
 
     }
 }

@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Misa.Web202303.SLN.Common.Resource {
+namespace Misa.Web202303.QLTS.Common.Resource {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace Misa.Web202303.SLN.Common.Resource {
         public static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Misa.Web202303.SLN.Common.Resource.AssetName", typeof(AssetName).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Misa.Web202303.QLTS.Common.Resource.AssetName", typeof(AssetName).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -61,7 +61,16 @@ namespace Misa.Web202303.SLN.Common.Resource {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Phòng ban.
+        ///   Looks up a localized string similar to ngân sách.
+        /// </summary>
+        public static string Budget {
+            get {
+                return ResourceManager.GetString("Budget", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to pòng ban.
         /// </summary>
         public static string Department {
             get {
@@ -84,6 +93,15 @@ namespace Misa.Web202303.SLN.Common.Resource {
         public static string FixedAssetCategory {
             get {
                 return ResourceManager.GetString("FixedAssetCategory", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to chứng từ.
+        /// </summary>
+        public static string License {
+            get {
+                return ResourceManager.GetString("License", resourceCulture);
             }
         }
     }

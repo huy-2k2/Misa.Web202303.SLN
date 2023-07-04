@@ -11,12 +11,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.18" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Misa.Web202303.SLN.BL\Misa.Web202303.SLN.BL.csproj" />
-    <ProjectReference Include="..\Misa.Web202303.SLN.Common\Misa.Web202303.SLN.Common.csproj" />
+    <ProjectReference Include="..\Misa.Web202303.SLN.BL\Misa.Web202303.QLTS.BL.csproj" />
+    <ProjectReference Include="..\Misa.Web202303.SLN.Common\Misa.Web202303.QLTS.Common.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,16 +1,30 @@
 
 
-using Misa.Web202303.SLN.BL.Service.FixedAsset;
+using Misa.Web202303.QLTS.BL.Service.FixedAsset;
 using AutoMapper;
-using Misa.Web202303.SLN.MiddleWares;
-using Misa.Web202303.SLN.DL.Repository.FixedAsset;
-using Misa.Web202303.SLN.BL.Service.Department;
-using Misa.Web202303.SLN.BL.Service.FixedAssetCategory;
-using Misa.Web202303.SLN.DL.Repository.Department;
-using Misa.Web202303.SLN.DL.Repository.FixedAssetCategory;
-using Misa.Web202303.SLN.BL.ImportService.FixedAsset;
-using Misa.Web202303.SLN.BL.ImportService.Department;
-using Misa.Web202303.SLN.BL.ImportService.FixedAssetCategory;
+using Misa.Web202303.QLTS.API.MiddleWares;
+using Misa.Web202303.QLTS.DL.Repository.FixedAsset;
+using Misa.Web202303.QLTS.BL.Service.Department;
+using Misa.Web202303.QLTS.BL.Service.FixedAssetCategory;
+using Misa.Web202303.QLTS.DL.Repository.Department;
+using Misa.Web202303.QLTS.DL.Repository.FixedAssetCategory;
+using Misa.Web202303.QLTS.BL.ImportService.FixedAsset;
+using Misa.Web202303.QLTS.BL.ImportService.Department;
+using Misa.Web202303.QLTS.BL.ImportService.FixedAssetCategory;
+using Misa.Web202303.QLTS.BL.AuthService;
+using Misa.Web202303.QLTS.DL.AuthRepository;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using System.Net;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Misa.Web202303.QLTS.BL.JwtService;
+using Misa.Web202303.QLTS.BL.Service.Budget;
+using Misa.Web202303.QLTS.DL.Repository.Budget;
+using Misa.Web202303.QLTS.BL.Service.License;
+using Misa.Web202303.QLTS.DL.Repository.License;
+using Misa.Web202303.QLTS.BL.RecommendCode;
+using Misa.Web202303.QLTS.DL.unitOfWork;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,10 +36,30 @@ builder.Services.AddCors(p => p.AddPolicy("corspolicy", build =>
 }
 ));
 
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
+{
+    options.RequireHttpsMetadata = false;
+    options.SaveToken = true;
+    options.TokenValidationParameters = new TokenValidationParameters()
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidAudience = builder.Configuration["Jwt:Audience"],
+        ValidIssuer = builder.Configuration["Jwt:Issuer"],
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
+    };
+});
+
+
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 builder.Services.AddScoped<IFixedAssetService, FixedAssetService>();
 builder.Services.AddScoped<IFixedAssetRepository, FixedAssetRepository>();
@@ -36,17 +70,37 @@ builder.Services.AddScoped<IDepartmentRepository, DepartmentRepository>();
 builder.Services.AddScoped<IFixedAssetCategoryService, FixedAssetCategoryService>();
 builder.Services.AddScoped<IFixedAssetCategoryRepository, FixedAssetCategoryRepository>();
 
+builder.Services.AddScoped<IBudgetService, BudgetService>();
+builder.Services.AddScoped<IBudgetRepository, BudgetRepository>();
+
+builder.Services.AddScoped<ILicenseService, LicenseService>();
+builder.Services.AddScoped<ILicenseRepository, LicenseRepository>();
+
+
 builder.Services.AddScoped<IFixedAssetImportService, FixedAssetImportService>();
 
 builder.Services.AddScoped<IDepartmentImportService, DepartmentImportService>();
 
-builder.Services.AddScoped<IFixedAssetCategoryImportService, FixedAssetCategoryImportService>();  
+builder.Services.AddScoped<IFixedAssetCategoryImportService, FixedAssetCategoryImportService>();
+
+builder.Services.AddScoped<IAuthService, AuthService>();
+
+builder.Services.AddScoped<IAuthRepository, AuthRepository>();
+
+builder.Services.AddScoped<IJwtService, JwtService>();
+
+builder.Services.AddScoped<IRecommendCodeService, RecommendCodeService>();
+
 
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
+
+builder.Services.AddControllers();
 
 var app = builder.Build();
 
 app.UseMiddleware<ExceptionMiddleware>();
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -57,6 +111,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Misa.Web202303.SLN.BL.ValidateDto.Attributes
+namespace Misa.Web202303.QLTS.BL.ValidateDto.Attributes
 {
     /// <summary>
     /// lấy ra tên của trường dữ liệu

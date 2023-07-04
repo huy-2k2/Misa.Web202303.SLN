@@ -1,12 +1,12 @@
-﻿using Misa.Web202303.SLN.BL.ValidateDto.Attributes;
-using Misa.Web202303.SLN.Common.Error;
+﻿using Misa.Web202303.QLTS.BL.ValidateDto.Attributes;
+using Misa.Web202303.QLTS.Common.Error;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Misa.Web202303.SLN.BL.ValidateDto.Decorators
+namespace Misa.Web202303.QLTS.BL.ValidateDto.Decorators
 {
     /// <summary>
     /// base decorator
@@ -20,9 +20,9 @@ namespace Misa.Web202303.SLN.BL.ValidateDto.Decorators
         public BaseDecorator? nextDecorator;
 
         /// <summary>
-        /// attribute tương ứng
+        /// Attr tương ứng
         /// </summary>
-        public BaseAttribute? attribute;
+        public BaseAttribute? Attr;
 
         /// <summary>
         /// tên trường dữ liệu
@@ -32,7 +32,7 @@ namespace Misa.Web202303.SLN.BL.ValidateDto.Decorators
         /// <summary>
         /// giá trị dữ liệu
         /// </summary>
-        public dynamic? propValue;
+        public dynamic? PropValue;
 
         /// <summary>
         /// tên trường bị lỗi

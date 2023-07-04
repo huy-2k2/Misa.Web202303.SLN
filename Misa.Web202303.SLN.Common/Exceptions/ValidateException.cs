@@ -1,5 +1,5 @@
-﻿using Misa.Web202303.SLN.Common.Emum;
-using Misa.Web202303.SLN.Common.Error;
+﻿using Misa.Web202303.QLTS.Common.Emum;
+using Misa.Web202303.QLTS.Common.Error;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,7 +7,7 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Misa.Web202303.SLN.Common.Exceptions
+namespace Misa.Web202303.QLTS.Common.Exceptions
 { 
     /// <summary>
     /// exception lỗi validate dữ liệu

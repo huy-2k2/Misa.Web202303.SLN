@@ -13,7 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Misa.Web202303.SLN.Common\Misa.Web202303.SLN.Common.csproj" />
+    <ProjectReference Include="..\Misa.Web202303.SLN.Common\Misa.Web202303.QLTS.Common.csproj" />
   </ItemGroup>
 
 </Project>

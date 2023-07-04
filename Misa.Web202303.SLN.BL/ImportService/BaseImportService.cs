@@ -1,13 +1,13 @@
 ﻿using DocumentFormat.OpenXml.Spreadsheet;
-using Misa.Web202303.SLN.BL.Service.Dto;
-using Misa.Web202303.SLN.BL.ValidateDto;
-using Misa.Web202303.SLN.Common.Const;
-using Misa.Web202303.SLN.Common.Emum;
-using Misa.Web202303.SLN.Common.Error;
-using Misa.Web202303.SLN.Common.Exceptions;
-using Misa.Web202303.SLN.Common.Resource;
-using Misa.Web202303.SLN.DL.Entity;
-using Misa.Web202303.SLN.DL.Repository;
+using Misa.Web202303.QLTS.BL.Service.Dto;
+using Misa.Web202303.QLTS.BL.ValidateDto;
+using Misa.Web202303.QLTS.Common.Const;
+using Misa.Web202303.QLTS.Common.Emum;
+using Misa.Web202303.QLTS.Common.Error;
+using Misa.Web202303.QLTS.Common.Exceptions;
+using Misa.Web202303.QLTS.Common.Resource;
+using Misa.Web202303.QLTS.DL.Entity;
+using Misa.Web202303.QLTS.DL.Repository;
 using OfficeOpenXml;
 using System;
 using System.Collections.Generic;
@@ -16,39 +16,54 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Misa.Web202303.SLN.BL.ImportService
+namespace Misa.Web202303.QLTS.BL.ImportService
 {
+    /// <summary>
+    /// định nghĩa các phương thức dùng chung của import service
+    /// created by: nqhuy(10/06/2023)
+    /// </summary>
+    /// <typeparam name="TEntityImportDto">dto import</typeparam>
+    /// <typeparam name="TEntity">entity tầng DL tương ứng</typeparam>
     public abstract class BaseImportService<TEntityImportDto, TEntity> : IBaseImportService<TEntity>
     {
-
+        #region
         /// <summary>
         /// dùng để gọi phương thức của BaseRepository
         /// </summary>
         private readonly IBaseRepository<TEntity> _baseRepository;
+        #endregion
 
+        #region
+        /// <summary>
+        /// phương thức khởi tạo
+        /// created by: nqhuy(21/05/2023)
+        /// </summary>
+        /// <param name="baseRepository">baseRepository</param>
         public BaseImportService(IBaseRepository<TEntity> baseRepository)
         {
             this._baseRepository = baseRepository;
         }
+        #endregion
 
+        #region
         /// <summary>
         /// validate file excel có đúng định dạng không
         /// created by: nqhuy(21/05/2023)
         /// </summary>
-        /// <param name="stream"></param>
+        /// <param name="stream">dữ liệu file ở dạng stream</param>
         /// <returns></returns>
-        /// <exception cref="ValidateException"></exception>
+        /// <exception cref="ValidateException">throw exception validate file không thành công</exception>
         private async Task FileValdiateAsync(MemoryStream stream)
         {
             // lấy dữ liệu import về table, column
             var listImportEntity = await _baseRepository.GetImportDataAsync();
 
             // số dòng trong định dạng
-            var numberColumn = listImportEntity.First().Number_column;
+            var numberColumn = listImportEntity.First().number_column;
 
             try
             {
-                using (var package = new ExcelPackage(stream));
+                using (var package = new ExcelPackage(stream)) ;
             }
             catch (Exception ex)
             {
@@ -98,8 +113,8 @@ namespace Misa.Web202303.SLN.BL.ImportService
         /// validate mã code bị trùng
         /// created by: nqhuy(21/05/2023)
         /// </summary>
-        /// <param name="listEntity"></param>
-        /// <param name="errorOfTable"></param>
+        /// <param name="listEntity">danh sách tài nguyên</param>
+        /// <param name="errorOfTable">lỗi trước đó</param>
         /// <returns></returns>
         private async Task<List<List<ValidateError>>> ValidateDuplicateCodeAsync(IEnumerable<TEntityImportDto> listEntity, IEnumerable<IEnumerable<ValidateError>> errorOfTable)
         {
@@ -132,7 +147,7 @@ namespace Misa.Web202303.SLN.BL.ImportService
                 }
 
                 // kiểm tra nếu mã code có tồn tại trong danh sách code phía trên
-                for(int j = 0; j < i; j++)
+                for (int j = 0; j < i; j++)
                 {
                     if (listCode[j] == listCode[i])
                     {
@@ -151,11 +166,11 @@ namespace Misa.Web202303.SLN.BL.ImportService
         }
 
         /// <summary>
-        /// validate tất cả
+        /// hàm validate file excel trước khi impport vào database
         /// created by: nqhuy(21/05/2023)
         /// </summary>
-        /// <param name="stream"></param>
-        /// <returns></returns>
+        /// <param name="stream">dữ liệu file ở dạng stream</param>
+        /// <returns>dữ liệu của file, dữ liệu validate</returns>
         public async Task<ImportErrorEntity<TEntity>> ValidateAsync(MemoryStream stream)
         {
             // validate file exccel
@@ -195,27 +210,27 @@ namespace Misa.Web202303.SLN.BL.ImportService
                         // thêm dữ liệu string vào rawEntity
                         rawEntity.Add(value);
                         // lấy ra dữ liệu import tương ứng với column trong file excel
-                        var importData = listImportData.ToList().Find(imp => imp.Import_column_index == column);
+                        var importData = listImportData.ToList().Find(imp => imp.import_column_index == column);
                         // validate kiểu dữ liệu
-                        var isDataTypeValid = ValidateDataType.Validate(importData.Data_type, value);
+                        var isDataTypeValid = ValidateDataType.Validate(importData.data_type, value);
                         if (!isDataTypeValid)
                         {
                             errorOfRow.Add(new ValidateError()
                             {
-                                FieldNameError = importData.Prop_name,
+                                FieldNameError = importData.prop_name,
                                 Message = ErrorMessage.DataTypeError
                             });
                         }
                         else
                         {
-                            var prop = entityImport.GetType().GetProperty(importData.Prop_name);
+                            var prop = entityImport.GetType().GetProperty(importData.prop_name);
                             prop.SetValue(entityImport, Convert.ChangeType(value, prop.PropertyType), null);
                         }
                     }
                     listEntityImport.Add(entityImport);
                     if (errorOfRow.Count == 0)
                     {
-                        //validate attribute
+                        //validate Attr
                         errorOfRow = ValidateAttribute.Validate(entityImport).ToList();
 
                         // validate business
@@ -251,10 +266,11 @@ namespace Misa.Web202303.SLN.BL.ImportService
         /// validate khóa ngoại
         /// created by: nqhuy(21/05/2023)
         /// </summary>
-        /// <param name="listEntity"></param>
-        /// <param name="errorOfTable"></param>
+        /// <param name="listEntity">danh sách tài nguyên</param>
+        /// <param name="errorOfTable">lỗi trước đó</param>
         /// <returns></returns>
-        protected virtual async Task<List<List<ValidateError>>> ValidateForeignKeyAsync(IEnumerable<TEntityImportDto> listEntity, IEnumerable<IEnumerable<ValidateError>> errorOfTable) {
+        protected virtual async Task<List<List<ValidateError>>> ValidateForeignKeyAsync(IEnumerable<TEntityImportDto> listEntity, IEnumerable<IEnumerable<ValidateError>> errorOfTable)
+        {
             return errorOfTable.Select(errorOfRow => errorOfRow.ToList()).ToList();
         }
 
@@ -264,10 +280,13 @@ namespace Misa.Web202303.SLN.BL.ImportService
         /// </summary>
         /// <param name="entity"></param>
         /// <returns></returns>
-        protected virtual List<ValidateError> ValidateBusiness(TEntityImportDto entity) {
+        protected virtual List<ValidateError> ValidateBusiness(TEntityImportDto entity)
+        {
             return new List<ValidateError>();
         }
+        #endregion
 
+        #region
         /// <summary>
         /// lấy ra danh dánh TEntity từ TEntityImportDto
         /// created by: nqhuy(21/05/2023)
@@ -275,5 +294,6 @@ namespace Misa.Web202303.SLN.BL.ImportService
         /// <param name="listImportEntity"></param>
         /// <returns></returns>
         protected abstract Task<List<TEntity>> MapToListEntity(IEnumerable<TEntityImportDto> listImportEntity);
+        #endregion
     }
 }
