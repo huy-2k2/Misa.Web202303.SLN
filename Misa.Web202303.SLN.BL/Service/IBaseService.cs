@@ -1,5 +1,4 @@
-﻿using Misa.Web202303.QLTS.BL.Service.FixedAsset;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -20,9 +19,9 @@ namespace Misa.Web202303.QLTS.BL.Service
         /// lấy ra 1 bản thi theo id
         /// created by: nqhuy(21/05/2023)
         /// </summary>
-        /// <param name="fixedAssetId">id tài nguyên cần lấy</param>
+        /// <param name="id">id tài nguyên cần lấy</param>
         /// <returns></returns>
-        Task<TEntityDto> GetAsync(Guid fixedAssetId);
+        Task<TEntityDto> GetAsync(Guid id);
 
         /// <summary>
         /// lấy ra tất cả bản ghi

@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using DocumentFormat.OpenXml.Office2010.Excel;
+using Misa.Web202303.QLTS.BL.DomainService.FixedAssetCategory;
 using Misa.Web202303.QLTS.BL.ImportService;
 using Misa.Web202303.QLTS.BL.ImportService.FixedAssetCategory;
 using Misa.Web202303.QLTS.BL.ValidateDto;
@@ -11,6 +13,7 @@ using Misa.Web202303.QLTS.DL.Entity;
 using Misa.Web202303.QLTS.DL.Repository;
 using Misa.Web202303.QLTS.DL.Repository.FixedAsset;
 using Misa.Web202303.QLTS.DL.Repository.FixedAssetCategory;
+using Misa.Web202303.QLTS.DL.unitOfWork;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -30,6 +33,7 @@ namespace Misa.Web202303.QLTS.BL.Service.FixedAssetCategory
     {
         #region
         private readonly IFixedAssetCategoryImportService _fixedAssetCategoryImportService;
+        private readonly IFixedAssetCategoryDomainService _fixedAssetCategoryDomainService;
         #endregion
 
         #region
@@ -40,9 +44,11 @@ namespace Misa.Web202303.QLTS.BL.Service.FixedAssetCategory
         /// <param name="fixedAssetCategoryRepository">fixedAssetCategoryRepository</param>
         /// <param name="mapper">mapper</param>
         /// <param name="fixedAssetCategoryImportService">fixedAssetCategoryImportService</param>
-        public FixedAssetCategoryService(IFixedAssetCategoryRepository fixedAssetCategoryRepository, IMapper mapper, IFixedAssetCategoryImportService fixedAssetCategoryImportService) : base(fixedAssetCategoryRepository, mapper)
+        /// <param name="unitOfWork">unitOfWork</param>
+        public FixedAssetCategoryService(IFixedAssetCategoryRepository fixedAssetCategoryRepository, IUnitOfWork unitOfWork, IMapper mapper, IFixedAssetCategoryImportService fixedAssetCategoryImportService, IFixedAssetCategoryDomainService fixedAssetCategoryDomainService) : base(fixedAssetCategoryRepository, unitOfWork, mapper)
         {
             _fixedAssetCategoryImportService = fixedAssetCategoryImportService;
+            _fixedAssetCategoryDomainService = fixedAssetCategoryDomainService;
         }
         #endregion
 
@@ -53,17 +59,9 @@ namespace Misa.Web202303.QLTS.BL.Service.FixedAssetCategory
         /// </summary>
         /// <param name="entityCreateDto">dữ liệu tài sản cần validate</param>
         /// <returns>danh sách lỗi</returns>
-        protected override async Task<List<ValidateError>> CreateValidateAsync(FixedAssetCategoryCreateDto entityCreateDto)
+        protected override async Task CreateValidateAsync(FixedAssetCategoryCreateDto entityCreateDto)
         {
-            // validate nghiệp vụ
-            var businessErrors = BusinessValidate(_mapper.Map<FixedAssetCategoryEntity>(entityCreateDto));
-
-            // kiểm tra mã code trùng
-            var duplicateErrors = await base.CreateValidateAsync(entityCreateDto);
-           
-            var listError = Enumerable.Concat(businessErrors, duplicateErrors).ToList();
-            
-            return listError;
+             await _fixedAssetCategoryDomainService.CreateValidateAsync(entityCreateDto);
         }
 
         /// <summary>
@@ -73,40 +71,9 @@ namespace Misa.Web202303.QLTS.BL.Service.FixedAssetCategory
         /// <param name="id">id tài sản</param>
         /// <param name="entityUpdateDto">dữ liệu tài sản cần valdiate</param>
         /// <returns>danh sách lỗi</returns>
-        protected async override Task<List<ValidateError>> UpdateValidateAsync(Guid id, FixedAssetCategoryUpdateDto entityUpdateDto)
+        protected async override Task UpdateValidateAsync(Guid id, FixedAssetCategoryUpdateDto entityUpdateDto)
         {
-            // validate nghiệp vụ
-            var businessErrors = BusinessValidate(_mapper.Map<FixedAssetCategoryEntity>(entityUpdateDto));
-
-            // kiểm tra mã code trùng
-            var duplicateErrors = await base.UpdateValidateAsync(id, entityUpdateDto);
-
-            var listError = Enumerable.Concat(businessErrors, duplicateErrors).ToList();
-
-            return listError;
-        }
-
-        /// <summary>
-        /// validate nghiệp vụ chung
-        /// created by: nqhuy(21/05/2023)
-        /// </summary>
-        /// <param name="fixedAssetCategory">dữ liệu tài sản để validate nghiệp vụ</param>
-        /// <returns>danh sách lỗi</returns>
-        internal static List<ValidateError> BusinessValidate(FixedAssetCategoryEntity fixedAssetCategory)
-        {
-            var listError = new List<ValidateError>();
-            var depreciationRate = Math.Round((double)1 / fixedAssetCategory.life_time * 100, 2);
-
-            // tỷ lệ hao mòn = 1 / số năm sử dụng
-            if (fixedAssetCategory.depreciation_rate != depreciationRate)
-            {
-                listError.Add(new ValidateError()
-                {
-                    Message = ErrorMessage.DepRateLifeTimeError,
-                    FieldNameError = "depreciation_rate"
-                });
-            }
-            return listError;
+            await _fixedAssetCategoryDomainService.UpdateValidateAsync(id, entityUpdateDto);
         }
 
 
@@ -123,16 +90,22 @@ namespace Misa.Web202303.QLTS.BL.Service.FixedAssetCategory
 
             // validate dữ liệu
             var validateEntity = await _fixedAssetCategoryImportService.ValidateAsync(stream);
+
+
+
             if (isSubmit && validateEntity.IsPassed || !isSubmit)
             {
                 var listEntity = validateEntity.ListEntity;
                 // nếu không có lỗi thì import
                 if (isSubmit)
                     await _baseRepository.InsertListAsync(listEntity);
+                await _unitOfWork.CommitAsync();
                 return validateEntity;
             }
             else
             {
+                await _unitOfWork.CommitAsync();
+
                 // có lỗi thì throw exception
                 throw new ValidateException()
                 {

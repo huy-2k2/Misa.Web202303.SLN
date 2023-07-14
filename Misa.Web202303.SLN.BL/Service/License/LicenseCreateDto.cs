@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Misa.Web202303.QLTS.BL.ValidateDto.Attributes;
+using Misa.Web202303.QLTS.Common.Const;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,6 +13,8 @@ namespace Misa.Web202303.QLTS.BL.Service.License
         /// <summary>
         /// mã chứng từ
         /// </summary>
+
+        [Required, Length(0, 100), NameAttribute(FieldName.LicenseCode)]
         public string license_code { get; set; }
 
         /// <summary>
@@ -26,6 +30,6 @@ namespace Misa.Web202303.QLTS.BL.Service.License
         /// <summary>
         /// nôi dung
         /// </summary>
-        public string content { get; set; }
+        public string? content { get; set; }
     }
 }

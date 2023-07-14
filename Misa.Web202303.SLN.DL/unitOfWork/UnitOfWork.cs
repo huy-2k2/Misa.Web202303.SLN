@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.Common;
 using System.Linq;
 using System.Text;
@@ -11,47 +12,150 @@ namespace Misa.Web202303.QLTS.DL.unitOfWork
 {
     public class UnitOfWork : IUnitOfWork
     {
+        #region
         private string _connectionString;
 
-        private static DbConnection _dbConnection;
-        
-        private static DbTransaction _dbTransaction;
+        private DbConnection _dbConnection;
 
+        private DbTransaction _dbTransaction;
+        #endregion
+
+        #region
         public UnitOfWork(IConfiguration configuration)
         {
             _connectionString = configuration["ConnectionString"] ?? "";
         }
 
+        /// <summary>
+        /// lấy ra connection cho 1 request
+        /// created by: NQ Huy (07/04/2023)
+        /// </summary>
+        /// <returns>connection</returns>
         public DbConnection GetDbConnection()
         {
-            if(_dbConnection == null )
+            _dbConnection ??= new MySqlConnector.MySqlConnection(_connectionString);
+
+            if (_dbConnection.State == ConnectionState.Closed)
             {
-                _dbConnection = new MySqlConnector.MySqlConnection(_connectionString);
+                _dbConnection.Open();
             }
-            _dbConnection.Open();
+
             return _dbConnection;
         }
 
+        /// <summary>
+        /// lấy ra transaction cho 1 request
+        /// created by: NQ Huy (07/04/2023)
+        /// </summary>
+        /// <returns>transaction</returns>
         public DbTransaction GetTransaction()
         {
-            if(_dbTransaction == null )
-            {
-                _dbConnection ??= GetDbConnection();
-                _dbTransaction = _dbConnection.BeginTransaction();
-            }
-            return _dbTransaction;
+            return _dbTransaction ??= GetDbConnection().BeginTransaction();
         }
 
+        // <summary>
+        /// rollback khi xảy ra exception
+        /// created by: NQ Huy (07/04/2023)
+        /// </summary>
+        /// <returns></returns>
         public void Rollback()
         {
             _dbTransaction.Rollback();
-            _dbConnection.Close();
+            SaveChange();
         }
 
+        // <summary>
+        /// commit transaction
+        /// created by: NQ Huy (07/04/2023)
+        /// </summary>
+        /// <returns></returns>
         public void Commit()
         {
-            _dbTransaction.Commit();
-            _dbConnection.Close();
+            if (_dbTransaction != null)
+            {
+                _dbTransaction.Commit();
+            }
+            SaveChange();
         }
+
+        /// <summary>
+        /// lấy ra connection cho 1 request
+        /// created by: NQ Huy (07/04/2023)
+        /// </summary>
+        /// <returns>connection</returns>
+        public async Task<DbConnection> GetDbConnectionAsync()
+        {
+            _dbConnection ??= new MySqlConnector.MySqlConnection(_connectionString);
+
+            if (_dbConnection.State == ConnectionState.Closed)
+                await _dbConnection.OpenAsync();
+
+            return _dbConnection;
+        }
+
+        /// <summary>
+        /// lấy ra transaction cho 1 request
+        /// created by: NQ Huy (07/04/2023)
+        /// </summary>
+        /// <returns>transaction</returns>
+        public async Task<DbTransaction> GetTransactionAsync()
+        {
+            _dbConnection ??= await GetDbConnectionAsync();
+            if (_dbConnection.State == ConnectionState.Closed)
+                await _dbConnection.OpenAsync();
+            _dbTransaction ??= await _dbConnection.BeginTransactionAsync();
+            return _dbTransaction;
+        }
+
+        // <summary>
+        /// rollback khi xảy ra exception
+        /// created by: NQ Huy (07/04/2023)
+        /// </summary>
+        /// <returns></returns>
+        public async Task RollbackAsync()
+        {
+            await _dbTransaction.RollbackAsync();
+            await SaveChangeAsync();
+        }
+
+        /// <summary>
+        /// commit transaction
+        /// created by: NQ Huy (07/04/2023)
+        /// </summary>
+        /// <returns></returns>
+        public async Task CommitAsync()
+        {
+            if (_dbTransaction != null)
+            {
+                await _dbTransaction.CommitAsync();
+            }
+            await SaveChangeAsync();
+        }
+
+        /// <summary>
+        /// đóng kết nối
+        /// created by: NQ Huy(07/04/2023)
+        /// </summary>
+        /// <returns></returns>
+        public void SaveChange()
+        {
+            if (_dbConnection.State == ConnectionState.Open)
+                _dbConnection.Close();
+        }
+
+        /// <summary>
+        /// đóng kết nối
+        /// created by: NQ Huy(07/04/2023)
+        /// </summary>
+        /// <returns></returns>
+        public async Task SaveChangeAsync()
+        {
+            await _dbConnection.CloseAsync();
+            if (_dbTransaction != null)
+            {
+                await _dbTransaction.DisposeAsync();
+            }
+        }
+        #endregion
     }
 }

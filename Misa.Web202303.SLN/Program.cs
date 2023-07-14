@@ -25,6 +25,14 @@ using Misa.Web202303.QLTS.BL.Service.License;
 using Misa.Web202303.QLTS.DL.Repository.License;
 using Misa.Web202303.QLTS.BL.RecommendCode;
 using Misa.Web202303.QLTS.DL.unitOfWork;
+using Misa.Web202303.QLTS.BL.DomainService.FixedAsset;
+using Misa.Web202303.QLTS.BL.DomainService.FixedAssetCategory;
+using Misa.Web202303.QLTS.BL.DomainService.Department;
+using Misa.Web202303.QLTS.BL.DomainService.License;
+using Misa.Web202303.QLTS.BL.DomainService.BudgetDetail;
+using Misa.Web202303.QLTS.BL.DomainService.LicenseDetail;
+using Misa.Web202303.QLTS.DL.Repository.LicenseDetail;
+using Misa.Web202303.QLTS.DL.Repository.BudgetDetail;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -76,7 +84,8 @@ builder.Services.AddScoped<IBudgetRepository, BudgetRepository>();
 builder.Services.AddScoped<ILicenseService, LicenseService>();
 builder.Services.AddScoped<ILicenseRepository, LicenseRepository>();
 
-
+builder.Services.AddScoped<ILicenseDetailRepository, LicenseDetailRepository>();
+builder.Services.AddScoped<IBudgetDetailRepository, BudgetDetailRepository>();
 builder.Services.AddScoped<IFixedAssetImportService, FixedAssetImportService>();
 
 builder.Services.AddScoped<IDepartmentImportService, DepartmentImportService>();
@@ -91,6 +100,12 @@ builder.Services.AddScoped<IJwtService, JwtService>();
 
 builder.Services.AddScoped<IRecommendCodeService, RecommendCodeService>();
 
+builder.Services.AddScoped<IFixedAssetDomainService, FixedAssetDomainService>();
+builder.Services.AddScoped<IFixedAssetCategoryDomainService, FixedAssetCategoryDomainService>();
+builder.Services.AddScoped<IDepartmentDomainService, DepartmentDomainService>();
+builder.Services.AddScoped<ILicenseDomainService, LicenseDomainService>();
+builder.Services.AddScoped<IBudgetDetailDomainService, BudgetDetailDomainService>();
+builder.Services.AddScoped<ILicenseDetailDomainService, LicenseDetailDomainService>();
 
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
@@ -118,6 +133,5 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.UseCors("corspolicy");
-
 
 app.Run();

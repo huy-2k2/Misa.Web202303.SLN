@@ -1,8 +1,10 @@
 ﻿    using AutoMapper;
+using Misa.Web202303.QLTS.BL.DomainService.FixedAssetCategory;
 using Misa.Web202303.QLTS.BL.Service.FixedAssetCategory;
 using Misa.Web202303.QLTS.Common.Error;
 using Misa.Web202303.QLTS.DL.Repository;
 using Misa.Web202303.QLTS.DL.Repository.FixedAssetCategory;
+using Misa.Web202303.QLTS.DL.unitOfWork;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,6 +26,7 @@ namespace Misa.Web202303.QLTS.BL.ImportService.FixedAssetCategory
         /// sử dụng để map từ import dto sang entity
         /// </summary>
         private readonly IMapper _mapper;
+        private readonly IFixedAssetCategoryDomainService _fixedAssetCategoryDomainService;
         #endregion
 
         #region
@@ -32,9 +35,10 @@ namespace Misa.Web202303.QLTS.BL.ImportService.FixedAssetCategory
         /// </summary>
         /// <param name="fixedAssetCategoryRepository">fixedAssetCategoryRepository</param>
         /// <param name="mapper">mapper</param>
-        public FixedAssetCategoryImportService(IFixedAssetCategoryRepository fixedAssetCategoryRepository, IMapper mapper) : base(fixedAssetCategoryRepository)
+        public FixedAssetCategoryImportService(IFixedAssetCategoryRepository fixedAssetCategoryRepository, IUnitOfWork unitOfWork, IMapper mapper, IFixedAssetCategoryDomainService fixedAssetCategoryDomainService) : base(fixedAssetCategoryRepository, unitOfWork)
         {
             _mapper = mapper;
+            _fixedAssetCategoryDomainService= fixedAssetCategoryDomainService;
         }
         #endregion
 
@@ -52,7 +56,6 @@ namespace Misa.Web202303.QLTS.BL.ImportService.FixedAssetCategory
             {
                 var entity = _mapper.Map<FixedAssetCategoryEntity>(importEntity);
                 // thêm guid cho đối tượng
-                entity.fixed_asset_category_id = Guid.NewGuid();
                 result.Add(entity);
             }
 
@@ -69,7 +72,7 @@ namespace Misa.Web202303.QLTS.BL.ImportService.FixedAssetCategory
         protected override List<ValidateError> ValidateBusiness(FixedAssetCategoryImportDto entityImportDto)
         {
             var entity = _mapper.Map<FixedAssetCategoryEntity>(entityImportDto);
-            var result = FixedAssetCategoryService.BusinessValidate(entity);
+            var result = _fixedAssetCategoryDomainService.BusinessValidate(entity);
             return result;
         }
         #endregion

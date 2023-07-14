@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Misa.Web202303.QLTS.BL.BodyRequest.License;
 using Misa.Web202303.QLTS.BL.Service.FixedAsset;
 using Misa.Web202303.QLTS.BL.Service.License;
 using Misa.Web202303.QLTS.DL.Entity;
@@ -28,6 +29,9 @@ namespace Misa.Web202303.QLTS.BL.AutoMapper
             CreateMap<LicenseEntity, LicenseDto>();
             CreateMap<LicenseCreateDto, LicenseEntity>();
             CreateMap<LicenseUpdateDto, LicenseEntity>();
+            CreateMap<LicenseCUDto, LicenseCreateDto>();
+            CreateMap<LicenseCUDto, LicenseUpdateDto>();
+
         }
     }
 }

@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using LicenseModel = Misa.Web202303.QLTS.DL.model.License;
-namespace Misa.Web202303.QLTS.DL.filter
+using LicenseModel = Misa.Web202303.QLTS.DL.Model.License;
+namespace Misa.Web202303.QLTS.DL.Filter
 {
     public class FilterLicenseModel
     {
        /// <summary>
-       /// danh sách license model
+       /// danh sách license Model
        /// </summary>
         public IEnumerable<LicenseModel> list_license_model { get; set; }
 

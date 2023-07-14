@@ -8,6 +8,9 @@ using Misa.Web202303.QLTS.Common.Emum;
 using Misa.Web202303.QLTS.Common.Exceptions;
 using Misa.Web202303.QLTS.Common.Resource;
 using Misa.Web202303.QLTS.DL.AuthRepository;
+using Misa.Web202303.QLTS.DL.Entity;
+using Misa.Web202303.QLTS.DL.Repository.Department;
+using Misa.Web202303.QLTS.DL.unitOfWork;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
@@ -38,6 +41,9 @@ namespace Misa.Web202303.QLTS.BL.AuthService
         private readonly IJwtService _jwt;
         #endregion
 
+        private readonly IDepartmentRepository _departmentRepository;
+
+        private readonly IUnitOfWork _unitOfWork;
 
         #region
         /// <summary>
@@ -47,11 +53,13 @@ namespace Misa.Web202303.QLTS.BL.AuthService
         /// <param name="authRepository">authRepository</param>
         /// <param name="mapper">mapper</param>
         /// <param name="configuration">configuration</param>
-        public AuthService(IAuthRepository authRepository, IMapper mapper, IJwtService jwt)
+        public AuthService(IAuthRepository authRepository, IMapper mapper, IJwtService jwt, IDepartmentRepository departmentRepository, IUnitOfWork unitOfWork)
         {
             _authRepository = authRepository;
             _mapper = mapper;
             _jwt = jwt;
+            _departmentRepository = departmentRepository;
+            _unitOfWork = unitOfWork;
         }
 
         /// <summary>
@@ -76,12 +84,13 @@ namespace Misa.Web202303.QLTS.BL.AuthService
             }
 
             var email = authDto.email;
-            var password = authDto.password;
+            var encryptedPassword = ToMd5(authDto.password);
 
-            var user = await _authRepository.GetAuthAsync(email, ToMd5(password));
+            var user = await _authRepository.GetAuthAsync(email);
+
 
             // nếu người dùng không tồn tại thì throw exception
-            if (user == null)
+            if (user == null || user.password != encryptedPassword)
             {
                 throw new ValidateException()
                 {
@@ -92,6 +101,8 @@ namespace Misa.Web202303.QLTS.BL.AuthService
 
             // nếu người dùng tồn tại thì tạo và trả về token
             var token = _jwt.CreateToken(user);
+
+            await _unitOfWork.CommitAsync();
             return token;
         }
 
@@ -108,7 +119,47 @@ namespace Misa.Web202303.QLTS.BL.AuthService
                 byte[] inputBytes = System.Text.Encoding.ASCII.GetBytes(input);
                 byte[] hashBytes = md5.ComputeHash(inputBytes);
 
-                return Convert.ToHexString(hashBytes); 
+                return Convert.ToHexString(hashBytes).ToLower();
+            }
+        }
+
+        public async Task Test()
+        {
+            var department1 = new Department()
+            {
+                department_code = "1",
+                department_name = "test case 1"
+            };
+            var department2 = new Department()
+            {
+                department_code = "2",
+                department_name = "test case 1"
+            };
+            var department3 = new Department()
+            {
+                department_code = "3",
+                department_name = "test case 1"
+            };
+            var department4 = new Department()
+            {
+                department_code = "1",
+                department_name = "test case 1"
+            };
+            using (var transaction = _unitOfWork.GetTransaction())
+            {
+                try
+                {
+                    await _departmentRepository.InsertAsync( department1);
+                    await _departmentRepository.InsertAsync( department2);
+                    await _departmentRepository.InsertAsync( department3);
+                    await _departmentRepository.InsertAsync(department4);
+                    await _unitOfWork.CommitAsync();
+                }
+                catch
+                {
+                    await _unitOfWork.RollbackAsync();
+                    throw new ValidateException();
+                }
             }
         }
         #endregion

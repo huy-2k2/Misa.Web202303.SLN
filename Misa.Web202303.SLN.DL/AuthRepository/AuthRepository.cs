@@ -1,6 +1,7 @@
 ﻿using Dapper;
 using Microsoft.Extensions.Configuration;
 using Misa.Web202303.QLTS.DL.Entity;
+using Misa.Web202303.QLTS.DL.unitOfWork;
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
@@ -16,7 +17,7 @@ namespace Misa.Web202303.QLTS.DL.AuthRepository
         /// <summary>
         /// connectionstring
         /// </summary>
-        private readonly string _connectionString;
+        private readonly IUnitOfWork _unitOfWork;
         #endregion
 
 
@@ -26,44 +27,29 @@ namespace Misa.Web202303.QLTS.DL.AuthRepository
         /// created by: NQ Huy (20/06/2023)
         /// </summary>
         /// <param name="configuration">configuration</param>
-        public AuthRepository(IConfiguration configuration)
+        public AuthRepository(IUnitOfWork unitOfWork)
         {
-            _connectionString = configuration["ConnectionString"] ?? "";
+            _unitOfWork = unitOfWork;
         }
 
-        /// <summary>
-        /// hàm mở kết nối
-        /// created by : NQ Huy(20/06/2023)
-        /// </summary>
-        /// <returns>đối tượng để kết nối tới database</returns>
-        private async Task<DbConnection> GetOpenConnectionAsync()
-        {
-            var connection = new MySqlConnector.MySqlConnection(_connectionString);
-            await connection.OpenAsync();
-            return connection;
-        }
 
         /// <summary>
         /// hàm lấy dữ lệu người dùng dựa trên email và mật khẩu, nếu không tồn tại trả về null
         /// created by: NQ Huy (20/06/2023)
         /// </summary>
         /// <param name="email">email đăng nhập</param>
-        /// <param name="password">mật khẩu</param>
         /// <returns>dữ liệu người dùng</returns>
-        public async Task<User?> GetAuthAsync(string email, string password)
+        public async Task<User?> GetAuthAsync(string email)
         {
-            var connection = await GetOpenConnectionAsync();
+            var connection = await _unitOfWork.GetDbConnectionAsync();
 
-            var sql = "SELECT * FROM user WHERE BINARY email = @email AND password = @password";
+            var sql = "SELECT * FROM user WHERE BINARY email = @email";
 
             var dynamicParams = new DynamicParameters();
 
             dynamicParams.Add("email", email);
-            dynamicParams.Add("password", password);
 
             var result = await connection.QueryFirstOrDefaultAsync<User>(sql, dynamicParams);
-            
-            await connection.CloseAsync();
 
             return result;
         }

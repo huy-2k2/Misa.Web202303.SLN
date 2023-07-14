@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using DocumentFormat.OpenXml.Drawing;
+using Misa.Web202303.QLTS.BL.DomainService.Department;
 using Misa.Web202303.QLTS.BL.ImportService;
 using Misa.Web202303.QLTS.BL.ImportService.Department;
 using Misa.Web202303.QLTS.BL.Service.FixedAsset;
@@ -10,6 +12,7 @@ using Misa.Web202303.QLTS.Common.Exceptions;
 using Misa.Web202303.QLTS.Common.Resource;
 using Misa.Web202303.QLTS.DL.Repository;
 using Misa.Web202303.QLTS.DL.Repository.Department;
+using Misa.Web202303.QLTS.DL.unitOfWork;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -28,6 +31,8 @@ namespace Misa.Web202303.QLTS.BL.Service.Department
     {
         #region
         private readonly IDepartmentImportService _departmentImportService;
+
+        private readonly IDepartmentDomainService _departmentDomainService;
         #endregion
 
         #region
@@ -38,14 +43,27 @@ namespace Misa.Web202303.QLTS.BL.Service.Department
         /// <param name="departmentRepository">departmentRepository</param>
         /// <param name="mapper">mapper</param>
         /// <param name="departmentImportService">departmentImportService</param>
-        public DepartmentService(IDepartmentRepository departmentRepository, IMapper mapper, IDepartmentImportService departmentImportService) : base(departmentRepository, mapper)
+        /// <param name="unitOfWork">unitOfWork</param>
+        public DepartmentService(IDepartmentRepository departmentRepository, IUnitOfWork unitOfWork, IMapper mapper, IDepartmentImportService departmentImportService, IDepartmentDomainService departmentDomainService) : base(departmentRepository, unitOfWork, mapper)
         {
             _departmentImportService = departmentImportService;
+            _departmentDomainService = departmentDomainService;
         }
 
         #endregion
 
         #region
+
+        protected async override Task CreateValidateAsync(DepartmentCreateDto departmentCreateDto)
+        {
+             await _departmentDomainService.CreateValidateAsync(departmentCreateDto);
+        }
+
+        protected async override Task UpdateValidateAsync(Guid id, DepartmentUpdateDto departmentUpdateDto)
+        {
+             await _departmentDomainService.UpdateValidateAsync(id, departmentUpdateDto);
+        }
+
 
         /// <summary>
         /// import dữ liệu tài sản từ file excel và db
@@ -59,16 +77,20 @@ namespace Misa.Web202303.QLTS.BL.Service.Department
         {
             // validate dữ liệu
             var validateEntity = await _departmentImportService.ValidateAsync(stream);
+
+
             if (isSubmit && validateEntity.IsPassed || !isSubmit)
             {
                 var listEntity = validateEntity.ListEntity;
                 // nếu không có lỗi thì import
                 if (isSubmit)
                     await _baseRepository.InsertListAsync(listEntity);
+                await _unitOfWork.CommitAsync();
                 return validateEntity;
             }
             else
             {
+                await _unitOfWork.CommitAsync();
                 // có lỗi thì throw exception
                 throw new ValidateException()
                 {

@@ -14,8 +14,7 @@ namespace Misa.Web202303.QLTS.DL.AuthRepository
         /// created by:NQ huy (20/06/2023)
         /// </summary>
         /// <param name="email">email đăng nhập</param>
-        /// <param name="password">mật khẩu</param>
         /// <returns></returns>
-        Task<User?> GetAuthAsync(string email, string password);
+        Task<User?> GetAuthAsync(string email);
     }
 }

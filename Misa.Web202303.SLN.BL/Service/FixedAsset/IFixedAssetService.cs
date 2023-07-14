@@ -1,6 +1,6 @@
 ﻿using Misa.Web202303.QLTS.BL.BodyRequest;
 using Misa.Web202303.QLTS.BL.ImportService;
-using Misa.Web202303.QLTS.DL.filter;
+using Misa.Web202303.QLTS.DL.Filter;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 using FixedAssetEnitty = Misa.Web202303.QLTS.DL.Entity.FixedAsset;
+using FixedAssetModel = Misa.Web202303.QLTS.DL.Model.FixedAsset;
 
 namespace Misa.Web202303.QLTS.BL.Service.FixedAsset
 {
@@ -25,7 +26,7 @@ namespace Misa.Web202303.QLTS.BL.Service.FixedAsset
         Task<string> GetRecommendFixedAssetCodeAsync();
 
         /// <summary>
-        /// filter, search, phân trang tài sản
+        /// Filter, search, phân trang tài sản
         /// Created by: NQ Huy(20/05/2023)
         /// </summary>
         /// <param name="pageSize">số bản ghi trong 1 trang</param>
@@ -33,7 +34,7 @@ namespace Misa.Web202303.QLTS.BL.Service.FixedAsset
         /// <param name="departmentId">mã phòng ban</param>
         /// <param name="fixedAssetCategoryId">mã loại tài sản</param>
         /// <param name="textSearch">từ khóa tìm kiếm</param>
-        /// <returns>danh sách tài sản thỏa mãn yêu cầu filter, phân trang</returns>
+        /// <returns>danh sách tài sản thỏa mãn yêu cầu Filter, phân trang</returns>
         Task<FilterListFixedAsset> GetAsync(int pageSize, int currentPage, Guid? departmentId, Guid? fixedAssetCategoryId, string? textSearch);
 
         /// <summary>
@@ -48,12 +49,12 @@ namespace Misa.Web202303.QLTS.BL.Service.FixedAsset
 
        
         /// <summary>
-        ///  lấy danh sách tài sản thoải mãn điều kiện filter và phân trang, chưa có chứng từ
+        ///  lấy danh sách tài sản thoải mãn điều kiện Filter và phân trang, chưa có chứng từ
         /// </summary>
-        /// <param name="filterFixedAssetNoLicense">đối tượng chứa dữ liệu filter</param>
-        /// <returns>danh sách tài sản chưa có chứng từ thỏa mã điều kiện filter</returns>
+        /// <param name="filterFixedAssetNoLicense">đối tượng chứa dữ liệu Filter</param>
+        /// <returns>danh sách tài sản chưa có chứng từ thỏa mã điều kiện Filter</returns>
         public Task<FilterListFixedAsset> GetFilterNotHasLicenseAsync(FilterFixedAssetNoLicense filterFixedAssetNoLicense);
 
-        public Task<IEnumerable<FixedAssetDto>> GetListByLicenseIdAsync(Guid licenseId);
+        public Task<IEnumerable<FixedAssetModel>> GetListByLicenseIdAsync(Guid licenseId);
     }
 }

@@ -3,6 +3,7 @@ using ClosedXML.Excel;
 using DocumentFormat.OpenXml.Spreadsheet;
 using DocumentFormat.OpenXml.VariantTypes;
 using Misa.Web202303.QLTS.BL.BodyRequest;
+using Misa.Web202303.QLTS.BL.DomainService.FixedAsset;
 using Misa.Web202303.QLTS.BL.ImportService;
 using Misa.Web202303.QLTS.BL.ImportService.FixedAsset;
 using Misa.Web202303.QLTS.BL.RecommendCode;
@@ -14,10 +15,13 @@ using Misa.Web202303.QLTS.Common.Error;
 using Misa.Web202303.QLTS.Common.Exceptions;
 using Misa.Web202303.QLTS.Common.Resource;
 using Misa.Web202303.QLTS.DL.Entity;
-using Misa.Web202303.QLTS.DL.filter;
+using Misa.Web202303.QLTS.DL.Filter;
 using Misa.Web202303.QLTS.DL.Repository.Department;
 using Misa.Web202303.QLTS.DL.Repository.FixedAsset;
 using Misa.Web202303.QLTS.DL.Repository.FixedAssetCategory;
+using Misa.Web202303.QLTS.DL.Repository.License;
+using Misa.Web202303.QLTS.DL.Repository.LicenseDetail;
+using Misa.Web202303.QLTS.DL.unitOfWork;
 using OfficeOpenXml;
 using System;
 using System.Collections.Generic;
@@ -30,6 +34,7 @@ using static Dapper.SqlMapper;
 
 // vì FixedAsset trong Entity ở DL trùng với tên của namespace nên đặt bí danh
 using FixedAssetEntity = Misa.Web202303.QLTS.DL.Entity.FixedAsset;
+using FixedAssetModel = Misa.Web202303.QLTS.DL.Model.FixedAsset;
 
 namespace Misa.Web202303.QLTS.BL.Service.FixedAsset
 {
@@ -64,6 +69,13 @@ namespace Misa.Web202303.QLTS.BL.Service.FixedAsset
         /// sử dụng để tạo mã code mới
         /// </summary>
         private readonly IRecommendCodeService _recommendCodeService;
+
+        private readonly IFixedAssetDomainService _fixedAssetDomainService;
+
+        private readonly ILicenseDetailRepository _licenseDetailRepository;
+
+        private readonly ILicenseRepository _licenseRepository;
+
         #endregion
 
 
@@ -79,14 +91,18 @@ namespace Misa.Web202303.QLTS.BL.Service.FixedAsset
         /// <param name="fixedAssetCategoryRepository">fixedAssetCategoryRepository</param>
         /// <param name="fixedAssetImportService">fixedAssetImportService</param>
         /// <param name="recommendCodeService">recommendCodeService</param>
+        /// <param name="unitOfWork">unitOfWork</param>
         /// 
-        public FixedAssetService(IFixedAssetRepository fixedAssetRepository, IMapper mapper, IDepartmentRepository departmentRepository, IFixedAssetCategoryRepository fixedAssetCategoryRepository, IFixedAssetImportService fixedAssetImportService, IRecommendCodeService recommendCodeService) : base(fixedAssetRepository, mapper)
+        public FixedAssetService(ILicenseRepository licenseRepository, ILicenseDetailRepository licenseDetailRepository, IFixedAssetRepository fixedAssetRepository, IUnitOfWork unitOfWork, IMapper mapper, IDepartmentRepository departmentRepository, IFixedAssetCategoryRepository fixedAssetCategoryRepository, IFixedAssetImportService fixedAssetImportService, IRecommendCodeService recommendCodeService, IFixedAssetDomainService fixedAssetDomainServicecs) : base(fixedAssetRepository, unitOfWork, mapper)
         {
             _fixedAssetRepository = fixedAssetRepository;
             _departmentRepository = departmentRepository;
             _fixedAssetCategoryRepository = fixedAssetCategoryRepository;
             _fixedAssetImportService = fixedAssetImportService;
-            _recommendCodeService= recommendCodeService;
+            _recommendCodeService = recommendCodeService;
+            _fixedAssetDomainService = fixedAssetDomainServicecs;
+            _licenseDetailRepository = licenseDetailRepository;
+            _licenseRepository = licenseRepository;
         }
         #endregion
 
@@ -94,7 +110,7 @@ namespace Misa.Web202303.QLTS.BL.Service.FixedAsset
 
 
         /// <summary>
-        /// filter, search, phân trang tài sản
+        /// Filter, search, phân trang tài sản
         /// Created by: NQ Huy(20/05/2023)
         /// </summary>
         /// <param name="pageSize">số bản ghi trong 1 trang</param>
@@ -103,66 +119,17 @@ namespace Misa.Web202303.QLTS.BL.Service.FixedAsset
         /// <param name="fixedAssetCategoryId">mã loại tài sản</param>
         /// <param name="textSearch">từ khóa tìm kiếm</param>
         /// <exception cref="ValidateException">throw exception khi validate lỗi</exception>
-        /// <returns>danh sách tài sản thỏa mãn yêu cầu filter, phân trang</returns>
+        /// <returns>danh sách tài sản thỏa mãn yêu cầu Filter, phân trang</returns>
         public async Task<FilterListFixedAsset> GetAsync(int pageSize, int currentPage, Guid? departmentId, Guid? fixedAssetCategoryId, string? textSearch)
         {
-            // validate dữ liệu
-            // pageSize lớn hơn 0
-            var listError = new List<ValidateError>();
-            if (pageSize <= 0)
-            {
-                listError.Add(new ValidateError()
-                {
-                    FieldNameError = "pageSize",
-                    Message = string.Format(ErrorMessage.PositiveNumberError, FieldName.PageSize),
-                });
-            }
-            // current page lớn hơn 0
-            if (currentPage <= 0)
-            {
-                listError.Add(new ValidateError()
-                {
-                    FieldNameError = "currentPage",
-                    Message = string.Format(ErrorMessage.PositiveNumberError, FieldName.CurrentPage),
-                });
-            }
-            // department tồn tại
-            if (departmentId != null)
-            {
-                var department = await _departmentRepository.GetAsync((Guid)departmentId);
-                if (department == null)
-                {
-                    listError.Add(new ValidateError()
-                    {
-                        FieldNameError = "department_id",
-                        Message = string.Format(ErrorMessage.InvalidError, FieldName.DepartmentCode),
-                    });
-                }
-            }
-            // loại tài sản tồn tại
-            if (fixedAssetCategoryId != null)
-            {
-                var fixedAssetCategory = await _fixedAssetCategoryRepository.GetAsync((Guid)fixedAssetCategoryId);
-                if (fixedAssetCategory == null)
-                {
-                    listError.Add(new ValidateError()
-                    {
-                        FieldNameError = "fixed_asset_category_id",
-                        Message = string.Format(ErrorMessage.InvalidError, FieldName.FixedAssetCategoryCode),
-                    });
-                }
-            }
+            await _fixedAssetDomainService.ValidateInputFilterAsync(pageSize, currentPage, departmentId, fixedAssetCategoryId);
             // nếu có lỗi thì throw excception
-            if (listError.Count > 0)
-            {
-                throw new ValidateException()
-                {
-                    ErrorCode = ErrorCode.DataValidate,
-                    Data = listError,
-                    UserMessage = ErrorMessage.ValidateFilterError
-                };
-            }
+
+
             var filterListFixedAsset = await _fixedAssetRepository.GetAsync(pageSize, currentPage, departmentId, fixedAssetCategoryId, textSearch);
+
+            //await _unitOfWork.CommitAsync();
+
             return filterListFixedAsset;
         }
 
@@ -182,6 +149,9 @@ namespace Misa.Web202303.QLTS.BL.Service.FixedAsset
             var postFix = tempList.Last();
 
             var newCode = _recommendCodeService.CreateRecommendCode(prefixCode, postFix);
+
+            await _unitOfWork.CommitAsync();
+
             return newCode;
         }
 
@@ -194,23 +164,9 @@ namespace Misa.Web202303.QLTS.BL.Service.FixedAsset
         /// <returns></returns>
         /// <exception cref="ValidateException">throw exception khi validate lỗi</exception>
         /// <returns>danh sách lỗi</returns>
-        protected async override Task<List<ValidateError>> CreateValidateAsync(FixedAssetCreateDto fixedAssetCreateDto)
+        protected async override Task CreateValidateAsync(FixedAssetCreateDto fixedAssetCreateDto)
         {
-           
-            var fixedAsset = _mapper.Map<FixedAssetEntity>(fixedAssetCreateDto);
-            
-            // validate nghiệp vụ
-            var businessErrors = BusinessValidate(fixedAsset);
-
-            // validate khóa ngoại
-            var foreignKeyErrors = await ForeignKeyValidateAsync(fixedAsset);
-
-            // kiểm tra mã tài sản bị trùng
-            var duplicateErrors = await base.CreateValidateAsync(fixedAssetCreateDto);
-
-            var listError = Enumerable.Concat(businessErrors, foreignKeyErrors).ToList();
-            listError = listError.Concat(duplicateErrors).ToList();
-            return listError;
+            await _fixedAssetDomainService.CreateValidateAsync(fixedAssetCreateDto);
         }
 
         /// <summary>
@@ -221,102 +177,9 @@ namespace Misa.Web202303.QLTS.BL.Service.FixedAsset
         /// <param name="fixedAssetUpdateDto">dữ liệu tài sản cần validate</param>
         /// <returns>danh sách lỗi</returns>
 
-        protected async override Task<List<ValidateError>> UpdateValidateAsync(Guid fixedAssetId, FixedAssetUpdateDto fixedAssetUpdateDto)
+        protected async override Task UpdateValidateAsync(Guid fixedAssetId, FixedAssetUpdateDto fixedAssetUpdateDto)
         {
-
-            var fixedAsset = _mapper.Map<FixedAssetEntity>(fixedAssetUpdateDto);
-
-            // validate nghiệp vụ
-            var businessErrors = BusinessValidate(fixedAsset);
-
-            // validate khóa ngoại
-            var foreignKeyErrors = await ForeignKeyValidateAsync(fixedAsset);
-
-            // kiểm tra trùng mã
-            var duplicateErrors = await base.UpdateValidateAsync(fixedAssetId, fixedAssetUpdateDto);
-
-            var listError = Enumerable.Concat(businessErrors, foreignKeyErrors).ToList();
-
-            listError = listError.Concat(duplicateErrors).ToList();
-
-
-            return listError;
-        }
-
-        /// <summary>
-        /// hàm validate chung cho cả insert và update, thực hiện các logic nghiệp vụ
-        /// created by: nqhuy(21/05/2023)
-        /// </summary>
-        /// <param name="fixedAsset"></param>
-        /// <returns></returns>
-        /// <exception cref="ValidateException"></exception>
-        /// <returns>danh sách lỗi</returns>
-        private async Task<List<ValidateError>> ForeignKeyValidateAsync(FixedAssetEntity fixedAsset)
-        {
-            var listError = new List<ValidateError>();
-            // kiểm tra department_id tồn tại
-            var department = await _departmentRepository.GetAsync(fixedAsset.department_id);
-            if (department == null)
-            {
-                listError.Add(new ValidateError()
-                {
-                    FieldNameError = "DepartmentCode",
-                    Message = string.Format(ErrorMessage.InvalidError, FieldName.DepartmentCode),
-                });
-            }
-            // kiểm tra fixed_asset_category_id tồn tại
-            var fixedAssetCategory = await _fixedAssetCategoryRepository.GetAsync(fixedAsset.fixed_asset_category_id);
-            if (fixedAssetCategory == null)
-            {
-                listError.Add(new ValidateError()
-                {
-                    FieldNameError = "fixed_asset_category_id",
-                    Message = string.Format(ErrorMessage.InvalidError, FieldName.FixedAssetCategoryCode),
-                });
-            }
-            return listError;
-        }
-
-        /// <summary>
-        /// validate nghiệp vụ
-        /// created by: nqhuy(21/05/2023)
-        /// </summary>
-        /// <param name="fixedAsset">dữ liệu tài sản cần validate</param>
-        /// <returns>danh sách lỗi</returns>
-        internal static List<ValidateError> BusinessValidate(FixedAssetEntity fixedAsset)
-        {
-            var listError = new List<ValidateError>();
-            // làm tròn số
-            var depreciationAnnual = Math.Round((double)fixedAsset.depreciation_rate * fixedAsset.cost / 100, 2);
-            var depreciationRate = Math.Round((double)1 / fixedAsset.life_time * 100, 2);
-            // hao mòn năm  = tỷ lệ hao mòn * nguyên giá
-            if (fixedAsset.depreciation_annual != depreciationAnnual)
-            {
-                listError.Add(new ValidateError()
-                {
-                    FieldNameError = "depreciation_annual",
-                    Message = ErrorMessage.DepAnnualCostDepRateError,
-                });
-            }
-            // tỷ lệ hao mòn = 1 / số năm sử dụng
-            if (fixedAsset.depreciation_rate != depreciationRate)
-            {
-                listError.Add(new ValidateError()
-                {
-                    FieldNameError = "depreciation_rate",
-                    Message = ErrorMessage.DepRateLifeTimeError,
-                });
-            }
-            // ngày mua nhỏ hơn hoạc bằng ngày sử dụng
-            if(fixedAsset.use_date < fixedAsset.purchase_date)
-            {
-                listError.Add(new ValidateError()
-                {
-                    FieldNameError = "use_date",
-                    Message = ErrorMessage.UseDateLessThanPurchaseDateError,
-                });
-            }
-            return listError;
+            await _fixedAssetDomainService.UpdateValidateAsync(fixedAssetId, fixedAssetUpdateDto);
         }
 
         /// <summary>
@@ -331,16 +194,21 @@ namespace Misa.Web202303.QLTS.BL.Service.FixedAsset
         {
             // validate dữ liệu
             var validateEntity = await _fixedAssetImportService.ValidateAsync(stream);
+
+
+
             if (isSubmit && validateEntity.IsPassed || !isSubmit)
             {
                 var listEntity = validateEntity.ListEntity;
                 // nếu không có lỗi thì import
                 if (isSubmit)
                     await _baseRepository.InsertListAsync(listEntity);
+                await _unitOfWork.CommitAsync();
                 return validateEntity;
             }
             else
             {
+                await _unitOfWork.CommitAsync();
                 // có lỗi thì throw exception
                 throw new ValidateException()
                 {
@@ -361,31 +229,81 @@ namespace Misa.Web202303.QLTS.BL.Service.FixedAsset
             return AssetName.FixedAsset;
         }
 
-         /// <summary>
-        ///  lấy danh sách tài sản thoải mãn điều kiện filter và phân trang, chưa có chứng từ
+        /// <summary>
+        ///  lấy danh sách tài sản thoải mãn điều kiện Filter và phân trang, chưa có chứng từ
         /// </summary>
-        /// <param name="filterFixedAssetNoLicense">đối tượng chứa dữ liệu filter</param>
-        /// <returns>danh sách tài sản chưa có chứng từ thỏa mã điều kiện filter</returns>
+        /// <param name="filterFixedAssetNoLicense">đối tượng chứa dữ liệu Filter</param>
+        /// <returns>danh sách tài sản chưa có chứng từ thỏa mã điều kiện Filter</returns>
         public async Task<FilterListFixedAsset> GetFilterNotHasLicenseAsync(FilterFixedAssetNoLicense filterFixedAssetNoLicense)
         {
-           // validate
+            // validate
 
             var listIdString = string.Join(",", filterFixedAssetNoLicense.ListIdSelected);
 
-            var result = await _fixedAssetRepository.GetFilterNotHasLicenseAsync(filterFixedAssetNoLicense.PageSize, filterFixedAssetNoLicense.CurrentPage, listIdString, filterFixedAssetNoLicense.TextSearch);
+            var result = await _fixedAssetRepository.GetFilterNotHasLicenseAsync(filterFixedAssetNoLicense.PageSize, filterFixedAssetNoLicense.CurrentPage, listIdString, filterFixedAssetNoLicense.TextSearch, filterFixedAssetNoLicense.LicenseId);
+
+            await _unitOfWork.CommitAsync();
 
             return result;
         }
 
-        public async Task<IEnumerable<FixedAssetDto>> GetListByLicenseIdAsync(Guid licenseId)
+        public async Task<IEnumerable<FixedAssetModel>> GetListByLicenseIdAsync(Guid licenseId)
         {
             var listEntity = await _fixedAssetRepository.GetListByLicenseId(licenseId);
-            var result = listEntity.Select(entity =>
+
+            await _unitOfWork.CommitAsync();
+
+            return listEntity;
+        }
+
+        public override async Task DeleteListAsync(IEnumerable<Guid> listId)
+        {
+            var stringIds = string.Join(",", listId);
+
+            var listExisted = await _licenseDetailRepository.GetListFAExistedAsync(stringIds);
+
+            var listFaIdExisted = listExisted.Select(item => item.fixed_asset_id).GroupBy(id => id);
+
+
+
+            if (listFaIdExisted.Count() > 0)
             {
-                var fixedAsset = _mapper.Map<FixedAssetDto>(entity);
-                return fixedAsset;
-            });
-            return result;
+                string userMessage;
+
+                if (listFaIdExisted.Count() == 1)
+                {
+                    var fixedAsset = await _fixedAssetRepository.GetAsync(listId.First());
+                    var license = await _licenseRepository.GetAsync(listExisted.First().license_id);
+                    userMessage = String.Format(ErrorMessage.FixedAssetDeleteDetail, fixedAsset.fixed_asset_code, license.license_code);
+                }
+                else
+                {
+                    var length = listFaIdExisted.Count() < 10 ? $"0{listFaIdExisted.Count()}" : $"{listFaIdExisted.Count()}";
+                    userMessage = String.Format(ErrorMessage.ListFixedAssetDeleteDetail, length);
+                }
+                throw new ValidateException()
+                {
+                    Data = listFaIdExisted,
+                    ErrorCode = ErrorCode.DeleteDetail,
+                    UserMessage = userMessage,
+                };
+            }
+
+            using (var transaction = await _unitOfWork.GetTransactionAsync())
+            {
+                try
+                {
+                    await _fixedAssetRepository.DeleteListAsync(stringIds);
+                    await _unitOfWork.CommitAsync();
+
+                }
+                catch (Exception ex)
+                {
+                    await _unitOfWork.RollbackAsync();
+                    throw ex;
+                }
+            }
+
         }
         #endregion
     }

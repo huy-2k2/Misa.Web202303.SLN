@@ -12,10 +12,13 @@ using Misa.Web202303.QLTS.Common.Exceptions;
 using Misa.Web202303.QLTS.Common.Resource;
 using Misa.Web202303.QLTS.DL.Entity;
 using Misa.Web202303.QLTS.DL.Repository;
+using Misa.Web202303.QLTS.DL.Repository.License;
+using Misa.Web202303.QLTS.DL.unitOfWork;
 using OfficeOpenXml;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -36,7 +39,11 @@ namespace Misa.Web202303.QLTS.BL.Service
         /// sử dụng dịch vị của  IBaseRepository
         /// </summary>
         protected readonly IBaseRepository<TEntity> _baseRepository;
+
         protected readonly IMapper _mapper;
+
+        protected readonly IUnitOfWork _unitOfWork;
+
         #endregion
 
         #region
@@ -46,11 +53,13 @@ namespace Misa.Web202303.QLTS.BL.Service
         /// </summary>
         /// <param name="baseRepository">baseRepository</param>
         /// <param name="mapper">mapper</param>
-        public BaseService(IBaseRepository<TEntity> baseRepository, IMapper mapper)
+        public BaseService(IBaseRepository<TEntity> baseRepository, IUnitOfWork unitOfWork, IMapper mapper)
         {
             _baseRepository = baseRepository;
             _mapper = mapper;
+            _unitOfWork = unitOfWork;
         }
+
         #endregion
 
         #region
@@ -74,6 +83,8 @@ namespace Misa.Web202303.QLTS.BL.Service
             }
             var entityDto = _mapper.Map<TEntityDto>(entity);
 
+            await _unitOfWork.CommitAsync();
+
             return entityDto;
         }
 
@@ -87,6 +98,10 @@ namespace Misa.Web202303.QLTS.BL.Service
             var listTEntity = await _baseRepository.GetAsync();
 
             var result = listTEntity.Select(entity => _mapper.Map<TEntityDto>(entity));
+            await _unitOfWork.CommitAsync();
+
+            //await _unitOfWork.CommitAsync();
+
 
             return result;
         }
@@ -101,25 +116,39 @@ namespace Misa.Web202303.QLTS.BL.Service
         public virtual async Task InsertAsync(TEntityCreateDto entityCreateDto)
         {
             // validate Attr
-            var attributeErrors =  ValidateAttribute.Validate(entityCreateDto);
+            var attributeErrors = ValidateAttribute.Validate(entityCreateDto);
             // validate riêng
-            var createValidateErrors = await CreateValidateAsync(entityCreateDto);
-            
-            var listError = Enumerable.Concat(attributeErrors, createValidateErrors).ToList();
+            await CreateValidateAsync(entityCreateDto);
+
 
             // nếu validate có lỗi thì throw exception
-            if(listError.Count > 0)
+            if (attributeErrors.Count > 0)
             {
                 throw new ValidateException()
                 {
                     ErrorCode = ErrorCode.DataValidate,
-                    Data = listError,
-                    UserMessage = string.Join ("", listError.Select(error => $"<span>{error.Message}</span>"))
-                    
+                    Data = attributeErrors,
+                    UserMessage = string.Join("", attributeErrors.Select(error => $"<span>{error.Message}</span>"))
+
                 };
             }
+
             var entity = _mapper.Map<TEntity>(entityCreateDto);
-            await _baseRepository.InsertAsync(entity);
+            using (var transaction = await _unitOfWork.GetTransactionAsync())
+            {
+                try
+                {
+                    await _baseRepository.InsertAsync(entity);
+                    await _unitOfWork.CommitAsync();
+
+                }
+                catch (Exception ex)
+                {
+                    await _unitOfWork.RollbackAsync();
+                    throw ex;
+                }
+
+            }
         }
 
         /// <summary>
@@ -132,34 +161,25 @@ namespace Misa.Web202303.QLTS.BL.Service
         /// <returns></returns>
         public virtual async Task UpdateAsync(Guid entityId, TEntityUpdateDto entityUpdateDto)
         {
-            // kiểm tra bản ghi không tồn tại
-            var oldEntity = await _baseRepository.GetAsync(entityId);
-            if (oldEntity == null)
-            {
-                throw new NotFoundException()
-                {
-                    ErrorCode = ErrorCode.NotFound,
-                    UserMessage = string.Format(ErrorMessage.NotFoundUpdateError, GetAssetName())
-                };
-            }
             var attributeErrors = ValidateAttribute.Validate(entityUpdateDto);
-            // validate riêng
-            var updateValidateErrors = await UpdateValidateAsync(entityId, entityUpdateDto);
 
-            var listError = Enumerable.Concat(attributeErrors, updateValidateErrors).ToList();
-
-            if (listError.Count > 0)
+            if (attributeErrors.Count > 0)
             {
                 throw new ValidateException()
                 {
                     ErrorCode = ErrorCode.DataValidate,
-                    Data = listError,
-                    UserMessage = string.Join("", listError.Select(error => $"<span>{error.Message}</span>"))
+                    Data = attributeErrors,
+                    UserMessage = string.Join("", attributeErrors.Select(error => $"<span>{error.Message}</span>"))
                 };
             }
+            // validate riêng
+           await UpdateValidateAsync(entityId, entityUpdateDto);
 
             var entity = _mapper.Map<TEntity>(entityUpdateDto);
-           await _baseRepository.UpdateAsync(entityId, entity);
+            await _baseRepository.UpdateAsync(entityId, entity);
+
+            await _unitOfWork.CommitAsync();
+
         }
 
 
@@ -172,7 +192,10 @@ namespace Misa.Web202303.QLTS.BL.Service
         /// <returns>false nếu không tồn tại, true nếu tồn tại</returns>
         public virtual async Task<bool> CheckCodeExisted(string code, Guid? id)
         {
+
             var result = await _baseRepository.CheckCodeExistedAsync(code, id);
+            await _unitOfWork.CommitAsync();
+
             return result;
         }
 
@@ -183,23 +206,8 @@ namespace Misa.Web202303.QLTS.BL.Service
         /// <param name="id">id tài nguyên</param>
         /// <param name="entityUpdateDto">dữ liệu entity cần valdiate</param>
         /// <returns>danh sách lỗi</returns>
-        protected virtual async Task<List<ValidateError>> UpdateValidateAsync(Guid id, TEntityUpdateDto entityUpdateDto) {
-            var listError = new List<ValidateError>();
-            var tableName = _baseRepository.GetTableName();
-            var prop = entityUpdateDto.GetType().GetProperty($"{tableName}_code");
-            if (prop == null)
-                return listError;
-            var code = (string)prop.GetValue(entityUpdateDto);
-            var isCodeExisted = await _baseRepository.CheckCodeExistedAsync(code, id);
-            if(isCodeExisted)
-            {
-                listError.Add(new ValidateError()
-                {
-                    FieldNameError = $"{tableName}_code",
-                    Message = string.Format(ErrorMessage.DuplicateCodeError, FieldName.CommonCode),
-                });
-            }
-            return listError;
+        protected virtual async Task UpdateValidateAsync(Guid id, TEntityUpdateDto entityUpdateDto)
+        {
         }
 
         /// <summary>
@@ -208,23 +216,8 @@ namespace Misa.Web202303.QLTS.BL.Service
         /// </summary>
         /// <param name="entityCreateDto">dữ liệu entity cần validate</param>
         /// <returns>danh sách lỗi</returns>
-        protected virtual async Task<List<ValidateError>> CreateValidateAsync(TEntityCreateDto entityCreateDto) {
-            var listError = new List<ValidateError>();
-            var tableName = _baseRepository.GetTableName();
-            var prop = entityCreateDto.GetType().GetProperty($"{tableName}_code");
-            if (prop == null)
-                return listError;
-            var code = (string)prop.GetValue(entityCreateDto);
-            var isCodeExisted = await _baseRepository.CheckCodeExistedAsync(code, null);
-            if (isCodeExisted)
-            {
-                listError.Add(new ValidateError()
-                {
-                    FieldNameError = $"{tableName}_code",
-                    Message = string.Format(ErrorMessage.DuplicateCodeError, FieldName.CommonCode),
-                });
-            }
-            return listError;
+        protected virtual async Task CreateValidateAsync(TEntityCreateDto entityCreateDto)
+        {
         }
 
         /// <summary>
@@ -249,7 +242,11 @@ namespace Misa.Web202303.QLTS.BL.Service
                 };
 
             }
-           await _baseRepository.DeleteListAsync(listIdString);
+            await _baseRepository.DeleteListAsync(listIdString);
+
+            await _unitOfWork.CommitAsync();
+
+
         }
 
         #endregion
@@ -260,7 +257,10 @@ namespace Misa.Web202303.QLTS.BL.Service
         /// created by: nqhuy(21/05/2023)
         /// </summary>
         /// <returns>tên tài nguyên</returns>
-        protected abstract string GetAssetName();
+        protected virtual string GetAssetName()
+        {
+            return "";
+        }
 
         #endregion
 

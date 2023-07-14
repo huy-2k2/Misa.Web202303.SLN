@@ -52,7 +52,7 @@ namespace Misa.Web202303.QLTS.API.Controllers
         }
 
         /// <summary>
-        /// phương thức filter và phân trang tài sản
+        /// phương thức Filter và phân trang tài sản
         /// created by: nqhuy(21/05/2023)
         /// </summary>
         /// <param name="pageSize">số bản ghi trong 1 trang</param>
@@ -61,7 +61,7 @@ namespace Misa.Web202303.QLTS.API.Controllers
         /// <param name="fixedAssetCategoryId">mã loại tài sản</param>
         /// <param name="textSearch">từ khóa tìm kiếm</param>
         /// <returns></returns>
-        [HttpGet("filter")]
+        [HttpGet("Filter")]
         public async Task<IActionResult> GetAsync(int pageSize, int currentPage, Guid? departmentId, Guid? fixedAssetCategoryId, string? textSearch)
         {
             var result =  await _fixedAssetService.GetAsync(pageSize, currentPage, departmentId, fixedAssetCategoryId, textSearch);
@@ -88,7 +88,7 @@ namespace Misa.Web202303.QLTS.API.Controllers
         }
 
         /// <summary>
-        /// endpoint filter phân trang tài sản chưa có chứng từ
+        /// endpoint Filter phân trang tài sản chưa có chứng từ
         /// created by: NQ Huy(27/06/2023)
         /// </summary>
         /// <param name="body">dữ liệu phân trang</param>

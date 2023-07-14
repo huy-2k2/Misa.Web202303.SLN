@@ -22,5 +22,7 @@ namespace Misa.Web202303.QLTS.DL.Entity
         /// giá trị ngân sách
         /// </summary>
         public double budget_value { get; set; }    
+
+        public Guid budget_id { get; set; }
     }
 }

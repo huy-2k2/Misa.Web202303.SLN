@@ -8,6 +8,7 @@ using Misa.Web202303.QLTS.Common.Exceptions;
 using Misa.Web202303.QLTS.Common.Resource;
 using Misa.Web202303.QLTS.DL.Entity;
 using Misa.Web202303.QLTS.DL.Repository;
+using Misa.Web202303.QLTS.DL.unitOfWork;
 using OfficeOpenXml;
 using System;
 using System.Collections.Generic;
@@ -31,6 +32,8 @@ namespace Misa.Web202303.QLTS.BL.ImportService
         /// dùng để gọi phương thức của BaseRepository
         /// </summary>
         private readonly IBaseRepository<TEntity> _baseRepository;
+
+        protected readonly IUnitOfWork _unitOfWork;
         #endregion
 
         #region
@@ -39,9 +42,10 @@ namespace Misa.Web202303.QLTS.BL.ImportService
         /// created by: nqhuy(21/05/2023)
         /// </summary>
         /// <param name="baseRepository">baseRepository</param>
-        public BaseImportService(IBaseRepository<TEntity> baseRepository)
+        public BaseImportService(IBaseRepository<TEntity> baseRepository, IUnitOfWork unitOfWork)
         {
             this._baseRepository = baseRepository;
+            _unitOfWork = unitOfWork;
         }
         #endregion
 
@@ -249,6 +253,7 @@ namespace Misa.Web202303.QLTS.BL.ImportService
                 var isPassed = errorOfTable.Where(errorOfRow => errorOfRow.Count > 0).Count() == 0;
 
                 var listEntity = isPassed ? await MapToListEntity(listEntityImport) : null;
+
 
                 return new ImportErrorEntity<TEntity>()
                 {

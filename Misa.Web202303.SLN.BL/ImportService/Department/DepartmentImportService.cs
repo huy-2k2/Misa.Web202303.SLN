@@ -3,6 +3,7 @@ using Misa.Web202303.QLTS.BL.Service.Department;
 using Misa.Web202303.QLTS.Common.Error;
 using Misa.Web202303.QLTS.DL.Repository;
 using Misa.Web202303.QLTS.DL.Repository.Department;
+using Misa.Web202303.QLTS.DL.unitOfWork;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -32,7 +33,7 @@ namespace Misa.Web202303.QLTS.BL.ImportService.Department
         /// </summary>
         /// <param name="departmentRepository"></param>
         /// <param name="mapper"></param>
-        public DepartmentImportService(IDepartmentRepository departmentRepository, IMapper mapper) : base(departmentRepository)
+        public DepartmentImportService(IDepartmentRepository departmentRepository, IUnitOfWork unitOfWork, IMapper mapper) : base(departmentRepository, unitOfWork)
         {
             _mapper = mapper;
         }
@@ -51,7 +52,6 @@ namespace Misa.Web202303.QLTS.BL.ImportService.Department
             foreach (var importEntity in listImportEntity)
             {
                 var entity = _mapper.Map<DepartmentEntity>(importEntity);
-                entity.department_id = Guid.NewGuid();
                 result.Add(entity);
             }
 

@@ -61,6 +61,15 @@ namespace Misa.Web202303.QLTS.Common.Resource {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Nguồn kinh phí đã tồn tại cho tài sản.
+        /// </summary>
+        public static string BFExisted {
+            get {
+                return ResourceManager.GetString("BFExisted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Tài khoản hoạc mật khẩu không đúng.
         /// </summary>
         public static string CredentialnvalidError {
@@ -169,6 +178,15 @@ namespace Misa.Web202303.QLTS.Common.Resource {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Tài sản có mã &lt;strong&gt;{0}&lt;/strong&gt; đã phát sinh chứng từ ghi tăng có mã &lt;strong&gt; {1}&lt;/strong&gt;.
+        /// </summary>
+        public static string FixedAssetDeleteDetail {
+            get {
+                return ResourceManager.GetString("FixedAssetDeleteDetail", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Giá trị {0} phải lớn hơn {1}.
         /// </summary>
         public static string HigherError {
@@ -201,6 +219,15 @@ namespace Misa.Web202303.QLTS.Common.Resource {
         public static string LengthError {
             get {
                 return ResourceManager.GetString("LengthError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &lt;strong&gt;{0}&lt;/strong&gt; tài sản đã có chứng từ phát sinh.
+        /// </summary>
+        public static string ListFixedAssetDeleteDetail {
+            get {
+                return ResourceManager.GetString("ListFixedAssetDeleteDetail", resourceCulture);
             }
         }
         
@@ -282,6 +309,15 @@ namespace Misa.Web202303.QLTS.Common.Resource {
         public static string RequiredError {
             get {
                 return ResourceManager.GetString("RequiredError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cần chọn ít nhất 1 tài sản.
+        /// </summary>
+        public static string SelectFixedAssetMinError {
+            get {
+                return ResourceManager.GetString("SelectFixedAssetMinError", resourceCulture);
             }
         }
         

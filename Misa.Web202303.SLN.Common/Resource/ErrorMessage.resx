@@ -117,6 +117,10 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="BFExisted" xml:space="preserve">
+    <value>Nguồn kinh phí đã tồn tại cho tài sản</value>
+    <comment>khi người dùng thêm nguồn kinh phí đã tồn tại cho 1 tài sản</comment>
+  </data>
   <data name="CredentialnvalidError" xml:space="preserve">
     <value>Tài khoản hoạc mật khẩu không đúng</value>
     <comment>người dùng nhập sai tên đăng nhập hoạc mật khẩu</comment>
@@ -165,6 +169,9 @@
     <value>Số dòng không hợp lệ</value>
     <comment>số dòng trong file không hợp lệ</comment>
   </data>
+  <data name="FixedAssetDeleteDetail" xml:space="preserve">
+    <value>Tài sản có mã &lt;strong&gt;{0}&lt;/strong&gt; đã phát sinh chứng từ ghi tăng có mã &lt;strong&gt; {1}&lt;/strong&gt;</value>
+  </data>
   <data name="HigherError" xml:space="preserve">
     <value>Giá trị {0} phải lớn hơn {1}</value>
     <comment>nhỏ hơn giá trị cho phép</comment>
@@ -180,6 +187,9 @@
   <data name="LengthError" xml:space="preserve">
     <value>Độ dài {0} phải từ {1} đến {2}</value>
     <comment>độ dài a phải có length từ b đến c</comment>
+  </data>
+  <data name="ListFixedAssetDeleteDetail" xml:space="preserve">
+    <value>&lt;strong&gt;{0}&lt;/strong&gt; tài sản đã có chứng từ phát sinh</value>
   </data>
   <data name="LowerError" xml:space="preserve">
     <value>Giá trị {0} phải nhỏ hơn {1}</value>
@@ -216,6 +226,10 @@
   <data name="RequiredError" xml:space="preserve">
     <value>Không được phép để trống {0}</value>
     <comment>không được để trống</comment>
+  </data>
+  <data name="SelectFixedAssetMinError" xml:space="preserve">
+    <value>Cần chọn ít nhất 1 tài sản</value>
+    <comment>lỗi khi người dùng thêm chứng từ và không chọn tài sản nào</comment>
   </data>
   <data name="TokenInvalidError" xml:space="preserve">
     <value>Phiên đăng nhập của bạn đã hết, vui lòng đăng nhập lại</value>

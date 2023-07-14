@@ -1,5 +1,6 @@
 ﻿using DocumentFormat.OpenXml.Bibliography;
 using Microsoft.AspNetCore.Mvc;
+using Misa.Web202303.QLTS.BL.BodyRequest.License;
 using Misa.Web202303.QLTS.BL.Service;
 using Misa.Web202303.QLTS.BL.Service.License;
 
@@ -21,14 +22,14 @@ namespace Misa.Web202303.QLTS.API.Controllers
 
         /// <summary>
         /// created by : NQ Huy(27/06/2023)
-        /// end point filter, phân trang chứng từ)
+        /// end point Filter, phân trang chứng từ)
         /// </summary>
         /// <param name="pageSize">kích thước page</param>
         /// <param name="currentPage">page hiện tại</param>
         /// <param name="textSearch">từ khóa tìm kiếm</param>
         /// <returns></returns>
         
-        [HttpGet("filter")]
+        [HttpGet("Filter")]
         public async Task<IActionResult> GetLicenseModelAync([FromQuery] int pageSize, [FromQuery] int currentPage, [FromQuery] string? textSearch)
         {
             var result = await _licenseService.GetListLicenseModelAsync(pageSize, currentPage, textSearch);
@@ -45,6 +46,20 @@ namespace Misa.Web202303.QLTS.API.Controllers
         {
             var result = await _licenseService.GetRecommendAsync();
             return Ok(result);
+        }
+
+        [HttpPost("model")]
+        public async Task<IActionResult> InsertModelAsync(CULicense cuLicense)
+        {
+            await _licenseService.InsertModelAsync(cuLicense);
+            return Ok();
+        }
+
+        [HttpPut("model/{licenseId}")]
+        public async Task<IActionResult> UpdateModelAsync([FromRoute] Guid licenseId, CULicense cuLicense)
+        {
+            await _licenseService.UpdateModelAsync(licenseId, cuLicense);
+            return Ok();
         }
     }
 }

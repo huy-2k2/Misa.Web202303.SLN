@@ -116,4 +116,14 @@ public static class FieldName
     /// mật khẩu
     /// </summary>
     public const string Password = "mật khẩu";
+
+    public const string Budget = "nguồn ngân sách";
+
+    public const string FixedAsset = "tài sản";
+
+    public const string License = "Chứng từ";
+
+    public const string LicenseCode = "Mã chứng từ";
+
+    public const string BudgetValue = "Giá trị ngân sách";
 }

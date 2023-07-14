@@ -1,22 +1,23 @@
-﻿using Misa.Web202303.QLTS.DL.filter;
+﻿using Misa.Web202303.QLTS.BL.BodyRequest.License;
+using Misa.Web202303.QLTS.DL.Filter;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using LicenseModel = Misa.Web202303.QLTS.DL.model.License;
+using LicenseModel = Misa.Web202303.QLTS.DL.Model.License;
 
 namespace Misa.Web202303.QLTS.BL.Service.License
 {
     public interface ILicenseService : IBaseService<LicenseDto, LicenseUpdateDto, LicenseCreateDto>
     {
         /// <summary>
-        /// phân trang, filter cho chứng từ
+        /// phân trang, Filter cho chứng từ
         /// </summary>
         /// <param name="pageSize">kích thước 1 trang</param>
         /// <param name="currentPage">trang hiện tại</param>
         /// <param name="textSearch">từ khóa tìm kiếm</param>
-        /// <returns>danh chứng license model thỏa mãn điều kiện phân trang, filter</returns>
+        /// <returns>danh chứng license Model thỏa mãn điều kiện phân trang, Filter</returns>
         Task<FilterLicenseModel> GetListLicenseModelAsync(int pageSize, int currentPage, string? textSearch);
 
         /// <summary>
@@ -25,6 +26,10 @@ namespace Misa.Web202303.QLTS.BL.Service.License
         /// </summary>
         /// <returns>mã code gợi ý</returns>
         Task<string> GetRecommendAsync();
+
+        Task InsertModelAsync(CULicense cuLicense);
+
+        Task UpdateModelAsync(Guid licenseId, CULicense cuLicense);
 
     }
 }

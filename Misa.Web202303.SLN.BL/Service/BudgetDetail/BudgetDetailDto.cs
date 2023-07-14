@@ -4,10 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Misa.Web202303.QLTS.BL.BodyRequest
+namespace Misa.Web202303.QLTS.BL.Service.BudgetDetail
 {
-    public class CULicense
+    public class BudgetDetailDto
     {
-
     }
 }

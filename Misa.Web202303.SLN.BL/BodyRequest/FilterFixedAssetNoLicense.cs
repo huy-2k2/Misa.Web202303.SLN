@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace Misa.Web202303.QLTS.BL.BodyRequest
 {
     /// <summary>
-    /// đối tượng để lấy dữ liệu fontend khi filter, phân trang tài sản chưa có chứng từ
+    /// đối tượng để lấy dữ liệu fontend khi Filter, phân trang tài sản chưa có chứng từ
     /// created by :NQ Huy(28/06/2023)
     /// </summary>
     public class FilterFixedAssetNoLicense
@@ -26,6 +26,8 @@ namespace Misa.Web202303.QLTS.BL.BodyRequest
         /// danh sách id tài sản đã được chọn
         /// </summary>
         public IEnumerable<Guid> ListIdSelected { set; get; }
+
+        public Guid? LicenseId { get; set; }
 
         /// <summary>
         /// từ khóa tìm kiếm

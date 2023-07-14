@@ -55,7 +55,9 @@ namespace Misa.Web202303.QLTS.Common.Emum
         /// <summary>
         /// token xác thực không hợp lệ
         /// </summary>
-        InvalidToken = 8
+        InvalidToken = 8,
+
+        DeleteDetail = 9
 
     }
 }

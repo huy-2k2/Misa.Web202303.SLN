@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Misa.Web202303.QLTS.DL.Entity;
 
-namespace Misa.Web202303.QLTS.DL.filter
+namespace Misa.Web202303.QLTS.DL.Filter
 {
     /// <summary>
     /// lớp  dùng để lấy dữ liệu khi phân trang

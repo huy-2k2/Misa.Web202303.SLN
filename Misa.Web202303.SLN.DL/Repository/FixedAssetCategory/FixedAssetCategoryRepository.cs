@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Misa.Web202303.QLTS.DL.Entity;
+using Misa.Web202303.QLTS.DL.unitOfWork;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,15 +17,11 @@ namespace Misa.Web202303.QLTS.DL.Repository.FixedAssetCategory
     /// </summary>
     public class FixedAssetCategoryRepository : BaseRepository<FixedAssetCategoryEnitty>, IFixedAssetCategoryRepository
     {
-        #region
-        /// <summary>
-        /// hàm khởi tạo
-        /// Created by: NQ Huy(20/05/2023)
-        /// </summary>
-        /// <param name="configuration">IConfiguration</param>
-        public FixedAssetCategoryRepository(IConfiguration configuration) : base(configuration)
+        public FixedAssetCategoryRepository(IUnitOfWork unitOfWork) : base(unitOfWork)
         {
         }
+        #region
+
         #endregion
 
         #region

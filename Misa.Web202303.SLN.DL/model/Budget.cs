@@ -5,9 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Misa.Web202303.QLTS.DL.model
+namespace Misa.Web202303.QLTS.DL.Model
 {
-    public class Budget :BaseModel
+    public class Budget
     {
         /// <summary>
         /// khóa chính

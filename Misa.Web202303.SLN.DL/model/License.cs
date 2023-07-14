@@ -6,9 +6,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Misa.Web202303.QLTS.DL.model
+namespace Misa.Web202303.QLTS.DL.Model
 {
-    public class License : BaseModel
+    public class License
     {
         /// <summary>
         /// khóa chính
@@ -38,6 +38,6 @@ namespace Misa.Web202303.QLTS.DL.model
         /// <summary>
         /// danh sách tài sản liên quan
         /// </summary>
-        public List<FixedAsset> fixed_assets { get; set; }
+        public List<Entity.FixedAsset> fixed_assets { get; set; }
     }
 }

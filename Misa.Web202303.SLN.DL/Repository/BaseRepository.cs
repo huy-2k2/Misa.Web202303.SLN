@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using Misa.Web202303.QLTS.Common.Const;
 using Misa.Web202303.QLTS.DL.Entity;
+using Misa.Web202303.QLTS.DL.unitOfWork;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -10,6 +11,7 @@ using System.Linq;
 using System.Net.WebSockets;
 using System.Text;
 using System.Threading.Tasks;
+using System.Transactions;
 
 namespace Misa.Web202303.QLTS.DL.Repository
 {
@@ -21,18 +23,14 @@ namespace Misa.Web202303.QLTS.DL.Repository
     public abstract class BaseRepository<TEntity> : IBaseRepository<TEntity>
     {
         #region
-        private readonly string _connectionString;
+        protected readonly IUnitOfWork _unitOfWork;
         #endregion
 
         #region
-        /// <summary>
-        /// hàm khởi tạo, lấy IConfiguration từ dependency injection
-        /// Created by: NQ Huy(20/05/2023)
-        /// </summary>
-        /// <param name="configuration">IConfiguration</param>
-        public BaseRepository(IConfiguration configuration)
+
+        public BaseRepository(IUnitOfWork unitOfWork)
         {
-            _connectionString = configuration["ConnectionString"] ?? "";
+            _unitOfWork = unitOfWork;
         }
         #endregion
 
@@ -44,8 +42,7 @@ namespace Misa.Web202303.QLTS.DL.Repository
         /// <returns>DbConnection</returns>
         protected async Task<DbConnection> GetOpenConnectionAsync()
         {
-            var connection = new MySqlConnector.MySqlConnection(_connectionString);
-            await connection.OpenAsync();
+            var connection = await _unitOfWork.GetDbConnectionAsync();
             return connection;
         }
 
@@ -67,9 +64,10 @@ namespace Misa.Web202303.QLTS.DL.Repository
             var dynamicParams = new DynamicParameters();
             dynamicParams.Add("id", id);
 
-            var result = await connection.QueryFirstOrDefaultAsync<TEntity>(sql, dynamicParams);
+            var transaction = await _unitOfWork.GetTransactionAsync();
 
-            await connection.CloseAsync();
+            var result = await connection.QueryFirstOrDefaultAsync<TEntity>(sql, dynamicParams, transaction);
+
             return result;
         }
 
@@ -87,8 +85,10 @@ namespace Misa.Web202303.QLTS.DL.Repository
             // tạo lệnh sql
             var sql = $"SELECT " + string.Join(", ", props.Select(prop => prop.Name)) + $" FROM {this.GetTableName()}";
 
-            var result = await connection.QueryAsync<TEntity>(sql);
-            await connection.CloseAsync();
+            var transaction = await _unitOfWork.GetTransactionAsync();
+
+
+            var result = await connection.QueryAsync<TEntity>(sql, transaction: transaction);
 
             return result;
         }
@@ -121,8 +121,9 @@ namespace Misa.Web202303.QLTS.DL.Repository
 
             dynamicParams.Add($"{tableName}_id", entityId);
 
-            await connection.ExecuteAsync(sql, dynamicParams);
-            await connection.CloseAsync();
+            var transaction = await _unitOfWork.GetTransactionAsync();
+
+            await connection.ExecuteAsync(sql, dynamicParams, transaction);
         }
 
 
@@ -136,7 +137,7 @@ namespace Misa.Web202303.QLTS.DL.Repository
         {
             var connection = await GetOpenConnectionAsync();
 
-            var tableName = this.GetTableName();
+            var tableName = GetTableName();
             // tạo lệnh sql
 
             var sql = $"INSERT INTO {tableName} (";
@@ -152,9 +153,17 @@ namespace Misa.Web202303.QLTS.DL.Repository
             {
                 dynamicParams.Add(prop.Name, prop.GetValue(entity));
             }
-            dynamicParams.Add($"{tableName}_id", Guid.NewGuid());
-            await connection.ExecuteAsync(sql, dynamicParams);
-            await connection.CloseAsync();
+            var propId = entity.GetType().GetProperty($"{tableName}_id");
+            var id = (Guid)propId.GetValue(entity);
+            if (id == Guid.Empty)
+            {
+                id = Guid.NewGuid();
+                dynamicParams.Add($"{tableName}_id", id);
+            }
+
+            var transaction = await _unitOfWork.GetTransactionAsync();
+
+            await connection.ExecuteAsync(sql, dynamicParams, transaction: transaction);
         }
 
         /// <summary>
@@ -162,21 +171,22 @@ namespace Misa.Web202303.QLTS.DL.Repository
         /// Created by: NQ Huy(20/05/2023)
         /// </summary>
         /// <param name="code">mã code</param>
-        /// <param name="id">id (là rỗng trong trường hợp thêm mới)</param>
-        /// <returns>false nếu tài nguyên không tồn tại, true nếu tồn tại</returns>
+        /// <param name="id">id (là rỗng trong trường  thêm mới)</param>
+        /// <returns>false nếu tài nguyên không tồn tạhợpi, true nếu tồn tại</returns>
         public virtual async Task<bool> CheckCodeExistedAsync(string code, Guid? id)
         {
             var tableName = this.GetTableName();
             // tạo lệnh sql
             var sql = $"SELECT {tableName}_id FROM {tableName} WHERE {tableName}_code = @code AND (LENGTH(@id) = 0 OR {tableName}_id != @id)";
 
-            var connection = await this.GetOpenConnectionAsync();
+            var connection = await GetOpenConnectionAsync();
             var dynamicParams = new DynamicParameters();
             dynamicParams.Add("code", code);
             dynamicParams.Add("id", id == null ? "" : id);
 
-            var entity = await connection.QueryFirstOrDefaultAsync(sql, dynamicParams);
-            await connection.CloseAsync();
+            var transaction = await _unitOfWork.GetTransactionAsync();
+
+            var entity = await connection.QueryFirstOrDefaultAsync(sql, dynamicParams, transaction: transaction);
             return entity != null;
         }
 
@@ -195,9 +205,10 @@ namespace Misa.Web202303.QLTS.DL.Repository
             var dynamicParams = new DynamicParameters();
             dynamicParams.Add("list_id", listId);
 
-            await connection.ExecuteAsync(sql, dynamicParams);
+            var transaction = await _unitOfWork.GetTransactionAsync();
 
-            await connection.CloseAsync();
+            await connection.ExecuteAsync(sql, dynamicParams, transaction: transaction);
+
 
         }
 
@@ -214,9 +225,45 @@ namespace Misa.Web202303.QLTS.DL.Repository
             var dynamicParams = new DynamicParameters();
             var sql = $"SELECT COUNT(*) FROM {tableName} WHERE FIND_IN_SET({tableName}_id, @list_id)";
             dynamicParams.Add("list_id", listId);
-            var result = await connection.QueryFirstAsync<int>(sql, dynamicParams);
-            await connection.CloseAsync();
+
+            var transaction = await _unitOfWork.GetTransactionAsync();
+
+            var result = await connection.QueryFirstAsync<int>(sql, dynamicParams, transaction);
             return result;
+        }
+
+        public virtual async Task UpdateListAsync(IEnumerable<TEntity> listUpdateEntity)
+        {
+            var tableName = GetTableName();
+            var connection = await GetOpenConnectionAsync();
+            var dynamicParams = new DynamicParameters();
+
+            var sql = "";
+
+            var index = 0;
+            // tạo lệnh sql và add dynamic param
+            foreach (var entity in listUpdateEntity)
+            {
+                var notNullProps = entity.GetType().GetProperties().Where(prop => prop.GetValue(entity) != null && prop.Name != $"{tableName}_id");
+                sql += $"UPDATE {tableName} SET ";
+                sql += string.Join(", ", notNullProps.Select(prop => $"{prop.Name} = @{prop.Name}_{index}"));
+                sql += $" WHERE {tableName}_id = @{tableName}_id_{index};";
+
+                foreach (var prop in notNullProps)
+                {
+                    dynamicParams.Add($"{prop.Name}_{index}", prop.GetValue(entity));
+                }
+
+                var propId = entity.GetType().GetProperty($"{tableName}_id");
+
+                var entityId = propId.GetValue(entity);
+
+                dynamicParams.Add($"{tableName}_id_{index}", entityId);
+
+                var transaction = await _unitOfWork.GetTransactionAsync();
+
+                var result = await connection.ExecuteAsync(sql, dynamicParams, transaction);
+            }
         }
 
         /// <summary>
@@ -249,25 +296,17 @@ namespace Misa.Web202303.QLTS.DL.Repository
                     dynamicParams.Add($"{prop.Name}_{index}", prop.GetValue(entity));
                 }
 
+                dynamicParams.Add($"{tableName}_id_{index}", Guid.NewGuid());
+
                 index++;
             }
 
-            // sử dụng transaction
-            using (var transaction = connection.BeginTransaction())
-            {
-                try
-                {
-                    await connection.ExecuteAsync(sql, dynamicParams, transaction: transaction);
-                    transaction.Commit();
-                }
-                catch (Exception ex)
-                {
-                    transaction.Rollback();
-                    throw ex;
-                }
-            }
 
-            await connection.CloseAsync();
+            var transaction = await _unitOfWork.GetTransactionAsync();
+
+            await connection.ExecuteAsync(sql, dynamicParams, transaction: transaction);
+
+
 
         }
 
@@ -285,8 +324,9 @@ namespace Misa.Web202303.QLTS.DL.Repository
                 "JOIN import_column  ON import_file.import_file_id = import_column.import_file_id " +
                 $"WHERE import_file_table = '{tableName}'";
 
-            var result = await connection.QueryAsync<ImportEntity>(sql);
-            await connection.CloseAsync();
+            var transaction = await _unitOfWork.GetTransactionAsync();
+
+            var result = await connection.QueryAsync<ImportEntity>(sql, transaction: transaction);
             return result;
         }
 
@@ -304,8 +344,10 @@ namespace Misa.Web202303.QLTS.DL.Repository
             var sql = $"SELECT {tableName}_code FROM {tableName} WHERE FIND_IN_SET({tableName}_code, @list_code)";
             dynamicParams.Add("@list_code", listCode);
 
-            var result = await connection.QueryAsync<string>(sql, dynamicParams);
-            await connection.CloseAsync();
+            var transaction = await _unitOfWork.GetTransactionAsync();
+
+            var result = await connection.QueryAsync<string>(sql, dynamicParams, transaction: transaction);
+
             return result;
         }
 
@@ -325,7 +367,10 @@ namespace Misa.Web202303.QLTS.DL.Repository
             dynamicParams.Add("prefix_code", dbType: DbType.String, direction: ParameterDirection.Output);
             dynamicParams.Add("max_code", dbType: DbType.String, direction: ParameterDirection.Output);
             dynamicParams.Add("tbn", tableName);
-            await connection.ExecuteAsync(sql, dynamicParams, commandType: CommandType.StoredProcedure);
+
+            var transaction = await _unitOfWork.GetTransactionAsync();
+
+            await connection.ExecuteAsync(sql, dynamicParams, commandType: CommandType.StoredProcedure, transaction: transaction);
 
             var result = new List<string>();
             // lấy ra tiền tố
@@ -336,7 +381,6 @@ namespace Misa.Web202303.QLTS.DL.Repository
             result.Add(preFix);
             result.Add(maxAssetCode);
 
-            await connection.CloseAsync();
 
             return result;
         }
@@ -352,6 +396,44 @@ namespace Misa.Web202303.QLTS.DL.Repository
         /// </summary>
         /// <returns>tên của table ứng với repository</returns>
         public abstract string GetTableName();
+
+        public async Task<IEnumerable<TEntity>> GetListExistedAsync(string listId)
+        {
+            var tableName = GetTableName();
+
+            var connection = await GetOpenConnectionAsync();
+
+            var sql = $"SELECT * FROM {tableName} WHERE FIND_IN_SET({tableName}_id, @listId) != 0";
+
+            var dynamicParams = new DynamicParameters();
+
+            dynamicParams.Add("@listId", listId);
+
+            var transaction = await _unitOfWork.GetTransactionAsync();
+
+            var result = await connection.QueryAsync<TEntity>(sql, dynamicParams, transaction: transaction);
+            return result;
+        }
+
+        public async Task<IEnumerable<TEntity>> GetListNotExistedAsync(string listId)
+        {
+            var tableName = GetTableName();
+
+            var connection = await GetOpenConnectionAsync();
+
+            var sql = $"SELECT * FROM {tableName} WHERE FIND_IN_SET({tableName}_id, @listId) = 0";
+
+            var dynamicParams = new DynamicParameters();
+
+            dynamicParams.Add("@listId", listId);
+
+            var transaction = await _unitOfWork.GetTransactionAsync();
+
+            var result = await connection.QueryAsync<TEntity>(sql, dynamicParams, transaction: transaction);
+            return result;
+        }
+
+
         #endregion
 
     }

@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 using BudgetEntity = Misa.Web202303.QLTS.DL.Entity.Budget;
-using BudgetModel = Misa.Web202303.QLTS.DL.model.Budget;
+using BudgetModel = Misa.Web202303.QLTS.DL.Model.Budget;
 
 namespace Misa.Web202303.QLTS.DL.Repository.Budget
 {
@@ -17,5 +17,6 @@ namespace Misa.Web202303.QLTS.DL.Repository.Budget
         /// <param name="fixedAssetId">id tài sản</param>
         /// <returns>danh sách ngân sách của 1 tài sản</returns>
         Task<IEnumerable<BudgetModel>> GetListBudgetModelAsync(Guid fixedAssetId);
+
     }
 }

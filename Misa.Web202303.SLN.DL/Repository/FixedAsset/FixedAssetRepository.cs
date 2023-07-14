@@ -1,7 +1,8 @@
 ﻿using Dapper;
 using Microsoft.Extensions.Configuration;
 using Misa.Web202303.QLTS.Common.Const;
-using Misa.Web202303.QLTS.DL.filter;
+using Misa.Web202303.QLTS.DL.Filter;
+using Misa.Web202303.QLTS.DL.unitOfWork;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -11,6 +12,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 using FixedAssetEntity = Misa.Web202303.QLTS.DL.Entity.FixedAsset;
+using FixedAssetModel = Misa.Web202303.QLTS.DL.Model.FixedAsset;
 
 namespace Misa.Web202303.QLTS.DL.Repository.FixedAsset
 {
@@ -20,22 +22,17 @@ namespace Misa.Web202303.QLTS.DL.Repository.FixedAsset
     /// </summary>
     public class FixedAssetRepository : BaseRepository<FixedAssetEntity>, IFixedAssetRepository
     {
-
         #region
-        /// <summary>
-        /// hàm khởi tạo
-        /// Created by: NQ Huy(20/05/2023)
-        /// </summary>
-        /// <param name="configuration">IConfiguration</param>
-        public FixedAssetRepository(IConfiguration configuration) : base(configuration)
+        public FixedAssetRepository(IUnitOfWork unitOfWork) : base(unitOfWork)
         {
-
         }
+
+
         #endregion
 
         #region
         /// <summary>
-        /// filter, search, phân trang tài sản
+        /// Filter, search, phân trang tài sản
         /// Created by: NQ Huy(20/05/2023)
         /// </summary>
         /// <param name="pageSize">số bản ghi trong 1 trang</param>
@@ -43,7 +40,7 @@ namespace Misa.Web202303.QLTS.DL.Repository.FixedAsset
         /// <param name="departmentId">mã phòng ban</param>
         /// <param name="fixedAssetCategoryId">mã loại tài sản</param>
         /// <param name="textSearch">từ khóa tìm kiếm</param>
-        /// <returns>danh sách tài sản thỏa mãn yêu cầu filter, phân trang</returns>
+        /// <returns>danh sách tài sản thỏa mãn yêu cầu Filter, phân trang</returns>
         public async Task<FilterListFixedAsset> GetAsync(int pageSize, int currentPage, Guid? departmentId, Guid? fixedAssetCategoryId, string? textSearch)
         {
             var connection = await GetOpenConnectionAsync();
@@ -61,13 +58,15 @@ namespace Misa.Web202303.QLTS.DL.Repository.FixedAsset
             dynamicParams.Add("total_quantity", dbType: DbType.Int32, direction: ParameterDirection.Output);
             dynamicParams.Add("total_cost", dbType: DbType.Double, direction: ParameterDirection.Output);
 
-            var listFixedAsset = await connection.QueryAsync<FixedAssetEntity>(sql, dynamicParams, commandType: CommandType.StoredProcedure);
+            var transaction = await _unitOfWork.GetTransactionAsync();
+
+
+            var listFixedAsset = await connection.QueryAsync<FixedAssetEntity>(sql, dynamicParams, transaction: transaction, commandType: CommandType.StoredProcedure);
             // lấy tổng tài sản, tổng số lượng, tổng  nguyên giá
             var totalAsset = dynamicParams.Get<int>("total_asset");
             var totalQuantity = dynamicParams.Get<int?>("total_quantity");
             var totalCost = dynamicParams.Get<double?>("total_cost");
 
-            await connection.CloseAsync();
 
             return new FilterListFixedAsset() { list_fixed_asset = listFixedAsset, total_asset = totalAsset, total_cost = totalCost ?? 0, total_quantity = totalQuantity ?? 0 };
 
@@ -81,7 +80,7 @@ namespace Misa.Web202303.QLTS.DL.Repository.FixedAsset
         /// <param name="pageSize">kích thước của 1 page</param>
         /// <param name="currentPage">page hiện tại</param>
         /// <returns>danh sách tài sản</returns>
-        public async Task<FilterListFixedAsset> GetFilterNotHasLicenseAsync(int pageSize, int currentPage, string listIdSelected, string? textSearch)
+        public async Task<FilterListFixedAsset> GetFilterNotHasLicenseAsync(int pageSize, int currentPage, string listIdSelected, string? textSearch, Guid? license_id)
         {
             var connection = await GetOpenConnectionAsync();
             var sql = ProcedureName.GET_FILTER_FIXED_ASSET_NO_LICENSE;
@@ -91,11 +90,14 @@ namespace Misa.Web202303.QLTS.DL.Repository.FixedAsset
             dynamicParams.Add("current_page", currentPage);
             dynamicParams.Add("list_id_selected", listIdSelected);
             dynamicParams.Add("text_search", textSearch);
+            dynamicParams.Add("license_id", license_id == null? "": license_id);
             dynamicParams.Add("total_asset", dbType: DbType.Int32, direction: ParameterDirection.Output);
-            var listFixedAsset = await connection.QueryAsync<FixedAssetEntity>(sql, dynamicParams, commandType: CommandType.StoredProcedure);
+
+            var transaction = await _unitOfWork.GetTransactionAsync();
+
+            var listFixedAsset = await connection.QueryAsync<FixedAssetEntity>(sql, dynamicParams, transaction: transaction, commandType: CommandType.StoredProcedure);
             // lấy ra param kiểu out
             var totalAsset = dynamicParams.Get<int>("total_asset");
-            await connection.CloseAsync();
             // trả về kết quả
             return new FilterListFixedAsset()
             {
@@ -109,17 +111,23 @@ namespace Misa.Web202303.QLTS.DL.Repository.FixedAsset
         /// </summary>
         /// <param name="licenseId">id chứng từ</param>
         /// <returns>danh sách tài sản</returns>
-        public async Task<IEnumerable<FixedAssetEntity>> GetListByLicenseId(Guid licenseId)
+        public async Task<IEnumerable<FixedAssetModel>> GetListByLicenseId(Guid licenseId)
         {
             var connection = await GetOpenConnectionAsync();
-            var sql = "SELECT fa.* FROM fixed_asset fa JOIN license_detail ld ON ld.fixed_asset_id = fa.fixed_asset_id WHERE ld.license_id = @license_id";
+            var sql = "SELECT fa.*, license_detail_id FROM fixed_asset fa JOIN license_detail ld ON ld.fixed_asset_id = fa.fixed_asset_id WHERE ld.license_id = @license_id";
             var dynamicParams = new DynamicParameters();
 
             dynamicParams.Add("license_id", licenseId);
 
-            var listFixedAsset = await connection.QueryAsync<FixedAssetEntity>(sql, dynamicParams);
+            var transaction = await _unitOfWork.GetTransactionAsync();
+
+
+            var listFixedAsset = await connection.QueryAsync<FixedAssetModel>(sql, dynamicParams, transaction: transaction);
+
             return listFixedAsset;
         }
+
+
 
 
         /// <summary>

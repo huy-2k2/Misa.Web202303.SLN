@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Misa.Web202303.QLTS.BL.DomainService.FixedAsset;
 using Misa.Web202303.QLTS.BL.Service.Dto;
 using Misa.Web202303.QLTS.BL.Service.FixedAsset;
 using Misa.Web202303.QLTS.Common.Const;
@@ -9,6 +10,7 @@ using Misa.Web202303.QLTS.DL.Repository;
 using Misa.Web202303.QLTS.DL.Repository.Department;
 using Misa.Web202303.QLTS.DL.Repository.FixedAsset;
 using Misa.Web202303.QLTS.DL.Repository.FixedAssetCategory;
+using Misa.Web202303.QLTS.DL.unitOfWork;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -45,6 +47,8 @@ namespace Misa.Web202303.QLTS.BL.ImportService.FixedAsset
         /// sử dụng mapper
         /// </summary>
         private readonly IMapper _mapper;
+
+        private readonly IFixedAssetDomainService _fixedAssetDomainServicecs;
         #endregion
 
         #region
@@ -55,12 +59,13 @@ namespace Misa.Web202303.QLTS.BL.ImportService.FixedAsset
         /// <param name="departmentRepository"></param>
         /// <param name="fixedAssetCategoryRepository"></param>
         /// <param name="mapper"></param>
-        public FixedAssetImportService(IFixedAssetRepository fixedAssetRepository, IDepartmentRepository departmentRepository, IFixedAssetCategoryRepository fixedAssetCategoryRepository, IMapper mapper) : base(fixedAssetRepository)
+        public FixedAssetImportService(IFixedAssetRepository fixedAssetRepository, IDepartmentRepository departmentRepository, IFixedAssetCategoryRepository fixedAssetCategoryRepository, IUnitOfWork unitOfWork, IMapper mapper, IFixedAssetDomainService fixedAssetDomainServicecs) : base(fixedAssetRepository, unitOfWork)
         {
             _fixedAssetRepository = fixedAssetRepository;
             _departmentRepository = departmentRepository;
             _fixedAssetCategoryRepository = fixedAssetCategoryRepository;
             _mapper = mapper;
+            _fixedAssetDomainServicecs = fixedAssetDomainServicecs;
         }
         #endregion
 
@@ -89,7 +94,6 @@ namespace Misa.Web202303.QLTS.BL.ImportService.FixedAsset
                 // gán fixedAssetCategoryId cho entity
                 entity.fixed_asset_category_id = fixedAssetCategory.fixed_asset_category_id;
                 // tạo mới id
-                entity.fixed_asset_id = Guid.NewGuid();
                 result.Add(entity);
             }
             return result;
@@ -105,7 +109,7 @@ namespace Misa.Web202303.QLTS.BL.ImportService.FixedAsset
         {
             var entity = _mapper.Map<FixedAssetEntity>(entityImportDto);
             // dùng phương thức static BusinessValidate của FixedAssetService
-            var result = FixedAssetService.BusinessValidate(entity);
+            var result = _fixedAssetDomainServicecs.BusinessValidate(entity);
             return result;
         }
 
@@ -151,6 +155,7 @@ namespace Misa.Web202303.QLTS.BL.ImportService.FixedAsset
                 }
                 result.Add(error);
             }
+
             return result;
 
         }

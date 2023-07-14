@@ -46,6 +46,7 @@ namespace Misa.Web202303.QLTS.DL.Repository
         /// <returns></returns>
         Task InsertAsync(TEntity entity);
 
+
         /// <summary>
         /// kiểm tra mã code đã tồn tại khi thêm hoạc sửa
         /// Created by: NQ Huy(20/05/2023)
@@ -108,5 +109,11 @@ namespace Misa.Web202303.QLTS.DL.Repository
         /// </summary>
         /// <returns>danh sách chứa mã tài nguyên và tiền tố</returns>
         Task<List<string>> GetRecommendCodeAsync();
+
+        Task UpdateListAsync(IEnumerable<TEntity> listUpdateEntity);
+
+        Task<IEnumerable<TEntity>> GetListExistedAsync(string listId);
+        
+        Task<IEnumerable<TEntity>> GetListNotExistedAsync(string listId);
     }
 }

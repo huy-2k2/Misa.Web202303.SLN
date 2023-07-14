@@ -20,11 +20,11 @@ namespace Misa.Web202303.QLTS.API.Controllers
         }
 
         /// <summary>
-        /// lấy danh sách budget model của 1 tài sản
+        /// lấy danh sách budget Model của 1 tài sản
         /// created by : NQ Huy(27/06/2023)
         /// </summary>
         /// <param name="fixedAssetId">id tài sản</param>
-        /// <returns>danh sách budget model của 1 tải sản</returns>
+        /// <returns>danh sách budget Model của 1 tải sản</returns>
         [HttpGet("listModel")]
         public async Task<IActionResult> GetListModelAsync([FromQuery] Guid fixedAssetId)
         {
