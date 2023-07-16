@@ -61,9 +61,8 @@ namespace Misa.Web202303.QLTS.BL.DomainService.FixedAsset
             {
                 throw new ValidateException()
                 {
-                    ErrorCode = ErrorCode.DataValidate,
                     Data = listError,
-                    UserMessage = string.Join("", listError.Select(error => $"<span>{error.Message}</span>"))
+                    UserMessage = ErrorMessage.ValidateCreateError
 
                 };
             }
@@ -101,9 +100,8 @@ namespace Misa.Web202303.QLTS.BL.DomainService.FixedAsset
             {
                 throw new ValidateException()
                 {
-                    ErrorCode = ErrorCode.DataValidate,
                     Data = listError,
-                    UserMessage = string.Join("", listError.Select(error => $"<span>{error.Message}</span>"))
+                    UserMessage = ErrorMessage.ValidateUpdateError
 
                 };
             }
@@ -157,9 +155,8 @@ namespace Misa.Web202303.QLTS.BL.DomainService.FixedAsset
             {
                 throw new ValidateException()
                 {
-                    ErrorCode = ErrorCode.DataValidate,
                     Data = listError,
-                    UserMessage = string.Join("", listError.Select(error => $"<span>{error.Message}</span>"))
+                    UserMessage = ErrorMessage.DataError
 
                 };
             }

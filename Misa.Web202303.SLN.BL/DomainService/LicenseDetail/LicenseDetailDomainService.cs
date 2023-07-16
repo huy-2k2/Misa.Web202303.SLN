@@ -33,15 +33,16 @@ namespace Misa.Web202303.QLTS.BL.DomainService.LicenseDetail
             var stringFAId = string.Join(",", listFAId);
 
             var listFAExisted = await _fixedAssetRepository.GetListExistedAsync(stringFAId);
-            
-            if(listCreateDto.Count() == 0) {
+
+            if (listCreateDto.Count() == 0)
+            {
                 listError.Add(new ValidateError()
                 {
                     Message = ErrorMessage.SelectFixedAssetMinError
                 });
             }
 
-            if(listFAExisted.Count() != listFAId.Count())
+            if (listFAExisted.Count() != listFAId.Count())
             {
                 listError.Add(new ValidateError()
                 {
@@ -52,7 +53,7 @@ namespace Misa.Web202303.QLTS.BL.DomainService.LicenseDetail
             var listLicenseId = listCreateDto.Select(dto => dto.license_id);
             var stringLicenseId = string.Join(",", listLicenseId);
             var listLicenseExisted = await _licenseRepository.GetListExistedAsync(stringLicenseId);
-            if(listLicenseExisted.Count() != listLicenseId.GroupBy(id => id).Count())
+            if (listLicenseExisted.Count() != listLicenseId.GroupBy(id => id).Count())
             {
                 listError.Add(new ValidateError()
                 {
@@ -61,7 +62,7 @@ namespace Misa.Web202303.QLTS.BL.DomainService.LicenseDetail
             }
 
             var listdExistedFAId = await _licenseDetailRepository.GetListFAExistedAsync(stringFAId);
-            if(listdExistedFAId.Count() > 0)
+            if (listdExistedFAId.Count() > 0)
             {
                 listError.Add(new ValidateError()
                 {
@@ -73,19 +74,31 @@ namespace Misa.Web202303.QLTS.BL.DomainService.LicenseDetail
             {
                 throw new ValidateException()
                 {
-                    UserMessage = string.Join("", listError.Select(error => $"<span>{error.Message}</span>"))
+                    UserMessage = ErrorMessage.ValidateCreateError,
+                    Data = listError
                 };
             }
         }
 
         public async Task DeleteListValidateAsync(Guid licenseId, IEnumerable<Guid> listDetailId)
         {
+            var listError = new List<ValidateError>();
             var listExisted = await _licenseDetailRepository.GetListExistedOfLicenseAsync(licenseId, string.Join(",", listDetailId));
-            if(listExisted.Count() != listDetailId.Count())
+            if (listExisted.Count() != listDetailId.Count())
+            {
+                listError.Add(
+                    new ValidateError()
+                    {
+                        Message = string.Format(ErrorMessage.InvalidError, FieldName.License)
+                    }
+                );
+            }
+            if (listError.Count() > 0)
             {
                 throw new ValidateException()
                 {
-                    UserMessage = string.Format(ErrorMessage.InvalidError, FieldName.License)
+                    UserMessage = ErrorMessage.DataError,
+                    Data = listError
                 };
             }
         }

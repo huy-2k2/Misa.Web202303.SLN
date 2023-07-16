@@ -16,7 +16,5 @@ namespace Misa.Web202303.QLTS.BL.AuthService
         /// <param name="authDto">auth dto chứa thông tin tên đăng nhập và mật khẩu</param>
         /// <returns>json web token</returns>
         Task<string> GetAuthAsync(AuthDto authDto);
-
-        Task Test();
     }
 }

@@ -117,21 +117,19 @@ namespace Misa.Web202303.QLTS.BL.Service
         {
             // validate Attr
             var attributeErrors = ValidateAttribute.Validate(entityCreateDto);
-            // validate riêng
-            await CreateValidateAsync(entityCreateDto);
-
 
             // nếu validate có lỗi thì throw exception
             if (attributeErrors.Count > 0)
             {
                 throw new ValidateException()
                 {
-                    ErrorCode = ErrorCode.DataValidate,
                     Data = attributeErrors,
-                    UserMessage = string.Join("", attributeErrors.Select(error => $"<span>{error.Message}</span>"))
+                    UserMessage = ErrorMessage.ValidateCreateError
 
                 };
             }
+            // validate riêng
+            await CreateValidateAsync(entityCreateDto);
 
             var entity = _mapper.Map<TEntity>(entityCreateDto);
             using (var transaction = await _unitOfWork.GetTransactionAsync())
@@ -167,9 +165,8 @@ namespace Misa.Web202303.QLTS.BL.Service
             {
                 throw new ValidateException()
                 {
-                    ErrorCode = ErrorCode.DataValidate,
                     Data = attributeErrors,
-                    UserMessage = string.Join("", attributeErrors.Select(error => $"<span>{error.Message}</span>"))
+                    UserMessage = ErrorMessage.ValidateUpdateError
                 };
             }
             // validate riêng

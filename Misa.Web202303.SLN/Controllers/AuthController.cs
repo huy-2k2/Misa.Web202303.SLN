@@ -57,11 +57,5 @@ namespace Misa.Web202303.QLTS.API.Controllers
         {
             return Ok(true);
         }
-
-        [HttpGet("test")]
-        public async Task Test()
-        {
-            await _authService.Test();
-        }
     }
 }

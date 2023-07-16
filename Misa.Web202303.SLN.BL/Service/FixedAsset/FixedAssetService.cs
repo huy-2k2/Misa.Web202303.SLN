@@ -16,6 +16,7 @@ using Misa.Web202303.QLTS.Common.Exceptions;
 using Misa.Web202303.QLTS.Common.Resource;
 using Misa.Web202303.QLTS.DL.Entity;
 using Misa.Web202303.QLTS.DL.Filter;
+using Misa.Web202303.QLTS.DL.Model;
 using Misa.Web202303.QLTS.DL.Repository.Department;
 using Misa.Web202303.QLTS.DL.Repository.FixedAsset;
 using Misa.Web202303.QLTS.DL.Repository.FixedAssetCategory;
@@ -262,31 +263,39 @@ namespace Misa.Web202303.QLTS.BL.Service.FixedAsset
 
             var listExisted = await _licenseDetailRepository.GetListFAExistedAsync(stringIds);
 
-            var listFaIdExisted = listExisted.Select(item => item.fixed_asset_id).GroupBy(id => id);
+            var listFaIdExisted = listExisted.Select(item => item.fixed_asset_id);
 
 
 
             if (listFaIdExisted.Count() > 0)
             {
-                string userMessage;
 
                 if (listFaIdExisted.Count() == 1)
                 {
                     var fixedAsset = await _fixedAssetRepository.GetAsync(listId.First());
                     var license = await _licenseRepository.GetAsync(listExisted.First().license_id);
-                    userMessage = String.Format(ErrorMessage.FixedAssetDeleteDetail, fixedAsset.fixed_asset_code, license.license_code);
+                    throw new ValidateException()
+                    {
+                        Data = new
+                        {
+                            fixedAsset =  fixedAsset,
+                            license = license
+                        },
+                        ErrorCode = ErrorCode.DeleteDetail,
+                        UserMessage = ErrorMessage.DataError,
+                    };
                 }
                 else
                 {
-                    var length = listFaIdExisted.Count() < 10 ? $"0{listFaIdExisted.Count()}" : $"{listFaIdExisted.Count()}";
-                    userMessage = String.Format(ErrorMessage.ListFixedAssetDeleteDetail, length);
+                    throw new ValidateException()
+                    {
+                        Data = listFaIdExisted,
+                        ErrorCode = ErrorCode.DeleteDetailMulti,
+                        UserMessage = ErrorMessage.DataError,
+                    };
+
                 }
-                throw new ValidateException()
-                {
-                    Data = listFaIdExisted,
-                    ErrorCode = ErrorCode.DeleteDetail,
-                    UserMessage = userMessage,
-                };
+               
             }
 
             using (var transaction = await _unitOfWork.GetTransactionAsync())

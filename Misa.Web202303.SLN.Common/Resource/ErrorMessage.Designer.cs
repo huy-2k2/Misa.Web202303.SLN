@@ -79,6 +79,15 @@ namespace Misa.Web202303.QLTS.Common.Resource {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Dữ liệu đầu vào không hợp lệ.
+        /// </summary>
+        public static string DataError {
+            get {
+                return ResourceManager.GetString("DataError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Kiểu dữ liệu không hợp lệ.
         /// </summary>
         public static string DataTypeError {

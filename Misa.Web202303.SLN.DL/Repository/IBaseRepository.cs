@@ -113,7 +113,5 @@ namespace Misa.Web202303.QLTS.DL.Repository
         Task UpdateListAsync(IEnumerable<TEntity> listUpdateEntity);
 
         Task<IEnumerable<TEntity>> GetListExistedAsync(string listId);
-        
-        Task<IEnumerable<TEntity>> GetListNotExistedAsync(string listId);
     }
 }

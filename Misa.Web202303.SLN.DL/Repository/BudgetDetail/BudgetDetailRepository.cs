@@ -1,7 +1,9 @@
 ﻿using Dapper;
+using Misa.Web202303.QLTS.Common.Const;
 using Misa.Web202303.QLTS.DL.unitOfWork;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -20,39 +22,30 @@ namespace Misa.Web202303.QLTS.DL.Repository.BudgetDetail
         {
             var connection = await GetOpenConnectionAsync();
 
-            var tableName = GetTableName();
-
-            var sql = $"DELETE {tableName} FROM {tableName}" +
-                $" JOIN license_detail on {tableName}.fixed_asset_id = license_detail.fixed_asset_id " +
-                $"WHERE FIND_IN_SET(license_detail.license_detail_id, @listLicenseDetailId) != 0";
+            var sql = ProcedureName.DELETE_BUDGET_DETAIL_BY_LIST_LICENSE_DETAIL;
 
             var dynamicParams = new DynamicParameters();
 
-            dynamicParams.Add("listLicenseDetailId", listLicenseDetailId);
+            dynamicParams.Add("list_id", listLicenseDetailId);
 
             var transaction = await _unitOfWork.GetTransactionAsync();
 
-            await connection.ExecuteAsync(sql, dynamicParams, transaction);
+            await connection.ExecuteAsync(sql, dynamicParams, transaction, commandType: CommandType.StoredProcedure);
         }
 
         public async Task DeleteListByListLicenseId(string listLicenseId)
         {
             var connection = await GetOpenConnectionAsync();
 
-            var tableName = GetTableName();
-
-            var sql = $"DELETE {tableName} FROM {tableName}" +
-                $" JOIN fixed_asset on fixed_asset.fixed_asset_id = {tableName}.fixed_asset_id " +
-                $"JOIN license_detail on license_detail.fixed_asset_id = fixed_asset.fixed_asset_id " +
-                $"WHERE FIND_IN_SET(license_detail.license_id, @listLicenseId) != 0";
+            var sql = ProcedureName.DELETE_BUDGET_DETAIL_BY_LIST_LICENSE;
 
             var dynamicParams = new DynamicParameters();
 
-            dynamicParams.Add("listLicenseId", listLicenseId);
+            dynamicParams.Add("list_id", listLicenseId);
 
             var transaction = await _unitOfWork.GetTransactionAsync();
 
-            await connection.ExecuteAsync(sql, dynamicParams, transaction);
+            await connection.ExecuteAsync(sql, dynamicParams, transaction, commandType: CommandType.StoredProcedure);
         }
 
         public async Task<IEnumerable<BudgetDetailEntity>> GetListExistedBFAsync(string listBFId)
@@ -60,32 +53,30 @@ namespace Misa.Web202303.QLTS.DL.Repository.BudgetDetail
             var tableName = GetTableName();
             var connection = await GetOpenConnectionAsync();
 
-            var sql = $"SELECT * FROM {tableName} WHERE FIND_IN_SET(CONCAT(budget_id,'.', fixed_asset_id), @listBFId) != 0";
+            var sql = ProcedureName.GET_LIST_BUDGET_DETAIL_EXISTED_BY_BF;
 
             var dynamicParams = new DynamicParameters();
 
-            dynamicParams.Add("listBFId", listBFId);
+            dynamicParams.Add("list_bf_id", listBFId);
 
             var transaction = await _unitOfWork.GetTransactionAsync();
 
-            var result = await connection.QueryAsync<BudgetDetailEntity>(sql, dynamicParams, transaction);
+            var result = await connection.QueryAsync<BudgetDetailEntity>(sql, dynamicParams, transaction, commandType: CommandType.StoredProcedure);
             return result;
         }
 
         public async Task<IEnumerable<BudgetDetailEntity>> GetListExistedOfLicenseAsync(Guid licenseId, string listId)
         {
             var connection = await GetOpenConnectionAsync();
-            var tableName = GetTableName();
-            var sql = $"SELECT * FROM {tableName} JOIN license_detail ON license_detail.fixed_asset_id = budget_detail.fixed_asset_id WHERE license_id = @licenseId AND FIND_IN_SET({tableName}_id, @listId) != 0";
-
+            var sql = ProcedureName.GET_LIST_BUDGET_DETAIL_EXISTED_OF_LICENSE;
             var dynamicParams = new DynamicParameters();
 
-            dynamicParams.Add("listId", listId);
-            dynamicParams.Add("licenseId", licenseId);
+            dynamicParams.Add("list_id", listId);
+            dynamicParams.Add("license_id", licenseId);
 
             var transaction = await _unitOfWork.GetTransactionAsync();
 
-            var result = await connection.QueryAsync<BudgetDetailEntity>(sql, dynamicParams, transaction);
+            var result = await connection.QueryAsync<BudgetDetailEntity>(sql, dynamicParams, transaction, commandType: CommandType.StoredProcedure);
             return result;
         }
 

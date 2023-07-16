@@ -57,7 +57,9 @@ namespace Misa.Web202303.QLTS.Common.Emum
         /// </summary>
         InvalidToken = 8,
 
-        DeleteDetail = 9
+        DeleteDetail = 9,
+
+        DeleteDetailMulti = 10
 
     }
 }

@@ -88,7 +88,8 @@ namespace Misa.Web202303.QLTS.BL.DomainService.BudgetDetail
             {
                 throw new ValidateException()
                 {
-                    UserMessage = string.Join("", listError.Select(error => $"<span>{error.Message}</span>"))
+                    UserMessage = ErrorMessage.ValidateCreateError,
+                    Data = listError
                 };
             }
 
@@ -96,12 +97,21 @@ namespace Misa.Web202303.QLTS.BL.DomainService.BudgetDetail
 
         public async Task DeleteListValidateAsync(Guid licenseId, IEnumerable<Guid> listDetailId)
         {
+            var listError = new List<ValidateError>();
             var listExistedOfLicense = await _budgetDetailRepository.GetListExistedOfLicenseAsync(licenseId, string.Join(",", listDetailId));
             if (listExistedOfLicense.Count() != listDetailId.Count())
             {
+                listError.Add(new ValidateError()
+                {
+                    Message = string.Format(ErrorMessage.InvalidError, FieldName.Budget)
+                });
+            }
+            if(listError.Count > 0)
+            {
                 throw new ValidateException()
                 {
-                    UserMessage = string.Format(ErrorMessage.InvalidError, FieldName.Budget)
+                    UserMessage = ErrorMessage.DataError,
+                    Data = listError
                 };
             }
 
@@ -175,7 +185,8 @@ namespace Misa.Web202303.QLTS.BL.DomainService.BudgetDetail
             {
                 throw new ValidateException()
                 {
-                    UserMessage = string.Join("", listError.Select(error => $"<span>{error.Message}</span>"))
+                    UserMessage = ErrorMessage.ValidateUpdateError,
+                    Data = listError
                 };
             }
         }

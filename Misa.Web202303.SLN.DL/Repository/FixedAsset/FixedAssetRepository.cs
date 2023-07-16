@@ -114,7 +114,7 @@ namespace Misa.Web202303.QLTS.DL.Repository.FixedAsset
         public async Task<IEnumerable<FixedAssetModel>> GetListByLicenseId(Guid licenseId)
         {
             var connection = await GetOpenConnectionAsync();
-            var sql = "SELECT fa.*, license_detail_id FROM fixed_asset fa JOIN license_detail ld ON ld.fixed_asset_id = fa.fixed_asset_id WHERE ld.license_id = @license_id";
+            var sql = ProcedureName.GET_LIST_FIXED_ASSET_BY_LICENSE;
             var dynamicParams = new DynamicParameters();
 
             dynamicParams.Add("license_id", licenseId);
@@ -122,7 +122,7 @@ namespace Misa.Web202303.QLTS.DL.Repository.FixedAsset
             var transaction = await _unitOfWork.GetTransactionAsync();
 
 
-            var listFixedAsset = await connection.QueryAsync<FixedAssetModel>(sql, dynamicParams, transaction: transaction);
+            var listFixedAsset = await connection.QueryAsync<FixedAssetModel>(sql, dynamicParams, transaction: transaction, commandType: CommandType.StoredProcedure);
 
             return listFixedAsset;
         }

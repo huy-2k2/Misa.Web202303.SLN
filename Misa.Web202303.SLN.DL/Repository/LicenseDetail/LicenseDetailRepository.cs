@@ -1,7 +1,9 @@
 ﻿using Dapper;
+using Misa.Web202303.QLTS.Common.Const;
 using Misa.Web202303.QLTS.DL.unitOfWork;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -17,31 +19,29 @@ namespace Misa.Web202303.QLTS.DL.Repository.LicenseDetail
 
         public async Task<IEnumerable<LicenseDetailEntity>> GetListExistedOfLicenseAsync(Guid licenseId, string listId)
         {
-            var tableName = GetTableName();
             var connection = await GetOpenConnectionAsync();
-            var sql = $"SELECT * FROM {tableName} WHERE license_id = @licenseId AND FIND_IN_SET(license_detail_id, @listId) != 0";
+            var sql = ProcedureName.GET_LIST_LICENSE_DETAIL_EXISTED_OF_LICENSE;
             var dynamicParams = new DynamicParameters();
-            dynamicParams.Add("@listId", listId);
-            dynamicParams.Add("@licenseId", licenseId);
+            dynamicParams.Add("list_id", listId);
+            dynamicParams.Add("license_id", licenseId);
 
             var transaction = await _unitOfWork.GetTransactionAsync();
 
-            var result = await connection.QueryAsync<LicenseDetailEntity>(sql, dynamicParams, transaction);
+            var result = await connection.QueryAsync<LicenseDetailEntity>(sql, dynamicParams, transaction, commandType: CommandType.StoredProcedure);
 
             return result;
         }
 
         public async Task<IEnumerable<LicenseDetailEntity>> GetListFAExistedAsync(string listFAId)
         {
-            var tableName = GetTableName();
             var connection = await GetOpenConnectionAsync();
-            var sql = $"SELECT * FROM {tableName} WHERE FIND_IN_SET(fixed_asset_id, @listFAId) != 0";
+            var sql = ProcedureName.GET_LIST_LICENSE_dETAIL_EXISTED_BY_FIXED_ASSET;
             var dynamicParams = new DynamicParameters();
-            dynamicParams.Add("@listFAId", listFAId);
+            dynamicParams.Add("list_fixed_asset_id", listFAId);
 
             var transaction = await _unitOfWork.GetTransactionAsync();
 
-            var result = await connection.QueryAsync<LicenseDetailEntity>(sql, dynamicParams, transaction);
+            var result = await connection.QueryAsync<LicenseDetailEntity>(sql, dynamicParams, transaction, commandType: CommandType.StoredProcedure);
 
             return result;
         }

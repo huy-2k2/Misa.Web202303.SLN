@@ -77,9 +77,8 @@ namespace Misa.Web202303.QLTS.BL.AuthService
             {
                 throw new ValidateException()
                 {
-                    ErrorCode = ErrorCode.DataValidate,
                     Data = errors,
-                    UserMessage = string.Join("", errors.Select(error => $"<span>{error.Message}</span>"))
+                    UserMessage = ErrorMessage.DataError
                 };
             }
 
@@ -120,46 +119,6 @@ namespace Misa.Web202303.QLTS.BL.AuthService
                 byte[] hashBytes = md5.ComputeHash(inputBytes);
 
                 return Convert.ToHexString(hashBytes).ToLower();
-            }
-        }
-
-        public async Task Test()
-        {
-            var department1 = new Department()
-            {
-                department_code = "1",
-                department_name = "test case 1"
-            };
-            var department2 = new Department()
-            {
-                department_code = "2",
-                department_name = "test case 1"
-            };
-            var department3 = new Department()
-            {
-                department_code = "3",
-                department_name = "test case 1"
-            };
-            var department4 = new Department()
-            {
-                department_code = "1",
-                department_name = "test case 1"
-            };
-            using (var transaction = _unitOfWork.GetTransaction())
-            {
-                try
-                {
-                    await _departmentRepository.InsertAsync( department1);
-                    await _departmentRepository.InsertAsync( department2);
-                    await _departmentRepository.InsertAsync( department3);
-                    await _departmentRepository.InsertAsync(department4);
-                    await _unitOfWork.CommitAsync();
-                }
-                catch
-                {
-                    await _unitOfWork.RollbackAsync();
-                    throw new ValidateException();
-                }
             }
         }
         #endregion

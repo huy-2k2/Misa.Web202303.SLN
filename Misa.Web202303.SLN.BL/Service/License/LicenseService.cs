@@ -229,7 +229,7 @@ namespace Misa.Web202303.QLTS.BL.Service.License
                             dto.fixed_asset_id = fa.fixed_asset_id;
                             listBudgetDetailInsert.Add(dto);
                         }
-                        else
+                        else if(bd.is_changed == true)
                         {
                             var dto = _mapper.Map<BudgetDetailUpdateDto>(bd);
                             dto.fixed_asset_id = fa.fixed_asset_id;

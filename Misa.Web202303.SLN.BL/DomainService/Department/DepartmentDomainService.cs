@@ -41,9 +41,8 @@ namespace Misa.Web202303.QLTS.BL.DomainService.Department
             {
                 throw new ValidateException()
                 {
-                    ErrorCode = ErrorCode.DataValidate,
                     Data = listError,
-                    UserMessage = string.Join("", listError.Select(error => $"<span>{error.Message}</span>"))
+                    UserMessage = ErrorMessage.ValidateCreateError
 
                 };
             }
@@ -74,9 +73,8 @@ namespace Misa.Web202303.QLTS.BL.DomainService.Department
             {
                 throw new ValidateException()
                 {
-                    ErrorCode = ErrorCode.DataValidate,
                     Data = listError,
-                    UserMessage = string.Join("", listError.Select(error => $"<span>{error.Message}</span>"))
+                    UserMessage = ErrorMessage.ValidateUpdateError
 
                 };
             }

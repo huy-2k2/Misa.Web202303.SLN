@@ -42,7 +42,8 @@ namespace Misa.Web202303.QLTS.BL.DomainService.License
             {
                 throw new ValidateException()
                 {
-                    UserMessage = string.Join("", listError.Select(error => $"<span>{error.Message}</span>"))
+                    Data = listError,
+                    UserMessage = ErrorMessage.ValidateCreateError
                 };
             }
         }
@@ -64,7 +65,8 @@ namespace Misa.Web202303.QLTS.BL.DomainService.License
             {
                 throw new ValidateException()
                 {
-                    UserMessage = string.Join("", listError.Select(error => $"<span>{error.Message}</span>"))
+                    Data = listError,
+                    UserMessage = ErrorMessage.ValidateUpdateError
                 };
             }
 
@@ -87,7 +89,8 @@ namespace Misa.Web202303.QLTS.BL.DomainService.License
             {
                 throw new ValidateException()
                 {
-                    UserMessage = string.Join("", listError.Select(error => $"<span>{error.Message}</span>"))
+                    Data = listError,
+                    UserMessage = ErrorMessage.DataError
                 };
             }
         }
@@ -101,7 +104,6 @@ namespace Misa.Web202303.QLTS.BL.DomainService.License
             {
                 listError.Add(new ValidateError()
                 {
-                    FieldNameError = "pageSize",
                     Message = string.Format(ErrorMessage.PositiveNumberError, FieldName.PageSize),
                 });
             }
@@ -110,7 +112,6 @@ namespace Misa.Web202303.QLTS.BL.DomainService.License
             {
                 listError.Add(new ValidateError()
                 {
-                    FieldNameError = "currentPage",
                     Message = string.Format(ErrorMessage.PositiveNumberError, FieldName.CurrentPage),
                 });
             }
@@ -118,7 +119,6 @@ namespace Misa.Web202303.QLTS.BL.DomainService.License
             {
                 throw new ValidateException()
                 {
-                    ErrorCode = ErrorCode.DataValidate,
                     Data = listError,
                     UserMessage = ErrorMessage.ValidateFilterError
                 };

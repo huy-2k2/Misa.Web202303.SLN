@@ -125,6 +125,10 @@
     <value>Tài khoản hoạc mật khẩu không đúng</value>
     <comment>người dùng nhập sai tên đăng nhập hoạc mật khẩu</comment>
   </data>
+  <data name="DataError" xml:space="preserve">
+    <value>Dữ liệu đầu vào không hợp lệ</value>
+    <comment>dữ liệu đầu vào không hợp lệ</comment>
+  </data>
   <data name="DataTypeError" xml:space="preserve">
     <value>Kiểu dữ liệu không hợp lệ</value>
     <comment>dữ liệu không hợp lệ</comment>

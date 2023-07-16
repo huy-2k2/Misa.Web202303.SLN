@@ -201,7 +201,7 @@ namespace Misa.Web202303.QLTS.DL.Repository
             var tableName = GetTableName();
             var connection = await GetOpenConnectionAsync();
 
-            var sql = $"DELETE FROM {tableName} WHERE FIND_IN_SET({tableName}_id, @list_id)";
+            var sql = $"DELETE FROM {tableName} WHERE FIND_IN_SET({tableName}_id, @list_id) != 0";
             var dynamicParams = new DynamicParameters();
             dynamicParams.Add("list_id", listId);
 
@@ -414,25 +414,6 @@ namespace Misa.Web202303.QLTS.DL.Repository
             var result = await connection.QueryAsync<TEntity>(sql, dynamicParams, transaction: transaction);
             return result;
         }
-
-        public async Task<IEnumerable<TEntity>> GetListNotExistedAsync(string listId)
-        {
-            var tableName = GetTableName();
-
-            var connection = await GetOpenConnectionAsync();
-
-            var sql = $"SELECT * FROM {tableName} WHERE FIND_IN_SET({tableName}_id, @listId) = 0";
-
-            var dynamicParams = new DynamicParameters();
-
-            dynamicParams.Add("@listId", listId);
-
-            var transaction = await _unitOfWork.GetTransactionAsync();
-
-            var result = await connection.QueryAsync<TEntity>(sql, dynamicParams, transaction: transaction);
-            return result;
-        }
-
 
         #endregion
 

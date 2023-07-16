@@ -13,5 +13,7 @@ namespace Misa.Web202303.QLTS.BL.BodyRequest.License
         public Guid? budget_detail_id { get; set; }
 
         public double budget_value { get; set; }
+
+        public bool? is_changed { get; set; }
     }
 }
