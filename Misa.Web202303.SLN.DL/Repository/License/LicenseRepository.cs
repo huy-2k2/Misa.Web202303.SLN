@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using LicenseEntity = Misa.Web202303.QLTS.DL.Entity.License;
 using LicenseModel = Misa.Web202303.QLTS.DL.Model.License;
 using FixedAssetEntity = Misa.Web202303.QLTS.DL.Entity.FixedAsset;
+using FixedAssetModel = Misa.Web202303.QLTS.DL.Model.FixedAsset;
 using Misa.Web202303.QLTS.DL.Filter;
 using Misa.Web202303.QLTS.Common.Const;
 using System.Data;
@@ -47,11 +48,11 @@ namespace Misa.Web202303.QLTS.DL.Repository.License
 
 
             /// xử lý câu truy vấn có dùng join để tạo thành Model
-            var licenses = await connection.QueryAsync<LicenseModel, FixedAssetEntity, LicenseModel>(sql: sql, param: dynamicParams, transaction: transaction, commandType: CommandType.StoredProcedure, splitOn: "fixed_asset_id", map: (licenseModel, fixedAsset) =>
+            var licenses = await connection.QueryAsync<LicenseModel, FixedAssetModel, LicenseModel>(sql: sql, param: dynamicParams, transaction: transaction, commandType: CommandType.StoredProcedure, splitOn: "fixed_asset_id", map: (licenseModel, fixedAsset) =>
             {
                 if (licenseModel.fixed_assets == null)
                 {
-                    licenseModel.fixed_assets = new List<FixedAssetEntity>();
+                    licenseModel.fixed_assets = new List<FixedAssetModel>();
                 }
 
                 licenseModel.fixed_assets.Add(fixedAsset);
@@ -66,7 +67,7 @@ namespace Misa.Web202303.QLTS.DL.Repository.License
                 if (listAsset.First() != null)
                     groupedModel.fixed_assets = listAsset;
                 else
-                    groupedModel.fixed_assets = new List<FixedAssetEntity>();
+                    groupedModel.fixed_assets = new List<FixedAssetModel>();
                 return groupedModel;
             });
 

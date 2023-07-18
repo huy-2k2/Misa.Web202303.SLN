@@ -38,6 +38,6 @@ namespace Misa.Web202303.QLTS.DL.Model
         /// <summary>
         /// danh sách tài sản liên quan
         /// </summary>
-        public List<Entity.FixedAsset> fixed_assets { get; set; }
+        public List<FixedAsset> fixed_assets { get; set; }
     }
 }

@@ -301,12 +301,9 @@ namespace Misa.Web202303.QLTS.DL.Repository
                 index++;
             }
 
-
             var transaction = await _unitOfWork.GetTransactionAsync();
 
             await connection.ExecuteAsync(sql, dynamicParams, transaction: transaction);
-
-
 
         }
 

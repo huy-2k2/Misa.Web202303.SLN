@@ -61,7 +61,7 @@ namespace Misa.Web202303.QLTS.DL.Model
         /// <summary>
         /// giá trị hao mòn năm
         /// </summary>
-        public double depreciation_annual { get; set; }
+        public double depreciation_annual { get; set; }                           
 
         /// <summary>
         /// năm bắt đầu theo dõi
@@ -74,5 +74,7 @@ namespace Misa.Web202303.QLTS.DL.Model
         public int life_time { get; set; }
 
         public Guid license_detail_id { get; set; }
+
+        public int license_detail_index { get; set; }   
     }
 }

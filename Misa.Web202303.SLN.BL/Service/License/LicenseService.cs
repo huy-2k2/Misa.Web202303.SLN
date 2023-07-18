@@ -277,17 +277,18 @@ namespace Misa.Web202303.QLTS.BL.Service.License
                         await _licenseDetailRepository.InsertListAsync(listLicenseDetailEntity);
                     }
 
+                    if (listBudgetDetailEntityUpdate.Count() > 0)
+                    {
+                        await _budgetDetailDomainService.UpdateListValidateAsync(listBudgetDetailUpdate);
+                        await _budgetDetailRepository.UpdateListAsync(listBudgetDetailEntityUpdate);
+                    }
+
                     if (listBudgetDetailEntity.Count() > 0){
                         await _budgetDetailDomainService.CreateListValidateAsync(listBudgetDetailInsert);
                         await _budgetDetailRepository.InsertListAsync(listBudgetDetailEntity);
                     }
 
 
-                    if (listBudgetDetailEntityUpdate.Count() > 0)
-                    {
-                        await _budgetDetailDomainService.UpdateListValidateAsync(listBudgetDetailUpdate);
-                        await _budgetDetailRepository.UpdateListAsync(listBudgetDetailEntityUpdate);
-                    }
                     await _unitOfWork.CommitAsync();
                 }
                 catch (Exception ex)

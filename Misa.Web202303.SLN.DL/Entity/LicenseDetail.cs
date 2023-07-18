@@ -14,5 +14,7 @@ namespace Misa.Web202303.QLTS.DL.Entity
 
         public Guid fixed_asset_id { set; get; }
 
+        public int license_detail_index { set; get; }
+
     }
 }

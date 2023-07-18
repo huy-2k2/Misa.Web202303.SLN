@@ -132,6 +132,8 @@ namespace Misa.Web202303.QLTS.BL.Service
             await CreateValidateAsync(entityCreateDto);
 
             var entity = _mapper.Map<TEntity>(entityCreateDto);
+
+
             using (var transaction = await _unitOfWork.GetTransactionAsync())
             {
                 try
