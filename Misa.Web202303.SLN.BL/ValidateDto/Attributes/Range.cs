@@ -24,9 +24,10 @@ namespace Misa.Web202303.QLTS.BL.ValidateDto.Attributes
 
         /// <summary>
         /// hàm khởi tạo
+        /// created by: nqhuy(21/05/2023)
         /// </summary>
-        /// <param name="min"></param>
-        /// <param name="max"></param>
+        /// <param name="min">giá trị nhỏ nhất</param>
+        /// <param name="max">giá trị lớn nhất</param>
         public Range(double min, double max) {
             Min = min; Max = max;
         }

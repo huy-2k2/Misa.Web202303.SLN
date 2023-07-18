@@ -119,7 +119,6 @@ namespace Misa.Web202303.QLTS.BL.Service.FixedAsset
         /// <param name="departmentId">mã phòng ban</param>
         /// <param name="fixedAssetCategoryId">mã loại tài sản</param>
         /// <param name="textSearch">từ khóa tìm kiếm</param>
-        /// <exception cref="ValidateException">throw exception khi validate lỗi</exception>
         /// <returns>danh sách tài sản thỏa mãn yêu cầu Filter, phân trang</returns>
         public async Task<FilterListFixedAsset> GetAsync(int pageSize, int currentPage, Guid? departmentId, Guid? fixedAssetCategoryId, string? textSearch)
         {
@@ -129,7 +128,7 @@ namespace Misa.Web202303.QLTS.BL.Service.FixedAsset
 
             var filterListFixedAsset = await _fixedAssetRepository.GetAsync(pageSize, currentPage, departmentId, fixedAssetCategoryId, textSearch);
 
-            //await _unitOfWork.CommitAsync();
+            await _unitOfWork.CommitAsync();
 
             return filterListFixedAsset;
         }
@@ -163,8 +162,6 @@ namespace Misa.Web202303.QLTS.BL.Service.FixedAsset
         /// </summary>
         /// <param name="fixedAssetCreateDto">dữ liệu fixed asset để valdiate</param>
         /// <returns></returns>
-        /// <exception cref="ValidateException">throw exception khi validate lỗi</exception>
-        /// <returns>danh sách lỗi</returns>
         protected async override Task CreateValidateAsync(FixedAssetCreateDto fixedAssetCreateDto)
         {
             await _fixedAssetDomainService.CreateValidateAsync(fixedAssetCreateDto);
@@ -176,7 +173,7 @@ namespace Misa.Web202303.QLTS.BL.Service.FixedAsset
         /// </summary>
         /// <param name="fixedAssetId">id tài sản</param>
         /// <param name="fixedAssetUpdateDto">dữ liệu tài sản cần validate</param>
-        /// <returns>danh sách lỗi</returns>
+        /// <returns></returns>
 
         protected async override Task UpdateValidateAsync(Guid fixedAssetId, FixedAssetUpdateDto fixedAssetUpdateDto)
         {
@@ -195,7 +192,6 @@ namespace Misa.Web202303.QLTS.BL.Service.FixedAsset
         {
             // validate dữ liệu
             var validateEntity = await _fixedAssetImportService.ValidateAsync(stream);
-
 
 
             if (isSubmit && validateEntity.IsPassed || !isSubmit)
@@ -232,6 +228,7 @@ namespace Misa.Web202303.QLTS.BL.Service.FixedAsset
 
         /// <summary>
         ///  lấy danh sách tài sản thoải mãn điều kiện Filter và phân trang, chưa có chứng từ
+        /// created by: nqhuy(21/05/2023)
         /// </summary>
         /// <param name="filterFixedAssetNoLicense">đối tượng chứa dữ liệu Filter</param>
         /// <returns>danh sách tài sản chưa có chứng từ thỏa mã điều kiện Filter</returns>
@@ -248,6 +245,12 @@ namespace Misa.Web202303.QLTS.BL.Service.FixedAsset
             return result;
         }
 
+        /// <summary>
+        /// lấy danh sách tài sản thuộc một chứng từ cho trước
+        /// created by: nqhuy(21/05/2023)
+        /// </summary>
+        /// <param name="licenseId">id chứng từ</param>
+        /// <returns>danh sách tài sản thỏa mã điều kiện</returns>
         public async Task<IEnumerable<FixedAssetModel>> GetListByLicenseIdAsync(Guid licenseId)
         {
             var listEntity = await _fixedAssetRepository.GetListByLicenseId(licenseId);
@@ -257,19 +260,26 @@ namespace Misa.Web202303.QLTS.BL.Service.FixedAsset
             return listEntity;
         }
 
+        /// <summary>
+        /// xóa nhiều tài sản
+        /// </summary>
+        /// <param name="listId">danh sách id</param>
+        /// <returns></returns>
+        /// <exception cref="ValidateException">lỗi khi tài sản đã phát sinh chứng từ</exception>
         public override async Task DeleteListAsync(IEnumerable<Guid> listId)
         {
+            // nối list id lại thành string
             var stringIds = string.Join(",", listId);
 
+            // lấy các tài sản đã phát sinh chứng từ ghi tăng
             var listExisted = await _licenseDetailRepository.GetListFAExistedAsync(stringIds);
 
+            // lấy ra id của danh sách tài sản đã phát sinh chứng từ ghi tăng
             var listFaIdExisted = listExisted.Select(item => item.fixed_asset_id);
-
-
 
             if (listFaIdExisted.Count() > 0)
             {
-
+                // throw ra lỗi khi có 1 tài sản phát sinh
                 if (listFaIdExisted.Count() == 1)
                 {
                     var fixedAsset = await _fixedAssetRepository.GetAsync(listId.First());
@@ -285,6 +295,7 @@ namespace Misa.Web202303.QLTS.BL.Service.FixedAsset
                         UserMessage = ErrorMessage.DataError,
                     };
                 }
+                // throw ra lỗi khi có nhiều tài sản phát sinh
                 else
                 {
                     throw new ValidateException()
@@ -302,12 +313,14 @@ namespace Misa.Web202303.QLTS.BL.Service.FixedAsset
             {
                 try
                 {
+                    // xóa list tài sản
                     await _fixedAssetRepository.DeleteListAsync(stringIds);
                     await _unitOfWork.CommitAsync();
 
                 }
                 catch (Exception ex)
                 {
+                    // có lỗi thì rollback
                     await _unitOfWork.RollbackAsync();
                     throw ex;
                 }

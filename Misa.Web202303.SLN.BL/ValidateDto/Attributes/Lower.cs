@@ -16,6 +16,11 @@ namespace Misa.Web202303.QLTS.BL.ValidateDto.Attributes
         /// </summary>
         public double Max { get; set; }
 
+        /// <summary>
+        /// hàm khởi tạo
+        /// created by: NQ Huy (21/05/2023)
+        /// </summary>
+        /// <param name="max">giá trị lớn nhất</param>
         public Lower(double max) { Max = max; }
     }
 }

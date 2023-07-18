@@ -19,6 +19,11 @@ namespace Misa.Web202303.QLTS.DL.Repository.License
 {
     public class LicenseRepository : BaseRepository<LicenseEntity>, ILicenseRepository
     {
+        /// <summary>
+        /// phương thức khởi tạo
+        /// created by: NQ Huy(28/06/2023)
+        /// </summary>
+        /// <param name="unitOfWork">unitOfWork</param>
         public LicenseRepository(IUnitOfWork unitOfWork) : base(unitOfWork)
         {
         }
@@ -33,6 +38,7 @@ namespace Misa.Web202303.QLTS.DL.Repository.License
         /// <returns>danh sách license Model</returns>
         public async Task<FilterLicenseModel> GetListLicenseModelAsync(int pageSize, int currentPage, string? textSearch)
         {
+            // tạo connection, add các tham số
             var connection = await GetOpenConnectionAsync();
             var sql = ProcedureName.GET_FILTER_MODEL_LICENSES;
             var dynamicParams = new DynamicParameters();
@@ -40,36 +46,15 @@ namespace Misa.Web202303.QLTS.DL.Repository.License
             dynamicParams.Add("current_page", currentPage);
             dynamicParams.Add("text_search", textSearch ?? "");
 
-
+            // lấy tham số kiểu out
             dynamicParams.Add("total_license", dbType: DbType.Int32, direction: ParameterDirection.Output);
             dynamicParams.Add("total_cost", dbType: DbType.Double, direction: ParameterDirection.Output);
 
             var transaction = await _unitOfWork.GetTransactionAsync();
 
+            // gọi truy vấn
+            var listLicense = await connection.QueryAsync<LicenseModel>(sql, dynamicParams, transaction, commandType: CommandType.StoredProcedure);
 
-            /// xử lý câu truy vấn có dùng join để tạo thành Model
-            var licenses = await connection.QueryAsync<LicenseModel, FixedAssetModel, LicenseModel>(sql: sql, param: dynamicParams, transaction: transaction, commandType: CommandType.StoredProcedure, splitOn: "fixed_asset_id", map: (licenseModel, fixedAsset) =>
-            {
-                if (licenseModel.fixed_assets == null)
-                {
-                    licenseModel.fixed_assets = new List<FixedAssetModel>();
-                }
-
-                licenseModel.fixed_assets.Add(fixedAsset);
-                return licenseModel;
-            });
-
-            // nhóm các license có trùng id
-            var listLicenseModel = licenses.GroupBy(l => l.license_id).Select(g =>
-            {
-                var groupedModel = g.First();
-                var listAsset = g.Select(model => model.fixed_assets.First()).ToList();
-                if (listAsset.First() != null)
-                    groupedModel.fixed_assets = listAsset;
-                else
-                    groupedModel.fixed_assets = new List<FixedAssetModel>();
-                return groupedModel;
-            });
 
             // lấy ra tham số kiểu out
             var totalLicense = dynamicParams.Get<int>("total_license");
@@ -79,7 +64,7 @@ namespace Misa.Web202303.QLTS.DL.Repository.License
             // trả về kết quả
             return new FilterLicenseModel()
             {
-                list_license_model = listLicenseModel,
+                list_license = listLicense,
                 total_cost = totalCost ?? 0,
                 total_license = totalLicense,
             };

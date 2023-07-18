@@ -23,6 +23,11 @@ namespace Misa.Web202303.QLTS.DL.Repository.FixedAsset
     public class FixedAssetRepository : BaseRepository<FixedAssetEntity>, IFixedAssetRepository
     {
         #region
+        /// <summary>
+        /// hàm khởi tạo
+        /// Created by: NQ Huy(20/05/2023)
+        /// </summary>
+        /// <param name="unitOfWork"></param>
         public FixedAssetRepository(IUnitOfWork unitOfWork) : base(unitOfWork)
         {
         }

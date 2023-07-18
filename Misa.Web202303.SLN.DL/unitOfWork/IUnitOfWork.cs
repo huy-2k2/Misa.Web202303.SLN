@@ -7,20 +7,23 @@ using System.Threading.Tasks;
 
 namespace Misa.Web202303.QLTS.DL.unitOfWork
 {
+    /// <summary>
+    /// lấy, tạo connection và transaction để làm việc với database
+    /// </summary>
     public interface IUnitOfWork
     {
         /// <summary>
         /// lấy ra connection cho 1 request
         /// created by: NQ Huy (07/04/2023)
         /// </summary>
-        /// <returns>connection</returns>
+        /// <returns>DbConnection</returns>
         DbConnection GetDbConnection();
 
         /// <summary>
         /// lấy ra transaction cho 1 request
         /// created by: NQ Huy (07/04/2023)
         /// </summary>
-        /// <returns>transaction</returns>
+        /// <returns>DbTransaction</returns>
         DbTransaction GetTransaction();
 
         /// <summary>
@@ -41,14 +44,14 @@ namespace Misa.Web202303.QLTS.DL.unitOfWork
         /// lấy ra connection cho 1 request
         /// created by: NQ Huy (07/04/2023)
         /// </summary>
-        /// <returns>connection</returns>
+        /// <returns>DbConnection</returns>
         Task<DbConnection> GetDbConnectionAsync();
 
         /// <summary>
         /// lấy ra transaction cho 1 request
         /// created by: NQ Huy (07/04/2023)
         /// </summary>
-        /// <returns>transaction</returns>
+        /// <returns>DbTransaction</returns>
         Task<DbTransaction> GetTransactionAsync();
 
         /// <summary>

@@ -15,9 +15,10 @@ namespace Misa.Web202303.QLTS.BL.ValidateDto.Decorators
     public class InitDecorator : BaseDecorator
     {
         /// <summary>
-        /// hàm khởi tạo nên không validate 
-        /// created by: nqhuy(21/05/2023)
+        /// hàm thực hiện logic validate
+        /// created by: NQ Huy(07/05/2023)
         /// </summary>
+        /// <returns>trả về lỗi nếu validate sai</returns>
         protected override ValidateError? Handle()
         {
             return null;

@@ -13,6 +13,7 @@ namespace Misa.Web202303.QLTS.DL.Repository.Budget
     {
         /// <summary>
         /// hàm lấy ra danh sách ngân sách của 1 tài sản
+        /// created: NQ Huy (10/07/2023)
         /// </summary>
         /// <param name="fixedAssetId">id tài sản</param>
         /// <returns>danh sách ngân sách của 1 tài sản</returns>

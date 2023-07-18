@@ -34,6 +34,7 @@ namespace Misa.Web202303.QLTS.DL.Repository
         /// cập nhật bản ghi
         /// Created by: NQ Huy(20/05/2023)
         /// </summary>
+        /// <param name="entityId">id của bản ghi</param>
         /// <param name="entity">dữ liệu bản ghi cập nhật</param>
         /// <returns></returns>
         Task UpdateAsync(Guid entityId, TEntity entity);
@@ -110,8 +111,18 @@ namespace Misa.Web202303.QLTS.DL.Repository
         /// <returns>danh sách chứa mã tài nguyên và tiền tố</returns>
         Task<List<string>> GetRecommendCodeAsync();
 
+        /// <summary>
+        /// phương thực cập nhật nhiều bản ghi cùng lúc
+        /// </summary>
+        /// <param name="listUpdateEntity">danh sách bản ghi</param>
+        /// <returns></returns>
         Task UpdateListAsync(IEnumerable<TEntity> listUpdateEntity);
 
+        /// <summary>
+        /// phương thức lấy các đối tượng có id thuộc listid cho trước
+        /// </summary>
+        /// <param name="listId">danh sách id nối với nhau bởi dấu  ","</param>
+        /// <returns>danh sách entity có id nằm trong listId</returns>
         Task<IEnumerable<TEntity>> GetListExistedAsync(string listId);
     }
 }

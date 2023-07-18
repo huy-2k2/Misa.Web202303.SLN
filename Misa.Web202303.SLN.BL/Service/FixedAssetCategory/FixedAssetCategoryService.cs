@@ -38,13 +38,13 @@ namespace Misa.Web202303.QLTS.BL.Service.FixedAssetCategory
 
         #region
         /// <summary>
-        /// phương thức khởi tạo
         /// created by: nqhuy(21/05/2023)
         /// </summary>
-        /// <param name="fixedAssetCategoryRepository">fixedAssetCategoryRepository</param>
+        /// <param name="fixedAssetCategoryRepository"fixedAssetCategoryRepository></param>
+        /// <param name="unitOfWork">unitOfWork</param>
         /// <param name="mapper">mapper</param>
         /// <param name="fixedAssetCategoryImportService">fixedAssetCategoryImportService</param>
-        /// <param name="unitOfWork">unitOfWork</param>
+        /// <param name="fixedAssetCategoryDomainService">fixedAssetCategoryDomainService</param>
         public FixedAssetCategoryService(IFixedAssetCategoryRepository fixedAssetCategoryRepository, IUnitOfWork unitOfWork, IMapper mapper, IFixedAssetCategoryImportService fixedAssetCategoryImportService, IFixedAssetCategoryDomainService fixedAssetCategoryDomainService) : base(fixedAssetCategoryRepository, unitOfWork, mapper)
         {
             _fixedAssetCategoryImportService = fixedAssetCategoryImportService;
@@ -58,7 +58,6 @@ namespace Misa.Web202303.QLTS.BL.Service.FixedAssetCategory
         /// created by: nqhuy(21/05/2023)
         /// </summary>
         /// <param name="entityCreateDto">dữ liệu tài sản cần validate</param>
-        /// <returns>danh sách lỗi</returns>
         protected override async Task CreateValidateAsync(FixedAssetCategoryCreateDto entityCreateDto)
         {
              await _fixedAssetCategoryDomainService.CreateValidateAsync(entityCreateDto);
@@ -70,7 +69,6 @@ namespace Misa.Web202303.QLTS.BL.Service.FixedAssetCategory
         /// </summary>
         /// <param name="id">id tài sản</param>
         /// <param name="entityUpdateDto">dữ liệu tài sản cần valdiate</param>
-        /// <returns>danh sách lỗi</returns>
         protected async override Task UpdateValidateAsync(Guid id, FixedAssetCategoryUpdateDto entityUpdateDto)
         {
             await _fixedAssetCategoryDomainService.UpdateValidateAsync(id, entityUpdateDto);

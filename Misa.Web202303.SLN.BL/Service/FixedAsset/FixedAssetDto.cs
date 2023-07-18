@@ -10,7 +10,6 @@ namespace Misa.Web202303.QLTS.BL.Service.FixedAsset
     /// <summary>
     /// class dùng để trả dữ liệu về cho controller
     /// created by: nqhuy(21/05/2023)
-    /// created by: nqhuy(10/06/2023)
     /// </summary>
     public class FixedAssetDto
     {

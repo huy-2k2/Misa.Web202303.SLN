@@ -69,7 +69,7 @@ namespace Misa.Web202303.QLTS.BL.ImportService
             {
                 using (var package = new ExcelPackage(stream)) ;
             }
-            catch (Exception ex)
+            catch
             {
                 throw new ValidateException()
                 {

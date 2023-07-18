@@ -47,6 +47,7 @@ namespace Misa.Web202303.QLTS.BL.ValidateDto.Decorators
         /// <summary>
         /// thực hiện hàm handle và gọi hàm validate của decorator tiếp theo
         /// created by: nqhuy(21/05/2023)
+        /// <returns></returns>
         /// </summary>
         public void Validate()
         {
@@ -65,8 +66,10 @@ namespace Misa.Web202303.QLTS.BL.ValidateDto.Decorators
         }
 
         /// <summary>
-        /// logic validate implement bởi các decorator kế thừa
+        /// hàm thực hiện logic validate
+        /// created by: NQ Huy(07/05/2023)
         /// </summary>
+        /// <returns>trả về lỗi nếu validate sai</returns>
         protected abstract ValidateError? Handle();
     }
 

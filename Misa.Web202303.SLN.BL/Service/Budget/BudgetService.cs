@@ -22,9 +22,9 @@ namespace Misa.Web202303.QLTS.BL.Service.Budget
         /// hàm khởi tạo
         /// created by: NQ Huy(27/06/2023)
         /// </summary>
-        /// <param name="budgetRepository"></param>
-        /// <param name="mapper"></param>
-        /// <param name="unitOfWork"></param>
+        /// <param name="budgetRepository">budgetRepository</param>
+        /// <param name="mapper">mapper</param>
+        /// <param name="unitOfWork">unitOfWork</param>
         public BudgetService(IBudgetRepository budgetRepository, IUnitOfWork unitOfWork, IMapper mapper) : base(budgetRepository, unitOfWork, mapper)
         {
             _budgetRepository = budgetRepository;
@@ -33,6 +33,7 @@ namespace Misa.Web202303.QLTS.BL.Service.Budget
 
         /// <summary>
         /// lấy danh sách budget Model của 1 tài sản
+        /// created by: NQ Huy (10/07/2023)
         /// </summary>
         /// <param name="fixedAssetId">id tài sản</param>
         /// <returns>danh sách budget Model của 1 tài sản</returns>

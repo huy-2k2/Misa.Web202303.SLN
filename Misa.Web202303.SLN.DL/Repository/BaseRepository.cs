@@ -98,6 +98,7 @@ namespace Misa.Web202303.QLTS.DL.Repository
         /// Created by: NQ Huy(20/05/2023)
         /// </summary>
         /// <param name="entity">dữ liệu bản ghi cập nhật</param>
+        /// <param name="entityId">id của bản ghi</param>
         /// <returns></returns>
         public virtual async Task UpdateAsync(Guid entityId, TEntity entity)
         {
@@ -232,8 +233,14 @@ namespace Misa.Web202303.QLTS.DL.Repository
             return result;
         }
 
+        /// <summary>
+        /// phương thực cập nhật nhiều bản ghi cùng lúc
+        /// </summary>
+        /// <param name="listUpdateEntity">danh sách bản ghi</param>
+        /// <returns></returns>
         public virtual async Task UpdateListAsync(IEnumerable<TEntity> listUpdateEntity)
         {
+            // láy ra tên table
             var tableName = GetTableName();
             var connection = await GetOpenConnectionAsync();
             var dynamicParams = new DynamicParameters();
@@ -249,19 +256,22 @@ namespace Misa.Web202303.QLTS.DL.Repository
                 sql += string.Join(", ", notNullProps.Select(prop => $"{prop.Name} = @{prop.Name}_{index}"));
                 sql += $" WHERE {tableName}_id = @{tableName}_id_{index};";
 
+                // lấy ra các thuộc tính có value khác null
                 foreach (var prop in notNullProps)
                 {
                     dynamicParams.Add($"{prop.Name}_{index}", prop.GetValue(entity));
                 }
 
+                // lấy ra id của đối tượng
                 var propId = entity.GetType().GetProperty($"{tableName}_id");
 
                 var entityId = propId.GetValue(entity);
 
+                // thêm id vào dynamic param
                 dynamicParams.Add($"{tableName}_id_{index}", entityId);
 
                 var transaction = await _unitOfWork.GetTransactionAsync();
-
+                // quy vấn và trả về kết quả
                 var result = await connection.ExecuteAsync(sql, dynamicParams, transaction);
             }
         }
@@ -394,6 +404,11 @@ namespace Misa.Web202303.QLTS.DL.Repository
         /// <returns>tên của table ứng với repository</returns>
         public abstract string GetTableName();
 
+        /// <summary>
+        /// phương thức lấy các đối tượng có id thuộc listid cho trước
+        /// </summary>
+        /// <param name="listId">danh sách id nối với nhau bởi dấu  ","</param>
+        /// <returns>danh sách entity có id nằm trong listId</returns>
         public async Task<IEnumerable<TEntity>> GetListExistedAsync(string listId)
         {
             var tableName = GetTableName();

@@ -68,6 +68,7 @@ namespace Misa.Web202303.QLTS.BL.Service
         /// created by: nqhuy(21/05/2023)
         /// </summary>
         /// <param name="id">id tài nguyên cần lấy</param>
+        /// <returns>bản ghi có id là id đã cho</returns>
         /// <exception cref="NotFoundException">exception trong trường hợp không tìm thấy tài nguyên</exception>
         public virtual async Task<TEntityDto> GetAsync(Guid id)
         {
@@ -100,9 +101,6 @@ namespace Misa.Web202303.QLTS.BL.Service
             var result = listTEntity.Select(entity => _mapper.Map<TEntityDto>(entity));
             await _unitOfWork.CommitAsync();
 
-            //await _unitOfWork.CommitAsync();
-
-
             return result;
         }
 
@@ -133,7 +131,7 @@ namespace Misa.Web202303.QLTS.BL.Service
 
             var entity = _mapper.Map<TEntity>(entityCreateDto);
 
-
+            // mở transaction
             using (var transaction = await _unitOfWork.GetTransactionAsync())
             {
                 try
@@ -144,10 +142,10 @@ namespace Misa.Web202303.QLTS.BL.Service
                 }
                 catch (Exception ex)
                 {
+                    // nếu có lỗi thì rollback
                     await _unitOfWork.RollbackAsync();
                     throw ex;
                 }
-
             }
         }
 
@@ -172,7 +170,7 @@ namespace Misa.Web202303.QLTS.BL.Service
                 };
             }
             // validate riêng
-           await UpdateValidateAsync(entityId, entityUpdateDto);
+            await UpdateValidateAsync(entityId, entityUpdateDto);
 
             var entity = _mapper.Map<TEntity>(entityUpdateDto);
             await _baseRepository.UpdateAsync(entityId, entity);
@@ -241,11 +239,22 @@ namespace Misa.Web202303.QLTS.BL.Service
                 };
 
             }
-            await _baseRepository.DeleteListAsync(listIdString);
 
-            await _unitOfWork.CommitAsync();
+            using (var transaction = await _unitOfWork.GetTransactionAsync())
+            {
+                try
+                {
+                    await _baseRepository.DeleteListAsync(listIdString);
+                    await _unitOfWork.CommitAsync();
 
-
+                }
+                catch (Exception ex)
+                {
+                    // nếu có lỗi thì rollback
+                    await _unitOfWork.RollbackAsync();
+                    throw ex;
+                }
+            }
         }
 
         #endregion

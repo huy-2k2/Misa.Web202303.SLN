@@ -10,6 +10,9 @@ using System.Transactions;
 
 namespace Misa.Web202303.QLTS.DL.unitOfWork
 {
+    /// <summary>
+    /// lấy, tạo connection và transaction để làm việc với database
+    /// </summary>
     public class UnitOfWork : IUnitOfWork
     {
         #region
@@ -21,6 +24,11 @@ namespace Misa.Web202303.QLTS.DL.unitOfWork
         #endregion
 
         #region
+        /// <summary>
+        /// hàm khởi tạo
+        /// created by : NQ Huy (05/07/2023)
+        /// </summary>
+        /// <param name="configuration">configuration<param>
         public UnitOfWork(IConfiguration configuration)
         {
             _connectionString = configuration["ConnectionString"] ?? "";
@@ -28,7 +36,7 @@ namespace Misa.Web202303.QLTS.DL.unitOfWork
 
         /// <summary>
         /// lấy ra connection cho 1 request
-        /// created by: NQ Huy (07/04/2023)
+        /// created by: NQ Huy (07/07/2023)
         /// </summary>
         /// <returns>connection</returns>
         public DbConnection GetDbConnection()
@@ -45,7 +53,7 @@ namespace Misa.Web202303.QLTS.DL.unitOfWork
 
         /// <summary>
         /// lấy ra transaction cho 1 request
-        /// created by: NQ Huy (07/04/2023)
+        /// created by: NQ Huy (07/07/2023)
         /// </summary>
         /// <returns>transaction</returns>
         public DbTransaction GetTransaction()
@@ -55,7 +63,7 @@ namespace Misa.Web202303.QLTS.DL.unitOfWork
 
         // <summary>
         /// rollback khi xảy ra exception
-        /// created by: NQ Huy (07/04/2023)
+        /// created by: NQ Huy (07/07/2023)
         /// </summary>
         /// <returns></returns>
         public void Rollback()
@@ -66,7 +74,7 @@ namespace Misa.Web202303.QLTS.DL.unitOfWork
 
         // <summary>
         /// commit transaction
-        /// created by: NQ Huy (07/04/2023)
+        /// created by: NQ Huy (07/07/2023)
         /// </summary>
         /// <returns></returns>
         public void Commit()
@@ -80,7 +88,7 @@ namespace Misa.Web202303.QLTS.DL.unitOfWork
 
         /// <summary>
         /// lấy ra connection cho 1 request
-        /// created by: NQ Huy (07/04/2023)
+        /// created by: NQ Huy (07/07/2023)
         /// </summary>
         /// <returns>connection</returns>
         public async Task<DbConnection> GetDbConnectionAsync()
@@ -95,7 +103,7 @@ namespace Misa.Web202303.QLTS.DL.unitOfWork
 
         /// <summary>
         /// lấy ra transaction cho 1 request
-        /// created by: NQ Huy (07/04/2023)
+        /// created by: NQ Huy (07/07/2023)
         /// </summary>
         /// <returns>transaction</returns>
         public async Task<DbTransaction> GetTransactionAsync()
@@ -109,7 +117,7 @@ namespace Misa.Web202303.QLTS.DL.unitOfWork
 
         // <summary>
         /// rollback khi xảy ra exception
-        /// created by: NQ Huy (07/04/2023)
+        /// created by: NQ Huy (07/07/2023)
         /// </summary>
         /// <returns></returns>
         public async Task RollbackAsync()
@@ -120,7 +128,7 @@ namespace Misa.Web202303.QLTS.DL.unitOfWork
 
         /// <summary>
         /// commit transaction
-        /// created by: NQ Huy (07/04/2023)
+        /// created by: NQ Huy (07/07/2023)
         /// </summary>
         /// <returns></returns>
         public async Task CommitAsync()
@@ -134,7 +142,7 @@ namespace Misa.Web202303.QLTS.DL.unitOfWork
 
         /// <summary>
         /// đóng kết nối
-        /// created by: NQ Huy(07/04/2023)
+        /// created by: NQ Huy(07/07/2023)
         /// </summary>
         /// <returns></returns>
         public void SaveChange()
@@ -145,7 +153,7 @@ namespace Misa.Web202303.QLTS.DL.unitOfWork
 
         /// <summary>
         /// đóng kết nối
-        /// created by: NQ Huy(07/04/2023)
+        /// created by: NQ Huy(07/07/2023)
         /// </summary>
         /// <returns></returns>
         public async Task SaveChangeAsync()

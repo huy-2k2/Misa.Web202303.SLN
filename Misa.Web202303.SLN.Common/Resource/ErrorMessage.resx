@@ -173,9 +173,6 @@
     <value>Số dòng không hợp lệ</value>
     <comment>số dòng trong file không hợp lệ</comment>
   </data>
-  <data name="FixedAssetDeleteDetail" xml:space="preserve">
-    <value>Tài sản có mã &lt;strong&gt;{0}&lt;/strong&gt; đã phát sinh chứng từ ghi tăng có mã &lt;strong&gt; {1}&lt;/strong&gt;</value>
-  </data>
   <data name="HigherError" xml:space="preserve">
     <value>Giá trị {0} phải lớn hơn {1}</value>
     <comment>nhỏ hơn giá trị cho phép</comment>
@@ -191,9 +188,6 @@
   <data name="LengthError" xml:space="preserve">
     <value>Độ dài {0} phải từ {1} đến {2}</value>
     <comment>độ dài a phải có length từ b đến c</comment>
-  </data>
-  <data name="ListFixedAssetDeleteDetail" xml:space="preserve">
-    <value>&lt;strong&gt;{0}&lt;/strong&gt; tài sản đã có chứng từ phát sinh</value>
   </data>
   <data name="LowerError" xml:space="preserve">
     <value>Giá trị {0} phải nhỏ hơn {1}</value>

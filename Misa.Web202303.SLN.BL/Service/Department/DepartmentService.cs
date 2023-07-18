@@ -54,11 +54,24 @@ namespace Misa.Web202303.QLTS.BL.Service.Department
 
         #region
 
+        /// <summary>
+        /// validate khi thêm
+        /// created by: nqhuy(21/05/2023)
+        /// </summary>
+        /// <param name="departmentCreateDto"></param>
+        /// <returns></returns>
         protected async override Task CreateValidateAsync(DepartmentCreateDto departmentCreateDto)
         {
              await _departmentDomainService.CreateValidateAsync(departmentCreateDto);
         }
 
+        /// <summary>
+        /// valdiate khi sửa
+        /// created by: nqhuy(21/05/2023)
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="departmentUpdateDto"></param>
+        /// <returns></returns>
         protected async override Task UpdateValidateAsync(Guid id, DepartmentUpdateDto departmentUpdateDto)
         {
              await _departmentDomainService.UpdateValidateAsync(id, departmentUpdateDto);

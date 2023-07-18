@@ -16,10 +16,10 @@ namespace Misa.Web202303.QLTS.BL.ValidateDto.Decorators
     public class HigherDecorator : BaseDecorator
     {
         /// <summary>
-        /// logic validate
-        /// created by: nqhuy(21/05/2023)
+        /// hàm thực hiện logic validate
+        /// created by: NQ Huy(07/05/2023)
         /// </summary>
-        /// <returns></returns>
+        /// <returns>trả về lỗi nếu validate sai</returns>
         protected override ValidateError? Handle()
         {
             var value = (double)PropValue;

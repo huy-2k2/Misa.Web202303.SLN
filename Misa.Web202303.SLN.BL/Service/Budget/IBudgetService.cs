@@ -12,6 +12,7 @@ namespace Misa.Web202303.QLTS.BL.Service.Budget
     {
         /// <summary>
         /// lấy danh sách budget Model của 1 tài sản
+        /// created by: NQ Huy (10/07/2023)
         /// </summary>
         /// <param name="fixedAssetId">id tài sản</param>
         /// <returns>danh sách budget Model của 1 tài sản</returns>

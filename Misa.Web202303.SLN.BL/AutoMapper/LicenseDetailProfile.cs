@@ -12,6 +12,10 @@ namespace Misa.Web202303.QLTS.BL.AutoMapper
 {
     public class LicenseDetailProfile : Profile
     {
+        /// <summary>
+        /// phương thức khởi tạo
+        /// created by: nqhuy(27/06/2023)
+        /// </summary>
         public LicenseDetailProfile()
         {
             CreateMap<LicenseDetailCreateDto, LicenseDetail>();

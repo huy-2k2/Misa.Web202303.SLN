@@ -73,8 +73,14 @@ namespace Misa.Web202303.QLTS.DL.Model
         /// </summary>
         public int life_time { get; set; }
 
+        /// <summary>
+        /// id của license_detail tương ứng
+        /// </summary>
         public Guid license_detail_id { get; set; }
 
+        /// <summary>
+        /// số thứ tự trong license
+        /// </summary>
         public int license_detail_index { get; set; }   
     }
 }

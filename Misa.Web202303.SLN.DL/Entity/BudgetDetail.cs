@@ -23,6 +23,9 @@ namespace Misa.Web202303.QLTS.DL.Entity
         /// </summary>
         public double budget_value { get; set; }    
 
+        /// <summary>
+        /// khóa ngoại đến budget
+        /// </summary>
         public Guid budget_id { get; set; }
     }
 }

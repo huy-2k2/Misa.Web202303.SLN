@@ -1,9 +1,11 @@
 ﻿using Dapper;
 using Microsoft.Extensions.Configuration;
+using Misa.Web202303.QLTS.Common.Const;
 using Misa.Web202303.QLTS.DL.Entity;
 using Misa.Web202303.QLTS.DL.unitOfWork;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.Common;
 using System.Linq;
 using System.Text;
@@ -43,13 +45,13 @@ namespace Misa.Web202303.QLTS.DL.AuthRepository
         {
             var connection = await _unitOfWork.GetDbConnectionAsync();
 
-            var sql = "SELECT * FROM user WHERE BINARY email = @email";
+            var sql = ProcedureName.GET_USER_BY_EMAIL;
 
             var dynamicParams = new DynamicParameters();
 
             dynamicParams.Add("email", email);
 
-            var result = await connection.QueryFirstOrDefaultAsync<User>(sql, dynamicParams);
+            var result = await connection.QueryFirstOrDefaultAsync<User>(sql, dynamicParams, commandType: CommandType.StoredProcedure);
 
             return result;
         }

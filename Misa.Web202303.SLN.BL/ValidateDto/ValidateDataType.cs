@@ -20,9 +20,9 @@ namespace Misa.Web202303.QLTS.BL.ValidateDto
         /// <summary>
         /// valiadte kiểu dữ liệu
         /// </summary>
-        /// <param name="dataType"></param>
-        /// <param name="value"></param>
-        /// <returns></returns>
+        /// <param name="dataType">kiểu dữ liệu</param>
+        /// <param name="value">giá trị kiểm tra</param>
+        /// <returns>true nếu giá trị thuộc kiểu dữ liệu cần kiểm tra, ngược lại trả về false</returns>
         public static bool Validate(int dataType, string value)
         {
             Type type = typeof(string);

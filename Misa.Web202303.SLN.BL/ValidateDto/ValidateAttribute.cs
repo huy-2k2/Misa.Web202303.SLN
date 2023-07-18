@@ -19,9 +19,11 @@ namespace Misa.Web202303.QLTS.BL.ValidateDto
         /// phương thức validate các Attr được đánh dấu trong entity, sử dụng decorator parttern, phương thức khởi tạo decorator parttern
         /// created by: nqhuy(21/05/2023)
         /// </summary>
-        /// <typeparam name="TValiadteEntity"></typeparam>
-        /// <param name="entity"></param>
-        public static List<ValidateError> Validate<TValiadteEntity>(TValiadteEntity entity)
+        /// <typeparam name="TValidateEntity">Kiểu cần kiểu tra</typeparam>
+        /// <param name="entity">đối tượng kiêm tra</param>
+        ///<returns>danh sách lỗi khi validate attribute đặt trong properties</returns>
+        
+        public static List<ValidateError> Validate<TValidateEntity>(TValidateEntity entity)
         {
             var props = entity.GetType().GetProperties();
 

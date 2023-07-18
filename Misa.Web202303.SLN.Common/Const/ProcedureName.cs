@@ -49,6 +49,8 @@ namespace Misa.Web202303.QLTS.Common.Const
         // xóa chi tiết nguồn ngân sách theo list chứng từ
         public const string DELETE_BUDGET_DETAIL_BY_LIST_LICENSE = "proc_delete_budget_detail_by_list_license";
 
+        // lấy ra người dùng theo email
+        public const string GET_USER_BY_EMAIL = "proc_get_user_by_email";
 
 
     }

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using LicenseModel = Misa.Web202303.QLTS.DL.Model.License;
+using LicenseEntity = Misa.Web202303.QLTS.DL.Entity.License;
 namespace Misa.Web202303.QLTS.DL.Filter
 {
     public class FilterLicenseModel
@@ -11,7 +12,7 @@ namespace Misa.Web202303.QLTS.DL.Filter
        /// <summary>
        /// danh sách license Model
        /// </summary>
-        public IEnumerable<LicenseModel> list_license_model { get; set; }
+        public IEnumerable<LicenseModel> list_license { get; set; }
 
         /// <summary>
         /// tổng bản ghi

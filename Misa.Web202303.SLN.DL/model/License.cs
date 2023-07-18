@@ -36,8 +36,8 @@ namespace Misa.Web202303.QLTS.DL.Model
         public string content { get; set; }
 
         /// <summary>
-        /// danh sách tài sản liên quan
+        /// tổng tiền của 1 chứng từ
         /// </summary>
-        public List<FixedAsset> fixed_assets { get; set; }
+        public double cost { set; get; }
     }
 }

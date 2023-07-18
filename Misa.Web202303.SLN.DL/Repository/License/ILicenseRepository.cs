@@ -6,7 +6,6 @@ using System.Text;
 using System.Threading.Tasks;
 
 using LicenseEntity = Misa.Web202303.QLTS.DL.Entity.License;
-using LicenseModel = Misa.Web202303.QLTS.DL.Model.License;
 namespace Misa.Web202303.QLTS.DL.Repository.License
 {
     public interface ILicenseRepository : IBaseRepository<LicenseEntity>

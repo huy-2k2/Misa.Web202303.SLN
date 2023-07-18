@@ -51,10 +51,15 @@ namespace Misa.Web202303.QLTS.BL.Service.License
         /// hàm khởi tạo
         /// created by:NQ Huy(27/06/2023)
         /// </summary>
+        /// <param name="budgetDetailRepository">budgetDetailRepository</param>
+        /// <param name="licenseDetailRepository">licenseDetailRepository</param>
         /// <param name="licenseRepository">licenseRepository</param>
+        /// <param name="unitOfWork">unitOfWork</param>
         /// <param name="mapper">mapper</param>
         /// <param name="recommendCodeService">recommendCodeService</param>
-        /// <param name="unitOfWork">unitOfWork</param>
+        /// <param name="licenseDomainService">licenseDomainService</param>
+        /// <param name="licenseDetailDomainService">licenseDetailDomainService</param>
+        /// <param name="budgetDetailDomainService">budgetDetailDomainService</param>
         public LicenseService(IBudgetDetailRepository budgetDetailRepository, ILicenseDetailRepository licenseDetailRepository, ILicenseRepository licenseRepository, IUnitOfWork unitOfWork, IMapper mapper, IRecommendCodeService recommendCodeService, ILicenseDomainService licenseDomainService, ILicenseDetailDomainService licenseDetailDomainService, IBudgetDetailDomainService budgetDetailDomainService) : base(licenseRepository, unitOfWork, mapper)
         {
             _recommendCodeService = recommendCodeService;
@@ -78,11 +83,12 @@ namespace Misa.Web202303.QLTS.BL.Service.License
             // validate dữ liệu
             _licenseDomainService.FilterInputValdiate(pageSize, currentPage);
 
-
+            // gọi db
             var listLicenseModel = await _licenseRepository.GetListLicenseModelAsync(pageSize, currentPage, textSearch);
 
             await _unitOfWork.CommitAsync();
 
+            // trả về kết quả
             return listLicenseModel;
         }
 
@@ -107,18 +113,27 @@ namespace Misa.Web202303.QLTS.BL.Service.License
             return newCode;
         }
 
+        /// <summary>
+        /// thêm mới chứng từ
+        /// created by: NQ Huy(27/06/2023)
+        /// </summary>
+        /// <param name="cuLicense">đối tượng cuLicense chứa data từ client</param>
+        /// <returns></returns>
         public async Task InsertModelAsync(CULicense cuLicense)
         {
+            // tạo id cho license
             var licenseId = Guid.NewGuid();
+            // lấy license từ request
             var licenseCreateDto = _mapper.Map<LicenseCreateDto>(cuLicense.license);
+            // lấy ra license detail
             var listLicenseDetail = cuLicense.list_fixed_asset.Select(item => new LicenseDetailCreateDto()
             {
                 fixed_asset_id = item.fixed_asset_id,
                 license_id = licenseId,
             });
 
+            // lấy ra budget detail từ request
             var listBudgetDetail = new List<BudgetDetailCreateDto>();
-
             foreach (var fa in cuLicense.list_fixed_asset)
             {
                 if (fa.budgets != null)
@@ -132,26 +147,34 @@ namespace Misa.Web202303.QLTS.BL.Service.License
                 }
             }
 
+            // validate dữ liệu license trước khi thêm mới
             await _licenseDomainService.CreateValidateAsync(licenseCreateDto);
 
             using (var transaction = await _unitOfWork.GetTransactionAsync())
             {
                 try
                 {
+                    // thêm mới license
                     var licenseEntity = _mapper.Map<LicenseEntity>(licenseCreateDto);
                     licenseEntity.license_id = licenseId;
                     await _licenseRepository.InsertAsync(licenseEntity);
 
+                    // validate list license_detail
                     await _licenseDetailDomainService.CreateListValidateAsync(listLicenseDetail);
 
+                    // validate list budget_detail
                     await _budgetDetailDomainService.CreateListValidateAsync(listBudgetDetail);
 
+                    // tạo entity LicenseDetail từ dto bằng mapper
                     var listLicenseDetailEntity = listLicenseDetail.Select(item => _mapper.Map<LicenseDetailEntity>(item));
 
+                    // thêm mới license detail
                     await _licenseDetailRepository.InsertListAsync(listLicenseDetailEntity);
 
+                    // tạo entity BudgetDetail từ dto bằng mapper
                     var listBudgetDetailEntity = listBudgetDetail.Select(item => _mapper.Map<BudgetDetailEntity>(item));
 
+                    // thêm mới budget detail
                     if (listBudgetDetailEntity.Count() > 0)
                     {
                         await _budgetDetailRepository.InsertListAsync(listBudgetDetailEntity);
@@ -162,28 +185,39 @@ namespace Misa.Web202303.QLTS.BL.Service.License
                 }
                 catch
                 {
+                    // có lỗi thì rollback
                     await _unitOfWork.RollbackAsync();
                     throw;
                 }
             }
         }
 
+        /// <summary>
+        /// xóa nhiều bản ghi
+        /// </summary>
+        /// <param name="listId">danh sách id cần xóa</param>
+        /// <returns></returns>
         public override async Task DeleteListAsync(IEnumerable<Guid> listId)
         {
+            // validate delete
             await _licenseDomainService.DeleteListValidateAsync(listId);
 
+            // tạo chuỗi id từ list id
             var stringIds = string.Join(",", listId);
 
             using (var transaction = await _unitOfWork.GetTransactionAsync())
             {
                 try
                 {
+                    // xóa budget detail liên quan đến danh sách license
                     await _budgetDetailRepository.DeleteListByListLicenseId(stringIds);
+                    // xóa danh sách license
                     await _licenseRepository.DeleteListAsync(stringIds);
                     await transaction.CommitAsync();
                 }
                 catch
                 {
+                    // nếu có lỗi thì rollback
                     await _unitOfWork.RollbackAsync();
                     throw;
                 }
@@ -202,20 +236,31 @@ namespace Misa.Web202303.QLTS.BL.Service.License
             return AssetName.License;
         }
 
+        /// <summary>
+        /// cập nhật chứng từ
+        /// created by: NQ Huy(27/06/2023)
+        /// </summary>
+        /// <param name="cuLicense">đối tượng cuLicense chứa data từ client</param>
+        /// <returns></returns>
         public async Task UpdateModelAsync(Guid licenseId, CULicense cuLicense)
         {
+            // lấy dữ liệu license từ request (không kể các detail)
             var licenseUpdateDto = _mapper.Map<LicenseUpdateDto>(cuLicense.license);
 
-            var listLicenseDetailInsert = cuLicense.list_fixed_asset.Where(item => item.license_detail_id == null).Select(item => new LicenseDetailCreateDto()
-            {
-                license_id = licenseId,
-                fixed_asset_id = item.fixed_asset_id,
-            });
+            // lấy danh sách license_detail cần insert
+            var listLicenseDetailInsert = cuLicense.list_fixed_asset.Where(item =>
+            // nếu là insert thì không có license_detail_id
+            item.license_detail_id == null)
+                .Select(item => new LicenseDetailCreateDto()
+                {
+                    license_id = licenseId,
+                    fixed_asset_id = item.fixed_asset_id,
+                });
 
+            // danh sách budget_detail insert
             var listBudgetDetailInsert = new List<BudgetDetailCreateDto>();
+            // danh sách budget_detail update
             var listBudgetDetailUpdate = new List<BudgetDetailUpdateDto>();
-
-
 
             foreach (var fa in cuLicense.list_fixed_asset)
             {
@@ -223,13 +268,15 @@ namespace Misa.Web202303.QLTS.BL.Service.License
                 {
                     foreach (var bd in fa.budgets)
                     {
+                        // nếu không có budget_detail_id, add vào list insert
                         if (bd.budget_detail_id == null)
                         {
                             var dto = _mapper.Map<BudgetDetailCreateDto>(bd);
                             dto.fixed_asset_id = fa.fixed_asset_id;
                             listBudgetDetailInsert.Add(dto);
                         }
-                        else if(bd.is_changed == true)
+                        // nếu như trường is_changed là true và đã có budget_detail_id thì add vào list update
+                        else if (bd.is_changed == true)
                         {
                             var dto = _mapper.Map<BudgetDetailUpdateDto>(bd);
                             dto.fixed_asset_id = fa.fixed_asset_id;
@@ -239,22 +286,31 @@ namespace Misa.Web202303.QLTS.BL.Service.License
                 }
             }
 
+            // list license_detail delete
             var listIdLicenseDetailDelete = cuLicense.list_fixed_asset_id_delete;
 
+            // list budget_detail_delete
             var listIdBudgetDetailDelete = cuLicense.list_budget_detail_id_delete;
 
+            // tạo LicenseEntity từ dto
             var licenseEntity = _mapper.Map<LicenseEntity>(licenseUpdateDto);
 
+            // tạo list LicenseDetailEntity từ dto
             var listLicenseDetailEntity = listLicenseDetailInsert.Select(item => _mapper.Map<LicenseDetailEntity>(item));
 
+            // tạo list BudgetDetailEntity insert từ dto
             var listBudgetDetailEntity = listBudgetDetailInsert.Select(item => _mapper.Map<BudgetDetailEntity>(item));
 
+            // tạo list BudgetDetailEntity update từ dto
             var listBudgetDetailEntityUpdate = listBudgetDetailUpdate.Select(item => _mapper.Map<BudgetDetailEntity>(item));
 
+            // validate của xóa budget_detail
             await _budgetDetailDomainService.DeleteListValidateAsync(licenseId, listIdBudgetDetailDelete);
 
+            // validate của xóa license_detail
             await _licenseDetailDomainService.DeleteListValidateAsync(licenseId, listIdLicenseDetailDelete);
 
+            // validate của update license
             await _licenseDomainService.UpdateValidateAsync(licenseId, licenseUpdateDto);
 
 
@@ -262,28 +318,35 @@ namespace Misa.Web202303.QLTS.BL.Service.License
             {
                 try
                 {
+                    // xóa budget_detail
                     await _budgetDetailRepository.DeleteListAsync(string.Join(",", listIdBudgetDetailDelete));
 
+                    // xóa budget_detail liên quan đến license_detail khi xóa license_detail
                     await _budgetDetailRepository.DeleteByListLicenseDetailId(string.Join(",", listIdLicenseDetailDelete));
 
+                    // xóa license_detail
                     await _licenseDetailRepository.DeleteListAsync(string.Join(",", listIdLicenseDetailDelete));
 
+                    // update license
                     await _licenseRepository.UpdateAsync(licenseId, licenseEntity);
 
-
+                    // insert license_detail
                     if (listLicenseDetailEntity.Count() > 0)
                     {
                         await _licenseDetailDomainService.CreateListValidateAsync(listLicenseDetailInsert);
                         await _licenseDetailRepository.InsertListAsync(listLicenseDetailEntity);
                     }
 
+                    // update budget_detail
                     if (listBudgetDetailEntityUpdate.Count() > 0)
                     {
                         await _budgetDetailDomainService.UpdateListValidateAsync(listBudgetDetailUpdate);
                         await _budgetDetailRepository.UpdateListAsync(listBudgetDetailEntityUpdate);
                     }
 
-                    if (listBudgetDetailEntity.Count() > 0){
+                    // insert budget_detail
+                    if (listBudgetDetailEntity.Count() > 0)
+                    {
                         await _budgetDetailDomainService.CreateListValidateAsync(listBudgetDetailInsert);
                         await _budgetDetailRepository.InsertListAsync(listBudgetDetailEntity);
                     }
@@ -293,6 +356,7 @@ namespace Misa.Web202303.QLTS.BL.Service.License
                 }
                 catch (Exception ex)
                 {
+                    // nếu có lỗi thì rollback
                     await _unitOfWork.RollbackAsync();
                     throw ex;
                 }

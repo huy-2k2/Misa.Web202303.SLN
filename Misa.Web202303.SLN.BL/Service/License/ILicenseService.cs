@@ -27,8 +27,20 @@ namespace Misa.Web202303.QLTS.BL.Service.License
         /// <returns>mã code gợi ý</returns>
         Task<string> GetRecommendAsync();
 
+        /// <summary>
+        /// thêm mới chứng từ
+        /// created by: NQ Huy(27/06/2023)
+        /// </summary>
+        /// <param name="cuLicense">đối tượng cuLicense chứa data từ client</param>
+        /// <returns></returns>
         Task InsertModelAsync(CULicense cuLicense);
 
+        /// <summary>
+        /// cập nhật chứng từ
+        /// created by: NQ Huy(27/06/2023)
+        /// </summary>
+        /// <param name="cuLicense">đối tượng cuLicense chứa data từ client</param>
+        /// <returns></returns>
         Task UpdateModelAsync(Guid licenseId, CULicense cuLicense);
 
     }

@@ -18,11 +18,11 @@ namespace Misa.Web202303.QLTS.BL.ValidateDto.Decorators
     public class RequiredDecorator : BaseDecorator
     {
 
-        /// <summary>
-        /// hàm thực hiện logic validate
-        /// created by: nqhuy(21/05/2023)
-        /// </summary>
-        /// <exception cref="ValidateException"></exception>
+      /// <summary>
+      /// hàm thực hiện logic validate
+      /// created by: NQ Huy(07/05/2023)
+      /// </summary>
+      /// <returns>trả về lỗi nếu validate sai</returns>
         protected override ValidateError? Handle()
         {
             if (PropValue == null || string.IsNullOrEmpty(PropValue))

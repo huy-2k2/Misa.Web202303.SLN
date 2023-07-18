@@ -23,9 +23,10 @@ namespace Misa.Web202303.QLTS.BL.ValidateDto.Attributes
 
         /// <summary>
         /// hàm khởi tạo
+        /// created by: NQ Huy (21/05/2023)
         /// </summary>
-        /// <param name="min"></param>
-        /// <param name="max"></param>
+        /// <param name="min">độ dài nhỏ nhất</param>
+        /// <param name="max">độ dài lớn nhất</param>
         public Length(int min, int max)
         {
             Max = max;

@@ -10,10 +10,19 @@ namespace Misa.Web202303.QLTS.BL.Service.BudgetDetail
 {
     public class BudgetDetailCreateDto
     {
+        /// <summary>
+        /// khóa ngoại, đến fixed asset
+        /// </summary>
         public Guid fixed_asset_id { get; set; }
 
+        /// <summary>
+        /// khóa ngoại đến budget
+        /// </summary>
         public Guid budget_id { get; set; }
 
+        /// <summary>
+        /// giá trị nguồn ngân sách
+        /// </summary>
         [Higher(0), NameAttribute(FieldName.BudgetValue)]
         public double budget_value { get; set; }    
     }

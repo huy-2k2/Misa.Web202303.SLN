@@ -117,13 +117,28 @@ public static class FieldName
     /// </summary>
     public const string Password = "mật khẩu";
 
+    /// <summary>
+    /// nguồn ngân sách
+    /// </summary>
     public const string Budget = "nguồn ngân sách";
 
+    /// <summary>
+    /// tài sản
+    /// </summary>
     public const string FixedAsset = "tài sản";
 
+    /// <summary>
+    /// chứng từ
+    /// </summary>
     public const string License = "Chứng từ";
 
+    /// <summary>
+    /// mã chứng từ
+    /// </summary>
     public const string LicenseCode = "Mã chứng từ";
 
+    /// <summary>
+    /// giá trị ngân sách
+    /// </summary>
     public const string BudgetValue = "Giá trị ngân sách";
 }

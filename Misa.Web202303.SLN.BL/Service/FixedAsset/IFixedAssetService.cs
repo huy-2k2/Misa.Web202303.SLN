@@ -55,6 +55,11 @@ namespace Misa.Web202303.QLTS.BL.Service.FixedAsset
         /// <returns>danh sách tài sản chưa có chứng từ thỏa mã điều kiện Filter</returns>
         public Task<FilterListFixedAsset> GetFilterNotHasLicenseAsync(FilterFixedAssetNoLicense filterFixedAssetNoLicense);
 
+        /// <summary>
+        /// lấy danh sách tài sản thuộc một chứng từ cho trước
+        /// </summary>
+        /// <param name="licenseId">id chứng từ</param>
+        /// <returns>danh sách tài sản thỏa mã điều kiện</returns>
         public Task<IEnumerable<FixedAssetModel>> GetListByLicenseIdAsync(Guid licenseId);
     }
 }

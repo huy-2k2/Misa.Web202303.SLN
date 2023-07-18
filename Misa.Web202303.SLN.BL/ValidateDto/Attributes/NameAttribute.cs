@@ -18,8 +18,9 @@ namespace Misa.Web202303.QLTS.BL.ValidateDto.Attributes
 
         /// <summary>
         /// hàm khởi tạo
+        /// created by: nqhuy(21/05/2023)
         /// </summary>
-        /// <param name="name"></param>
+        /// <param name="name">tên của property</param>
         public NameAttribute(string name)
         {
             Name = name;

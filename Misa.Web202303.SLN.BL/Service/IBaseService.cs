@@ -20,7 +20,7 @@ namespace Misa.Web202303.QLTS.BL.Service
         /// created by: nqhuy(21/05/2023)
         /// </summary>
         /// <param name="id">id tài nguyên cần lấy</param>
-        /// <returns></returns>
+        /// <returns>bản ghi có id là id đã cho</returns>
         Task<TEntityDto> GetAsync(Guid id);
 
         /// <summary>

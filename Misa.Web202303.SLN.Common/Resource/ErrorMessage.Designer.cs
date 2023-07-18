@@ -187,15 +187,6 @@ namespace Misa.Web202303.QLTS.Common.Resource {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Tài sản có mã &lt;strong&gt;{0}&lt;/strong&gt; đã phát sinh chứng từ ghi tăng có mã &lt;strong&gt; {1}&lt;/strong&gt;.
-        /// </summary>
-        public static string FixedAssetDeleteDetail {
-            get {
-                return ResourceManager.GetString("FixedAssetDeleteDetail", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Giá trị {0} phải lớn hơn {1}.
         /// </summary>
         public static string HigherError {
@@ -228,15 +219,6 @@ namespace Misa.Web202303.QLTS.Common.Resource {
         public static string LengthError {
             get {
                 return ResourceManager.GetString("LengthError", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to &lt;strong&gt;{0}&lt;/strong&gt; tài sản đã có chứng từ phát sinh.
-        /// </summary>
-        public static string ListFixedAssetDeleteDetail {
-            get {
-                return ResourceManager.GetString("ListFixedAssetDeleteDetail", resourceCulture);
             }
         }
         

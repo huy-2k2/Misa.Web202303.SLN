@@ -14,6 +14,14 @@ namespace Misa.Web202303.QLTS.BL.Service.BudgetDetail
     public class BudgetDetailService : BaseService<BudgetDetailEntity, BudgetDetailDto, BudgetDetailUpdateDto, BudgetDetailCreateDto>, IBudgetDetailService
     {
         private readonly IBudgetDetailRepository _budgetDetailRepository;
+
+        /// <summary>
+        /// hàm khởi tạo
+        /// created by: NQ Huy(10/07/2023)
+        /// </summary>
+        /// <param name="budgetDetailRepository">budgetDetailRepository</param>
+        /// <param name="unitOfWork">unitOfWork</param>
+        /// <param name="mapper">mapper</param>
         public BudgetDetailService(IBudgetDetailRepository budgetDetailRepository, IUnitOfWork unitOfWork, IMapper mapper) : base(budgetDetailRepository, unitOfWork, mapper)
         {
             _budgetDetailRepository = budgetDetailRepository;

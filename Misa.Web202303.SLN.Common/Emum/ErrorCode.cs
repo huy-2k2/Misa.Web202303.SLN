@@ -57,8 +57,14 @@ namespace Misa.Web202303.QLTS.Common.Emum
         /// </summary>
         InvalidToken = 8,
 
+        /// <summary>
+        /// lỗi khi xóa, trong đó 1 bản ghi là detail
+        /// </summary>
         DeleteDetail = 9,
 
+        /// <summary>
+        /// lỗi khi xóa, trong đó có nhiều bản ghi là detail
+        /// </summary>
         DeleteDetailMulti = 10
 
     }
