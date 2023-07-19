@@ -108,7 +108,7 @@ namespace Misa.Web202303.QLTS.BL.DomainService.LicenseDetail
             {
                 throw new ValidateException()
                 {
-                    UserMessage = ErrorMessage.ValidateCreateError,
+                    UserMessage = ErrorMessage.DataError,
                     Data = listError
                 };
             }

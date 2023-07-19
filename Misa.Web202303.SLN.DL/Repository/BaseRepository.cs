@@ -180,7 +180,7 @@ namespace Misa.Web202303.QLTS.DL.Repository
         /// </summary>
         /// <param name="code">mã code</param>
         /// <param name="id">id (là rỗng trong trường  thêm mới)</param>
-        /// <returns>false nếu tài nguyên không tồn tạhợpi, true nếu tồn tại</returns>
+        /// <returns>false nếu tài nguyên không tồn tai, true nếu tồn tại</returns>
         public virtual async Task<bool> CheckCodeExistedAsync(string code, Guid? id)
         {
             var tableName = this.GetTableName();

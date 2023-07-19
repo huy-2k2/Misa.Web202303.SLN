@@ -237,16 +237,8 @@
     <value>Ngày mua không được nhỏ hơn ngày sử dụng</value>
     <comment>ngày mua không được nhỏ hơn ngày sử dụng</comment>
   </data>
-  <data name="ValidateCreateError" xml:space="preserve">
-    <value>Dữ liệu thêm mới không hợp lệ</value>
-    <comment>dữ liệu thêm mới không hợp lệ</comment>
-  </data>
   <data name="ValidateFilterError" xml:space="preserve">
     <value>Dữ liệu lọc không hợp lệ</value>
     <comment>dữ liệu lọc không hợp lệ</comment>
-  </data>
-  <data name="ValidateUpdateError" xml:space="preserve">
-    <value>Dữ liệu cập nhật không hợp lệ</value>
-    <comment>dữ liệu cập nhật không hợp lệ</comment>
   </data>
 </root>

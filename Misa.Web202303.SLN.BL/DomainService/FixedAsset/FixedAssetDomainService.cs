@@ -110,7 +110,7 @@ namespace Misa.Web202303.QLTS.BL.DomainService.FixedAsset
                 throw new ValidateException()
                 {
                     Data = listError,
-                    UserMessage = ErrorMessage.ValidateCreateError
+                    UserMessage = ErrorMessage.DataError
 
                 };
             }
@@ -162,7 +162,7 @@ namespace Misa.Web202303.QLTS.BL.DomainService.FixedAsset
                 throw new ValidateException()
                 {
                     Data = listError,
-                    UserMessage = ErrorMessage.ValidateUpdateError
+                    UserMessage = ErrorMessage.DataError
 
                 };
             }

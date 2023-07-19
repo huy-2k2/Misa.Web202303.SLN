@@ -117,7 +117,7 @@ namespace Misa.Web202303.QLTS.BL.DomainService.BudgetDetail
             {
                 throw new ValidateException()
                 {
-                    UserMessage = ErrorMessage.ValidateCreateError,
+                    UserMessage = ErrorMessage.DataError,
                     Data = listError
                 };
             }
@@ -242,7 +242,7 @@ namespace Misa.Web202303.QLTS.BL.DomainService.BudgetDetail
             {
                 throw new ValidateException()
                 {
-                    UserMessage = ErrorMessage.ValidateUpdateError,
+                    UserMessage = ErrorMessage.DataError,
                     Data = listError
                 };
             }

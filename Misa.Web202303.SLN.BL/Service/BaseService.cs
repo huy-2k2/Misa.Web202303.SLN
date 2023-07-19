@@ -128,7 +128,7 @@ namespace Misa.Web202303.QLTS.BL.Service
                 throw new ValidateException()
                 {
                     Data = attributeErrors,
-                    UserMessage = ErrorMessage.ValidateCreateError
+                    UserMessage = ErrorMessage.DataError
 
                 };
             }
@@ -172,7 +172,7 @@ namespace Misa.Web202303.QLTS.BL.Service
                 throw new ValidateException()
                 {
                     Data = attributeErrors,
-                    UserMessage = ErrorMessage.ValidateUpdateError
+                    UserMessage = ErrorMessage.DataError
                 };
             }
             // validate riêng

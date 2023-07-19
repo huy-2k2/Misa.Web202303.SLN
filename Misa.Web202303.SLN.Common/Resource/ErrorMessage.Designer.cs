@@ -331,29 +331,11 @@ namespace Misa.Web202303.QLTS.Common.Resource {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Dữ liệu thêm mới không hợp lệ.
-        /// </summary>
-        public static string ValidateCreateError {
-            get {
-                return ResourceManager.GetString("ValidateCreateError", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Dữ liệu lọc không hợp lệ.
         /// </summary>
         public static string ValidateFilterError {
             get {
                 return ResourceManager.GetString("ValidateFilterError", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Dữ liệu cập nhật không hợp lệ.
-        /// </summary>
-        public static string ValidateUpdateError {
-            get {
-                return ResourceManager.GetString("ValidateUpdateError", resourceCulture);
             }
         }
     }
