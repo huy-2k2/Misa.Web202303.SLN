@@ -22,6 +22,9 @@ namespace Misa.Web202303.QLTS.API.Controllers
     public abstract class BaseController<TEntityDto, TEntityUpdateDto, TEntityCreateDto> : ControllerBase
     {
         #region
+        /// <summary>
+        /// balise service 
+        /// </summary>
         protected readonly IBaseService<TEntityDto, TEntityUpdateDto, TEntityCreateDto> _baseService;
         #endregion
 

@@ -32,7 +32,14 @@ namespace Misa.Web202303.QLTS.BL.Service.FixedAssetCategory
     public class FixedAssetCategoryService : BaseService<FixedAssetCategoryEntity, FixedAssetCategoryDto, FixedAssetCategoryUpdateDto, FixedAssetCategoryCreateDto>, IFixedAssetCategoryService
     {
         #region
+        /// <summary>
+        /// dùng cho việc nhập khẩu dữ liệu
+        /// </summary>
         private readonly IFixedAssetCategoryImportService _fixedAssetCategoryImportService;
+        
+        /// <summary>
+        /// dùng để validate
+        /// </summary>
         private readonly IFixedAssetCategoryDomainService _fixedAssetCategoryDomainService;
         #endregion
 

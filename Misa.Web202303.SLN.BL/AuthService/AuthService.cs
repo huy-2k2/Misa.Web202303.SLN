@@ -41,24 +41,25 @@ namespace Misa.Web202303.QLTS.BL.AuthService
         private readonly IJwtService _jwt;
         #endregion
 
-        private readonly IDepartmentRepository _departmentRepository;
-
+        /// <summary>
+        /// dùng để tạo connection và transaction
+        /// </summary>
         private readonly IUnitOfWork _unitOfWork;
 
         #region
         /// <summary>
         /// hàm khởi tạo
-        /// created by: nq Huy (20/06/2023)
+        /// created by: NQ Huy(27/06/2023)
         /// </summary>
-        /// <param name="authRepository">authRepository</param>
-        /// <param name="mapper">mapper</param>
-        /// <param name="configuration">configuration</param>
-        public AuthService(IAuthRepository authRepository, IMapper mapper, IJwtService jwt, IDepartmentRepository departmentRepository, IUnitOfWork unitOfWork)
+        /// <param name="authRepository"></param>
+        /// <param name="mapper"></param>
+        /// <param name="jwt"></param>
+        /// <param name="unitOfWork"></param>
+        public AuthService(IAuthRepository authRepository, IMapper mapper, IJwtService jwt, IUnitOfWork unitOfWork)
         {
             _authRepository = authRepository;
             _mapper = mapper;
             _jwt = jwt;
-            _departmentRepository = departmentRepository;
             _unitOfWork = unitOfWork;
         }
 

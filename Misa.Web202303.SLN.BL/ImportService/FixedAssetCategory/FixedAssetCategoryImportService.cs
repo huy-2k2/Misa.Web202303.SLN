@@ -26,6 +26,10 @@ namespace Misa.Web202303.QLTS.BL.ImportService.FixedAssetCategory
         /// sử dụng để map từ import dto sang entity
         /// </summary>
         private readonly IMapper _mapper;
+
+        /// <summary>
+        /// dùng để validate
+        /// </summary>
         private readonly IFixedAssetCategoryDomainService _fixedAssetCategoryDomainService;
         #endregion
 

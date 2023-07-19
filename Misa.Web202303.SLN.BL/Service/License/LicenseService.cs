@@ -31,19 +31,39 @@ namespace Misa.Web202303.QLTS.BL.Service.License
 {
     public class LicenseService : BaseService<LicenseEntity, LicenseDto, LicenseUpdateDto, LicenseCreateDto>, ILicenseService
     {
-
+        /// <summary>
+        /// dùng để gọi repo của license
+        /// </summary>
         private readonly ILicenseRepository _licenseRepository;
 
+        /// <summary>
+        /// dùng để tạo mã code gợi ý
+        /// </summary>
         private readonly IRecommendCodeService _recommendCodeService;
 
+        /// <summary>
+        /// dùng để validate cho license
+        /// </summary>
         private readonly ILicenseDomainService _licenseDomainService;
 
+        /// <summary>
+        /// dùng để validate cho license detail
+        /// </summary>
         private readonly ILicenseDetailDomainService _licenseDetailDomainService;
 
+        /// <summary>
+        /// dùng để valdiate cho budget detail
+        /// </summary>
         private readonly IBudgetDetailDomainService _budgetDetailDomainService;
 
+        /// <summary>
+        /// dùng để gọi repo license detail
+        /// </summary>
         private readonly ILicenseDetailRepository _licenseDetailRepository;
 
+        /// <summary>
+        /// dùng để gọi repo budget detail
+        /// </summary>
         private readonly IBudgetDetailRepository _budgetDetailRepository;
 
 

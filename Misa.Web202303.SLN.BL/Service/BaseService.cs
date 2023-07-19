@@ -40,8 +40,14 @@ namespace Misa.Web202303.QLTS.BL.Service
         /// </summary>
         protected readonly IBaseRepository<TEntity> _baseRepository;
 
+        /// <summary>
+        /// _mapper để  map các đối tượng
+        /// </summary>
         protected readonly IMapper _mapper;
-
+            
+        /// <summary>
+        /// lấy ra connection và transaction
+        /// </summary>
         protected readonly IUnitOfWork _unitOfWork;
 
         #endregion

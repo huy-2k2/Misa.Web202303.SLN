@@ -7,6 +7,9 @@ namespace Misa.Web202303.QLTS.API.Controllers
 {
     public class BudgetController : BaseController<BudgetDto, BudgetUpdateDto, BudgetCreateDto>
     {
+        /// <summary>
+        /// dùng để gọi service budget
+        /// </summary>
         private readonly IBudgetService _budgetService;
 
         /// <summary>

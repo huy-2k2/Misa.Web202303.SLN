@@ -30,8 +30,14 @@ namespace Misa.Web202303.QLTS.BL.Service.Department
     public class DepartmentService : BaseService<DepartmentEntity, DepartmentDto, DepartmentUpdateDto, DepartmentCreateDto>, IDepartmentService
     {
         #region
+        /// <summary>
+        /// dùng để nhập khẩu dữ liệu
+        /// </summary>
         private readonly IDepartmentImportService _departmentImportService;
 
+        /// <summary>
+        /// dùng để validate
+        /// </summary>
         private readonly IDepartmentDomainService _departmentDomainService;
         #endregion
 

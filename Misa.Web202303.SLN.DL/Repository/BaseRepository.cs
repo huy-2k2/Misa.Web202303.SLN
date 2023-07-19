@@ -23,11 +23,18 @@ namespace Misa.Web202303.QLTS.DL.Repository
     public abstract class BaseRepository<TEntity> : IBaseRepository<TEntity>
     {
         #region
+        /// <summary>
+        /// unit of work lấy connection và transaction
+        /// </summary>
         protected readonly IUnitOfWork _unitOfWork;
         #endregion
 
         #region
-
+        /// <summary>
+        /// hàm khởi tạo
+        /// Created by: NQ Huy(20/05/2023)
+        /// </summary>
+        /// <param name="unitOfWork">unitOfWork</param>
         public BaseRepository(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;

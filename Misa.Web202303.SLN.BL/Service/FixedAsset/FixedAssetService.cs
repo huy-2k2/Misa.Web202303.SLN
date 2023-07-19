@@ -71,11 +71,12 @@ namespace Misa.Web202303.QLTS.BL.Service.FixedAsset
         /// </summary>
         private readonly IRecommendCodeService _recommendCodeService;
 
+        /// <summary>
+        /// dùng validate
+        /// </summary>
         private readonly IFixedAssetDomainService _fixedAssetDomainService;
 
-        private readonly ILicenseDetailRepository _licenseDetailRepository;
-
-        private readonly ILicenseRepository _licenseRepository;
+      
 
         #endregion
 
@@ -94,7 +95,7 @@ namespace Misa.Web202303.QLTS.BL.Service.FixedAsset
         /// <param name="recommendCodeService">recommendCodeService</param>
         /// <param name="unitOfWork">unitOfWork</param>
         /// 
-        public FixedAssetService(ILicenseRepository licenseRepository, ILicenseDetailRepository licenseDetailRepository, IFixedAssetRepository fixedAssetRepository, IUnitOfWork unitOfWork, IMapper mapper, IDepartmentRepository departmentRepository, IFixedAssetCategoryRepository fixedAssetCategoryRepository, IFixedAssetImportService fixedAssetImportService, IRecommendCodeService recommendCodeService, IFixedAssetDomainService fixedAssetDomainServicecs) : base(fixedAssetRepository, unitOfWork, mapper)
+        public FixedAssetService(IFixedAssetRepository fixedAssetRepository, IUnitOfWork unitOfWork, IMapper mapper, IDepartmentRepository departmentRepository, IFixedAssetCategoryRepository fixedAssetCategoryRepository, IFixedAssetImportService fixedAssetImportService, IRecommendCodeService recommendCodeService, IFixedAssetDomainService fixedAssetDomainServicecs) : base(fixedAssetRepository, unitOfWork, mapper)
         {
             _fixedAssetRepository = fixedAssetRepository;
             _departmentRepository = departmentRepository;
@@ -102,8 +103,6 @@ namespace Misa.Web202303.QLTS.BL.Service.FixedAsset
             _fixedAssetImportService = fixedAssetImportService;
             _recommendCodeService = recommendCodeService;
             _fixedAssetDomainService = fixedAssetDomainServicecs;
-            _licenseDetailRepository = licenseDetailRepository;
-            _licenseRepository = licenseRepository;
         }
         #endregion
 
@@ -268,53 +267,15 @@ namespace Misa.Web202303.QLTS.BL.Service.FixedAsset
         /// <exception cref="ValidateException">lỗi khi tài sản đã phát sinh chứng từ</exception>
         public override async Task DeleteListAsync(IEnumerable<Guid> listId)
         {
-            // nối list id lại thành string
-            var stringIds = string.Join(",", listId);
+            await _fixedAssetDomainService.DeleteListValidateAsync(listId);
 
-            // lấy các tài sản đã phát sinh chứng từ ghi tăng
-            var listExisted = await _licenseDetailRepository.GetListFAExistedAsync(stringIds);
-
-            // lấy ra id của danh sách tài sản đã phát sinh chứng từ ghi tăng
-            var listFaIdExisted = listExisted.Select(item => item.fixed_asset_id);
-
-            if (listFaIdExisted.Count() > 0)
-            {
-                // throw ra lỗi khi có 1 tài sản phát sinh
-                if (listFaIdExisted.Count() == 1)
-                {
-                    var fixedAsset = await _fixedAssetRepository.GetAsync(listId.First());
-                    var license = await _licenseRepository.GetAsync(listExisted.First().license_id);
-                    throw new ValidateException()
-                    {
-                        Data = new
-                        {
-                            fixedAsset =  fixedAsset,
-                            license = license
-                        },
-                        ErrorCode = ErrorCode.DeleteDetail,
-                        UserMessage = ErrorMessage.DataError,
-                    };
-                }
-                // throw ra lỗi khi có nhiều tài sản phát sinh
-                else
-                {
-                    throw new ValidateException()
-                    {
-                        Data = listFaIdExisted,
-                        ErrorCode = ErrorCode.DeleteDetailMulti,
-                        UserMessage = ErrorMessage.DataError,
-                    };
-
-                }
-               
-            }
 
             using (var transaction = await _unitOfWork.GetTransactionAsync())
             {
                 try
                 {
                     // xóa list tài sản
-                    await _fixedAssetRepository.DeleteListAsync(stringIds);
+                    await _fixedAssetRepository.DeleteListAsync(string.Join(",", listId));
                     await _unitOfWork.CommitAsync();
 
                 }

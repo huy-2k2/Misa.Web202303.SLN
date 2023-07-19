@@ -13,21 +13,39 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using DepartmentEntity = Misa.Web202303.QLTS.DL.Entity.Department;
 
 namespace Misa.Web202303.QLTS.BL.DomainService.Department
 {
     public class DepartmentDomainService : IDepartmentDomainService
     {
+        /// <summary>
+        /// repo để gọi department
+        /// </summary>
         private readonly IDepartmentRepository _departmentRepository;
+
+        /// <summary>
+        /// hàm khởi tạo
+        /// created by: NQ Huy (05/06/2023)
+        /// </summary>
+        /// <param name="departmentRepository">departmentRepository</param>
         public DepartmentDomainService(IDepartmentRepository departmentRepository)
         {
             _departmentRepository = departmentRepository;
         }
 
+
+
+        /// <summary>
+        /// validate khi thêm mới 
+        /// created by: NQ Huy (05/06/2023)
+        /// </summary>
+        /// <param name="departmentCreateDto">đối tượng DepartmentCreateDto</param>
+        /// <returns></returns>
+        /// <exception cref="ValidateException">throw exception khi gặp lỗi</exception>
         public async Task CreateValidateAsync(DepartmentCreateDto departmentCreateDto)
         {
             var listError = new List<ValidateError>();
+            // kiểm tra mã trùng
             var isCodeExisted = await _departmentRepository.CheckCodeExistedAsync(departmentCreateDto.department_code, null);
             if (isCodeExisted)
             {
@@ -37,6 +55,7 @@ namespace Misa.Web202303.QLTS.BL.DomainService.Department
                 });
             }
 
+            // throw exception nếu có lỗi
             if (listError.Count > 0)
             {
                 throw new ValidateException()
@@ -48,9 +67,19 @@ namespace Misa.Web202303.QLTS.BL.DomainService.Department
             }
         }
 
+        /// <summary>
+        /// validate khi update
+        /// created by: NQ Huy (05/06/2023)
+        /// </summary>
+        /// <param name="deparmtentId">id của đối tượng update</param>
+        /// <param name="departmentUpdateDto">đối tượng DepartmentUpdateDto</param>
+        /// <returns></returns>
+        /// <exception cref="ValidateException">throw exception khi gặp lỗi</exception>
         public async Task UpdateValidateAsync(Guid deparmtentId, DepartmentUpdateDto departmentUpdateDto)
         {
             var listError = new List<ValidateError>();
+            
+            // kiểm tra mã trùng
             var isCodeExisted = await _departmentRepository.CheckCodeExistedAsync(departmentUpdateDto.department_code, deparmtentId);
             if (isCodeExisted)
             {
@@ -60,6 +89,7 @@ namespace Misa.Web202303.QLTS.BL.DomainService.Department
                 });
             }
 
+            // kiểm tra xem departemnt id có tồn tại không
             var isExisted = await _departmentRepository.GetAsync(deparmtentId) != null;
             if (!isExisted)
             {
@@ -69,6 +99,7 @@ namespace Misa.Web202303.QLTS.BL.DomainService.Department
                 });
             }
 
+            // throw exception nếu có lỗi
             if (listError.Count > 0)
             {
                 throw new ValidateException()

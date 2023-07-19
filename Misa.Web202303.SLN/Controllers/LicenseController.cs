@@ -8,6 +8,9 @@ namespace Misa.Web202303.QLTS.API.Controllers
 {
     public class LicenseController : BaseController<LicenseDto, LicenseUpdateDto, LicenseCreateDto>
     {
+        /// <summary>
+        /// dùng để gọi service license
+        /// </summary>
         private readonly ILicenseService _licenseService;
 
         /// <summary>

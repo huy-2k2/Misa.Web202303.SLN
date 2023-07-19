@@ -48,6 +48,9 @@ namespace Misa.Web202303.QLTS.BL.ImportService.FixedAsset
         /// </summary>
         private readonly IMapper _mapper;
 
+        /// <summary>
+        /// dùng validate
+        /// </summary>
         private readonly IFixedAssetDomainService _fixedAssetDomainServicecs;
         #endregion
 

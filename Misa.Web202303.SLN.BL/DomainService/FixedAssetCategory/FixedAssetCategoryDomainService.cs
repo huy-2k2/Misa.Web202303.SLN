@@ -20,21 +20,41 @@ namespace Misa.Web202303.QLTS.BL.DomainService.FixedAssetCategory
 {
     public class FixedAssetCategoryDomainService : IFixedAssetCategoryDomainService
     {
+        /// <summary>
+        /// mapper để map giữa các đối tượng
+        /// </summary>
         private readonly IMapper _mapper;
 
+        /// <summary>
+        /// repo gọi table fixed_asset_category
+        /// </summary>
         private readonly IFixedAssetCategoryRepository _fixedAssetCategoryRepository;
+
+        /// <summary>
+        /// hàm khởi tạo
+        /// created by: NQ Huy (10/07/2023)
+        /// </summary>
+        /// <param name="fixedAssetCategoryRepository">interface IFixedAssetCategoryRepository</param>
+        /// <param name="mapper">mapper</param>
         public FixedAssetCategoryDomainService(IFixedAssetCategoryRepository fixedAssetCategoryRepository, IMapper mapper)
         {
             _mapper = mapper;
             _fixedAssetCategoryRepository= fixedAssetCategoryRepository;
         }
 
+        /// <summary>
+        /// hàm validate khi create 
+        /// created by: NQ Huy (08/07/2023)
+        /// </summary>
+        /// <param name="fixedAssetCategoryCreateDto">đối tượng FixedAssetCategoryCreateDto</param>
+        /// <exception cref="ValidateException">throw exception khi có lỗi</exception>
         public async Task CreateValidateAsync(FixedAssetCategoryCreateDto fixedAssetCategoryCreateDto)
         {
-            var tableName = _fixedAssetCategoryRepository.GetTableName();
+            // validate business
             var entity = _mapper.Map<FixedAssetCategoryEntity>(fixedAssetCategoryCreateDto);
             var listError = BusinessValidate(entity);
 
+            // kiểm tra mã trùng
             var isCodeExisted = await _fixedAssetCategoryRepository.CheckCodeExistedAsync(fixedAssetCategoryCreateDto.fixed_asset_category_code, null);
             if(isCodeExisted)
             {
@@ -43,6 +63,8 @@ namespace Misa.Web202303.QLTS.BL.DomainService.FixedAssetCategory
                     Message = string.Format(ErrorMessage.DuplicateCodeError, FieldName.CommonCode),
                 });
             }
+            
+            // có lỗi thì throw exception
             if (listError.Count > 0)
             {
                 throw new ValidateException()
@@ -53,12 +75,20 @@ namespace Misa.Web202303.QLTS.BL.DomainService.FixedAssetCategory
             }
         }
 
+        /// <summary>
+        /// hàm validate khi update fixed asset
+        /// </summary>
+        /// created by: NQ Huy (08/07/2023)
+        /// <param name="id">id của đối tượng update</param>
+        /// <param name="fixedAssetCategoryUpdateDto">đối tượng FixedAssetCategoryUpdateDto</param>
+        /// <exception cref="ValidateException"></exception>
         public async Task UpdateValidateAsync(Guid id, FixedAssetCategoryUpdateDto fixedAssetCategoryUpdateDto)
         {
-            var tableName = _fixedAssetCategoryRepository.GetTableName();
+            // validate business
             var entity = _mapper.Map<FixedAssetCategoryEntity>(fixedAssetCategoryUpdateDto);
             var listError = BusinessValidate(entity);
 
+            // kiểm tra mã trùng
             var isCodeExisted = await _fixedAssetCategoryRepository.CheckCodeExistedAsync(fixedAssetCategoryUpdateDto.fixed_asset_category_code, id);
             if (isCodeExisted)
             {
@@ -68,8 +98,9 @@ namespace Misa.Web202303.QLTS.BL.DomainService.FixedAssetCategory
                 });
             }
 
-            var isFixedAssetExisted = await _fixedAssetCategoryRepository.GetAsync(id) != null;
-            if (!isFixedAssetExisted)
+            // kiểm tra xem id sửa có tồn tại hay không
+            var isFixedAssetCategoryExisted = await _fixedAssetCategoryRepository.GetAsync(id) != null;
+            if (!isFixedAssetCategoryExisted)
             {
                 listError.Add(new ValidateError()
                 {
@@ -77,6 +108,7 @@ namespace Misa.Web202303.QLTS.BL.DomainService.FixedAssetCategory
                 });
             }
 
+            // nếu có lỗi thì throw exception
             if (listError.Count > 0)
             {
                 throw new ValidateException()
@@ -87,6 +119,12 @@ namespace Misa.Web202303.QLTS.BL.DomainService.FixedAssetCategory
             }
         }
 
+        /// <summary>
+        /// hàm validate business
+        /// created by: NQ Huy (08/07/2023)
+        /// </summary>
+        /// <param name="fixedAssetCategory">entity FixedAssetCategory</param>
+        /// <returns>danh sách lỗi</returns>
         public List<ValidateError> BusinessValidate(FixedAssetCategoryEntity fixedAssetCategory)
         {
             var listError = new List<ValidateError>();
@@ -103,7 +141,5 @@ namespace Misa.Web202303.QLTS.BL.DomainService.FixedAssetCategory
             }
             return listError;
         }
-
-       
     }
 }

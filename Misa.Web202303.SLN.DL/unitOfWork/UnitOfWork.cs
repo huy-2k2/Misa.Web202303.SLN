@@ -16,10 +16,19 @@ namespace Misa.Web202303.QLTS.DL.unitOfWork
     public class UnitOfWork : IUnitOfWork
     {
         #region
+        /// <summary>
+        /// connection string để tạo connect đến db
+        /// </summary>
         private string _connectionString;
 
+        /// <summary>
+        /// DbConnection
+        /// </summary>
         private DbConnection _dbConnection;
 
+        /// <summary>
+        /// DbTransaction
+        /// </summary>
         private DbTransaction _dbTransaction;
         #endregion
 

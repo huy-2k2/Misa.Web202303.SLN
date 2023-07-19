@@ -33,6 +33,9 @@ namespace Misa.Web202303.QLTS.BL.ImportService
         /// </summary>
         private readonly IBaseRepository<TEntity> _baseRepository;
 
+        /// <summary>
+        /// dùng để gọi transaction và connection
+        /// </summary>
         protected readonly IUnitOfWork _unitOfWork;
         #endregion
 
