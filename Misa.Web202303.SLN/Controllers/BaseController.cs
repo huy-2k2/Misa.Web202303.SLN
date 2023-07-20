@@ -33,8 +33,8 @@ namespace Misa.Web202303.QLTS.API.Controllers
         /// hàm khởi tạo
         /// created by: nqhuy(21/05/2023)
         /// </summary>
-        /// <param name="baseService"></param>
-       
+        /// <param name="baseService">baseService</param>
+
         public BaseController(IBaseService<TEntityDto, TEntityUpdateDto, TEntityCreateDto> baseService)
         {
             _baseService = baseService;

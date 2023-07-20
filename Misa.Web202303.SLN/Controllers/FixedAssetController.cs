@@ -60,7 +60,7 @@ namespace Misa.Web202303.QLTS.API.Controllers
         /// <param name="departmentId">mã phòng ban</param>
         /// <param name="fixedAssetCategoryId">mã loại tài sản</param>
         /// <param name="textSearch">từ khóa tìm kiếm</param>
-        /// <returns></returns>
+        /// <returns>danh sách tài sản sau khi được filter</returns>
         [HttpGet("Filter")]
         public async Task<IActionResult> GetAsync(int pageSize, int currentPage, Guid? departmentId, Guid? fixedAssetCategoryId, string? textSearch)
         {
@@ -92,7 +92,7 @@ namespace Misa.Web202303.QLTS.API.Controllers
         /// created by: NQ Huy(27/06/2023)
         /// </summary>
         /// <param name="body">dữ liệu phân trang</param>
-        /// <returns>danh sách tài sản</returns>
+        /// <returns>danh sách tài sản sau khi được filter</returns>
         [HttpPost("filterNoLicense")]
         public async Task<IActionResult> GetFilterNotHasLicenseAsync([FromBody] FilterFixedAssetNoLicense body)
         {
@@ -100,6 +100,11 @@ namespace Misa.Web202303.QLTS.API.Controllers
             return Ok(result);
         }
 
+        /// <summary>
+        /// hàm lấy danh sách tài sản của 1 chứng từ
+        /// </summary>
+        /// <param name="licenseId">id của chứng từ</param>
+        /// <returns>danh sách tài sản</returns>
         [HttpGet("listByLicenseId")]
         public async Task<IActionResult> GetListFixedAssetByLicenseId([FromQuery] Guid licenseId)
         {

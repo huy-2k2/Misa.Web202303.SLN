@@ -30,7 +30,7 @@ namespace Misa.Web202303.QLTS.API.Controllers
         /// <param name="pageSize">kích thước page</param>
         /// <param name="currentPage">page hiện tại</param>
         /// <param name="textSearch">từ khóa tìm kiếm</param>
-        /// <returns></returns>
+        /// <returns>danh sách chứng từ sau khi filter</returns>
         
         [HttpGet("Filter")]
         public async Task<IActionResult> GetLicenseModelAync([FromQuery] int pageSize, [FromQuery] int currentPage, [FromQuery] string? textSearch)
@@ -51,6 +51,12 @@ namespace Misa.Web202303.QLTS.API.Controllers
             return Ok(result);
         }
 
+        /// <summary>
+        /// controller thêm chứng từ
+        /// created by : NQ Huy(27/06/2023)
+        /// </summary>
+        /// <param name="cuLicense">đối tượng chứa dữ liệu thêm mới</param>
+        /// <returns></returns>
         [HttpPost("model")]
         public async Task<IActionResult> InsertModelAsync(CULicense cuLicense)
         {
@@ -58,6 +64,12 @@ namespace Misa.Web202303.QLTS.API.Controllers
             return Ok();
         }
 
+        /// <summary>
+        /// sửa chứng từ
+        /// </summary>
+        /// <param name="licenseId">id chứng từ</param>
+        /// <param name="cuLicense">đối tượng chứa chứng từ sửa</param>
+        /// <returns></returns>
         [HttpPut("model/{licenseId}")]
         public async Task<IActionResult> UpdateModelAsync([FromRoute] Guid licenseId, CULicense cuLicense)
         {
